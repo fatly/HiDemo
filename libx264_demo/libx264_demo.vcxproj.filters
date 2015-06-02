@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="libmp4v2_main.cpp">
+    <ClCompile Include="libx264_demo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

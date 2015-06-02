@@ -10,6 +10,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmp4v2_demo", "libmp4v2_d
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmp4v2", "libmp4v2\libmp4v2.vcxproj", "{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libx264_demo", "libx264_demo\libx264_demo.vcxproj", "{B57A7CE7-AEC4-4AAD-82C4-459909D8F653}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libx265_demo", "libx265_demo\libx265_demo.vcxproj", "{650CDF21-D05A-4C9B-B3A0-9C8B5E8E3BFC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -24,6 +28,14 @@ Global
 		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}.Debug|Win32.Build.0 = Debug|Win32
 		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}.Release|Win32.ActiveCfg = Release|Win32
 		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}.Release|Win32.Build.0 = Release|Win32
+		{B57A7CE7-AEC4-4AAD-82C4-459909D8F653}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B57A7CE7-AEC4-4AAD-82C4-459909D8F653}.Debug|Win32.Build.0 = Debug|Win32
+		{B57A7CE7-AEC4-4AAD-82C4-459909D8F653}.Release|Win32.ActiveCfg = Release|Win32
+		{B57A7CE7-AEC4-4AAD-82C4-459909D8F653}.Release|Win32.Build.0 = Release|Win32
+		{650CDF21-D05A-4C9B-B3A0-9C8B5E8E3BFC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{650CDF21-D05A-4C9B-B3A0-9C8B5E8E3BFC}.Debug|Win32.Build.0 = Debug|Win32
+		{650CDF21-D05A-4C9B-B3A0-9C8B5E8E3BFC}.Release|Win32.ActiveCfg = Release|Win32
+		{650CDF21-D05A-4C9B-B3A0-9C8B5E8E3BFC}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

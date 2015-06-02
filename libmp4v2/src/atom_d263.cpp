@@ -71,7 +71,7 @@ void MP4D263Atom::Write()
         uint32_t avgBitrate;
         uint32_t maxBitrate;
 
-        MP4Integer32Property* pProp;
+        MP4Integer32Property* pProp = 0;
         bitrAtom->FindProperty("bitr.avgBitrate",
                                (MP4Property**)&pProp,
                                NULL);
