@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmp4v2_demo", "libmp4v2_demo\libmp4v2_demo.vcxproj", "{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB} = {A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmp4v2", "libmp4v2\libmp4v2.vcxproj", "{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}.Debug|Win32.Build.0 = Debug|Win32
+		{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}.Release|Win32.ActiveCfg = Release|Win32
+		{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}.Release|Win32.Build.0 = Release|Win32
+		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}.Debug|Win32.Build.0 = Debug|Win32
+		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}.Release|Win32.ActiveCfg = Release|Win32
+		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
