@@ -95,6 +95,7 @@ int main(int argc, char* argv[])
 	x265_encoder_headers(h265, &p_nal, &i_nal);
 	for (uint32_t i = 0; i < i_nal; i++)
 	{
+		printf("header nal type -> %d\n", p_nal[i].type);
 		fwrite(p_nal[i].payload, 1, p_nal[i].sizeBytes, fout);
 	}
 
