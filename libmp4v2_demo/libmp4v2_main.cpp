@@ -10,11 +10,6 @@ using namespace std;
 
 typedef unsigned char uchar;
 
-inline bool read(char* buffer, int size, FILE* fp)
-{
-	return fread(buffer, 1, size, fp) == size;
-}
-
 inline int IsStartCode(const char* buffer)
 {
 	if (buffer[0] == 0x00 && buffer[1] == 0x00)

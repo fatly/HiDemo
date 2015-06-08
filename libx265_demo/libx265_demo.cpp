@@ -117,6 +117,7 @@ int main(int argc, char* argv[])
 			result = x265_encoder_encode(h265, &p_nal, &i_nal, &picture, NULL);
 			for (uint32_t i = 0; i < i_nal; i++)
 			{
+				printf("frame nal type -> %d\n", p_nal[i].type);
 				fwrite(p_nal[i].payload, 1, p_nal[i].sizeBytes, fout);
 			}
 		}
@@ -128,6 +129,7 @@ int main(int argc, char* argv[])
 	{
 		for (uint32_t i = 0; i < i_nal; i++)
 		{
+			printf("frame nal type -> %d\n", p_nal[i].type);
 			fwrite(p_nal[i].payload, 1, p_nal[i].sizeBytes, fout);
 		}
 	}
