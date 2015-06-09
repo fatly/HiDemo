@@ -55,13 +55,17 @@ namespace e
 }
 
 //memory diagnosis
-#ifdef _DEBUG
-namespace e{
-	enum MemoryAllocType{
+#if defined(_DEBUG) && defined(CFG_MEMORY_TRACE)
+
+namespace e
+{
+	enum MemoryAllocType
+	{
 		MAT_C,
 		MAT_NEW,
 		MAT_NEWARRAY
 	};
+
 	void  set_debug_memory_break_at_alloc(int _order);
 	void* debug_malloc(size_t sz, const char* file, const int line, MemoryAllocType type);
 	void* debug_realloc(void* p, size_t sz, const char* file, const int line);

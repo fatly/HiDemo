@@ -93,7 +93,7 @@ namespace e
 	}
 }
 	//////////////////////////////////////////////////////////////////////////
-#ifdef _DEBUG
+#if defined(_DEBUG) && defined(CFG_MEMORY_TRACE)
 
 #undef malloc
 #undef realloc
