@@ -780,7 +780,6 @@ namespace DuiLib
         va_end(Args);
 
         return nRet;
-
     }
 
 	int CDuiString::SmallFormat(LPCTSTR pstrFormat, ...)

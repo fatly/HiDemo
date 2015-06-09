@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="config">
+      <UniqueIdentifier>{e8ff7c0f-ec95-4393-afe4-22ecd94512af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{398ac76f-294d-4b82-b967-84c8eb60d698}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="file">
+      <UniqueIdentifier>{8c1cc9f0-5bb7-42bd-b3d7-e824bd913ffd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="T">
+      <UniqueIdentifier>{0025a220-b9bc-41bd-9ec5-86221386720a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="config.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="private.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="Diagnosis.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Defines.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="String.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="public.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="Thread.h">
+      <Filter>core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="private.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="Diagnosis.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="String.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="Thread.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
