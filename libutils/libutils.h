@@ -8,6 +8,12 @@
 #include "Object.h"
 #include "String.h"
 #include "Thread.h"
+#include "Array.h"
+#include "List.h"
+#include "Alllocator.h"
+#include "StringArray.h"
+#include "AutoPtr.h"
+#include "Bitmap.h"
 
 
 #endif

@@ -1,6 +1,7 @@
-#ifndef __E_DIAGNOSIS_H__
-#define __E_DIAGNOSIS_H__
+#ifndef __CORE_DIAGNOSIS_H__
+#define __CORE_DIAGNOSIS_H__
 #include "String.h"
+#include <stdlib.h>
 
 namespace e
 {
@@ -55,7 +56,7 @@ namespace e
 }
 
 //memory diagnosis
-#if defined(_DEBUG) && defined(CFG_MEMORY_TRACE)
+#if defined(_DEBUG)
 
 namespace e
 {
@@ -66,7 +67,7 @@ namespace e
 		MAT_NEWARRAY
 	};
 
-	void  set_debug_memory_break_at_alloc(int _order);
+	void  set_debug_memory_break_at_alloc(int order);
 	void* debug_malloc(size_t sz, const char* file, const int line, MemoryAllocType type);
 	void* debug_realloc(void* p, size_t sz, const char* file, const int line);
 	void* debug_calloc(size_t num, size_t sz, const char* file, const int line);
@@ -74,8 +75,8 @@ namespace e
 	void  debug_change_location(void* p, const char* file, const int line);
 
 #define malloc(sz)		e::debug_malloc((sz), __FILE__, __LINE__, e::MAT_C)
-#define realloc(p, sz)	e::debug_realloc(p, sz, __FILE__, __LINE__)
-#define calloc(sz)		e::debug_calloc((sz), __FILE__, __LINE__)
+#define realloc(p, sz)	e::debug_realloc((p), (sz), __FILE__, __LINE__)
+#define calloc(num, sz)	e::debug_calloc((num), (sz), __FILE__, __LINE__)
 #define free(p)			e::debug_free((p), e::MAT_C)
 }
 	void* operator new(size_t);

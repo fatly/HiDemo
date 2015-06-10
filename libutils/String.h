@@ -1,5 +1,5 @@
-#ifndef __E_STRING_H__
-#define __E_STRING_H__
+#ifndef __CORE_STRING_H__
+#define __CORE_STRING_H__
 
 #include <stdarg.h>
 #include "Defines.h"

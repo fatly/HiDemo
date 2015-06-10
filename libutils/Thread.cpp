@@ -1,9 +1,12 @@
 #include "private.h"
 #include "Thread.h"
+#include "Diagnosis.h"
+
+#undef malloc
+#undef free
 
 namespace e
 {
-
 	Mutex::Mutex(void)
 	{
 		native = malloc(sizeof(CRITICAL_SECTION));

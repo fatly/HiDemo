@@ -2,7 +2,7 @@
 #include "Diagnosis.h"
 #include "String.h"
 #include "Thread.h"
-#include <stdlib.h>
+#include "Treap.h"
 
 namespace e
 {
@@ -93,7 +93,7 @@ namespace e
 	}
 }
 	//////////////////////////////////////////////////////////////////////////
-#if defined(_DEBUG) && defined(CFG_MEMORY_TRACE)
+#if defined(_DEBUG)
 
 #undef malloc
 #undef realloc
@@ -132,6 +132,7 @@ void operator delete[](void* p)
 
 namespace e
 {
+
 #define DEBUG_MEMORY_HEADER_COOKIE 0xABCDABCD
 
 	struct DebugMemoryHeader
@@ -147,6 +148,7 @@ namespace e
 	};
 
 	typedef DebugMemoryHeader* DMHPtr;
+	typedef Treap<DMHPtr> DMHSet;
 
 #define get_debug_memory_body(p) (((char*)(p)) + sizeof(DebugMemoryHeader))
 
@@ -182,14 +184,14 @@ namespace e
 
 		if (file)
 		{
-			DebugWriteLine(String(file) + TEXT("(") + String(line) + TEXT(")"));
+			DebugWrite(String(file) + TEXT("(") + String(line) + TEXT("): "));
 		}
 		else
 		{
-			DebugWriteLine(TEXT("unknown allocated location"));
+			DebugWrite(TEXT("unknown allocated location"));
 		}
 
-		DebugWriteLine(TEXT(" { ") + String(order) + TEXT(" }") + TEXT("(") + String(line) + TEXT(" bytes) \"") + t1 + String("\""));
+		DebugWriteLine(TEXT(" { ") + String(order) + TEXT(" } ") + t + TEXT(" (") + String(size) + TEXT(" bytes) \"") + t1 + String("\""));
 		DebugWriteLine(TEXT(" ") + t2);
 
 		if (extrainfo)
@@ -197,311 +199,6 @@ namespace e
 			DebugWriteLine(TEXT("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-"));
 		}
 	}
-
-	class DMHSet
-	{
-	public:
-		struct Node{
-			Node* parent;
-			Node* left;
-			Node* right;
-			int priority;
-			DMHPtr data;
-		};
-
-		DMHSet(void) : root(0)
-		{
-
-		}
-		~DMHSet(void)
-		{
-			clear();
-		}
-
-		Node* begin(void)
-		{
-			Node* p = root;
-			if (p)
-			{
-				while (p->left)
-				{
-					p = p->left;
-				}
-			}
-			return p;
-		}
-
-		bool empty(void) const
-		{
-			return (root == 0);
-		}
-
-		Node* next(Node* node)
-		{
-			Node* p = node;
-			ASSERT(p);
-
-			if (p->right)
-			{
-				p = p->right;
-				while (p->left)
-				{
-					p = p->left;
-				}
-			}
-			else if (p->parent)
-			{
-				Node* p1 = 0;
-				do 
-				{
-					p1 = p;
-					p = p->parent;
-				} while (p && p->right==p1);
-			}
-			else
-			{
-				p = 0;
-			}
-
-			return p;
-		}
-
-		void insert(DMHPtr & data)
-		{
-			Node* node = (Node*)malloc(sizeof(Node));
-			memset(node, 0, sizeof(Node));
-			node->priority = Random();
-			node->data = data;
-
-			if (root == 0)
-			{
-				root = node;
-				return;
-			}
-
-			Node* p = root;
-
-			while (true)
-			{
-				if (node->data < p->data)
-				{
-					if (p->left)
-					{
-						p = p->left;
-					}
-					else
-					{
-						node->parent = p;
-						p->left = node;
-						break;
-					}
-				}
-				else
-				{
-					if (p->right)
-					{
-						p = p->right;
-					}
-					else
-					{
-						node->parent = p;
-						p->right = node;
-						break;
-					}
-				}
-			}
-
-			adjust(node);
-		}
-
-		void clear(void)
-		{
-			for (auto it = begin(); it != 0; it = erase(it));
-		}
-
-		Node* erase(Node* node)
-		{
-			Node* p = node;
-			while (p->left && p->right)
-			{
-				Node* pp = p->parent;
-				Node* p1 = p->left;
-				Node* p2 = p->right;
-				Node* &pm = (pp) ? (pp->left == p ? pp->left : pp->right) : root;
-
-				if (p->left->priority < p->right->priority)
-				{
-					pm = p2;
-					p2->parent = pp;
-					p->right = p2->left;
-
-					if (p->right)
-					{
-						p->right->parent = p;
-					}
-
-					p2->left = p;
-					p->parent = p2;
-				}
-				else
-				{
-					pm = p1;
-					p1->parent = pp;
-					p->left = p1->right;
-
-					if (p->left)
-					{
-						p->left->parent = p;
-					}
-
-					p1->right = p;
-					p->parent = p1;
-				}
-			}
-
-			{
-				Node* pp = p->parent;
-				Node* &pm = (pp) ? (pp->left == p ? pp->left : pp->right) : root;
-
-				if (p->right)
-				{
-					pm = p->right;
-					p->right->parent = pp;
-					free(p);
-					return pm;
-				}
-				else
-				{
-					pm = p->left;
-					if (p->left)
-					{
-						p->left->parent = pp;
-					}
-
-					free(p);
-					return pp;
-				}
-			}
-		}
-
-		void erase(DMHPtr & data)
-		{
-			auto it = find(data);
-			if (it != 0)
-			{
-				erase(it);
-			}
-		}
-
-		Node* find(DMHPtr & data)
-		{
-			Node* p = root;
-
-			while (p)
-			{
-				if (data == p->data)
-				{
-					return p;
-				}
-
-				if (data < p->data)
-				{
-					p = p->left;
-				}
-				else
-				{
-					p = p->right;
-				}
-			}
-
-			return 0;
-		}
-	private:
-		Node* root;
-
-		static int Random(void)
-		{
-			static uint randomSeed = 1;
-			randomSeed = (randomSeed * 1103515245 + 12345) % 32678;
-			return randomSeed;
-		}
-
-		void adjust(Node* node)
-		{
-			Node* p = node;
-			while (p->parent)
-			{
-				if (p->parent->priority < p->priority)
-				{
-					//×ó×ÓÊ÷£¬ÓÒÐý
-					if (p->parent->left == p)
-					{
-						p->parent->left = p->right;
-
-						if (p->right)
-						{
-							p->right->parent = p->parent;
-						}
-						p->right = p->parent;
-						p->parent= p->right->parent;
-						p->right->parent = p;
-
-						if (p->parent)
-						{
-							if (p->parent->left == p->right)
-							{
-								p->parent->left = p;
-							}
-							else
-							{
-								p->parent->right = p;
-							}
-						}
-						else
-						{
-							root = p;
-							break;
-						}
-					}
-					else
-					{
-						//ÓÒ×ÓÊ÷£¬×óÐý
-						p->parent->right = p->left;
-
-						if (p->left)
-						{
-							p->left->parent = p->parent;
-						}
-
-						p->left = p->parent;
-						p->parent = p->left->parent;
-						p->left->parent = p;
-
-						if (p->parent)
-						{
-							if (p->parent->right == p->left)
-							{
-								p->parent->right = p;
-							}
-							else
-							{
-								p->parent->left = p;
-							}
-						}
-						else
-						{
-							root = p;
-							break;
-						}
-					}
-				}
-				else
-				{
-					p = p->parent;
-				}
-			}
-		}
-	};
 
 	static Mutex & debug_memory_mutex(void)
 	{
@@ -559,7 +256,7 @@ namespace e
 		g_debug_memory_heap = (DMHSet*)malloc(sizeof(DMHSet));
 		new (g_debug_memory_heap)DMHSet();
 
-		DebugWrite(TEXT("[library] : debug memory pool initialized\n"));
+		DebugWriteLine(TEXT("[library] : debug memory pool initialized"));
 		atexit(&debug_memory_heap_close);
 	}
 
@@ -611,7 +308,7 @@ namespace e
 
 		if (p == 0) return 0;
 
-#ifdef _MSC_VER
+#ifdef _MSC_VER //windows Îª³õÊ¼µÄÖ¸Õë
 		ASSERT(p != (void*)0xcdcdcdcd);
 		ASSERT(p != (void*)0xfeeefeee);
 #endif
@@ -619,7 +316,7 @@ namespace e
 		DMHPtr h = (DMHPtr)(((char*)p) - sizeof(DebugMemoryHeader));
 
 		ASSERT((h)->cookie0 == DEBUG_MEMORY_HEADER_COOKIE);
-		ASSERT(*((uint32*)((char*)(h)+sizeof(DebugMemoryHeader) + (h)->size)) == DEBUG_MEMORY_HEADER_COOKIE);
+		ASSERT(*((uint32*)(((char*)(h)) + sizeof(DebugMemoryHeader) + (h)->size)) == DEBUG_MEMORY_HEADER_COOKIE);
 
 		DMHSet::Node* node = 0;
 		if (g_debug_memory_heap && (node = g_debug_memory_heap->find(h)) != 0)
@@ -648,7 +345,7 @@ namespace e
 		header->order = 0;
 		header->file = file;
 		header->line = line;
-		header->size = sz;
+		header->size = allocBytes;
 		header->type = type;
 		header->cookie0 = DEBUG_MEMORY_HEADER_COOKIE;
 		*((uint32*)(p + sizeof(DebugMemoryHeader) + header->size)) = DEBUG_MEMORY_HEADER_COOKIE;

@@ -1,5 +1,5 @@
-#ifndef __E_THREAD_H__
-#define __E_THREAD_H__
+#ifndef __CORE_THREAD_H__
+#define __CORE_THREAD_H__
 
 namespace e
 {

@@ -33,11 +33,32 @@
     <ClInclude Include="String.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="public.h">
-      <Filter>config</Filter>
-    </ClInclude>
     <ClInclude Include="Thread.h">
       <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Treap.h">
+      <Filter>T</Filter>
+    </ClInclude>
+    <ClInclude Include="AutoPtr.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Alllocator.h">
+      <Filter>T</Filter>
+    </ClInclude>
+    <ClInclude Include="Array.h">
+      <Filter>T</Filter>
+    </ClInclude>
+    <ClInclude Include="List.h">
+      <Filter>T</Filter>
+    </ClInclude>
+    <ClInclude Include="StringArray.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="Bitmap.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="libutils.h">
+      <Filter>config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -51,6 +72,12 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="Thread.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="StringArray.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="Bitmap.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

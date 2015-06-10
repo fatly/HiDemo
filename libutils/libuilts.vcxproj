@@ -11,28 +11,38 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Alllocator.h" />
+    <ClInclude Include="Array.h" />
+    <ClInclude Include="AutoPtr.h" />
+    <ClInclude Include="Bitmap.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Diagnosis.h" />
+    <ClInclude Include="List.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="private.h" />
-    <ClInclude Include="public.h" />
+    <ClInclude Include="libutils.h" />
     <ClInclude Include="String.h" />
+    <ClInclude Include="StringArray.h" />
     <ClInclude Include="Thread.h" />
+    <ClInclude Include="Treap.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="Diagnosis.cpp" />
     <ClCompile Include="private.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="String.cpp" />
+    <ClCompile Include="StringArray.cpp" />
     <ClCompile Include="Thread.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{4491953A-DD9B-4932-9319-A8C3456D8940}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>libuilts</RootNamespace>
+    <ProjectName>libutils</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

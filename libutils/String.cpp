@@ -6,6 +6,11 @@
 #include <string.h>
 #include <locale.h>
 
+#undef malloc
+#undef realloc
+#undef calloc
+#undef free
+
 namespace e
 {
 	static int g_loacale_inited = false;

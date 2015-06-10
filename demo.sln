@@ -23,9 +23,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libdui", "libdui\libdui.vcx
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DE6719FD-6A88-474B-8249-4EEA13ACE252}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuilts", "libuilts\libuilts.vcxproj", "{4491953A-DD9B-4932-9319-A8C3456D8940}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test", "test\test.vcxproj", "{7B0C179F-DD07-4D71-9E92-6841B834D4D6}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libuilts_demo", "libuilts_demo\libuilts_demo.vcxproj", "{26557153-66DE-4025-9ACB-769CD90ADF1C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libutils", "libutils\libuilts.vcxproj", "{4491953A-DD9B-4932-9319-A8C3456D8940}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libutils_demo", "libutils_demo\libuilts_demo.vcxproj", "{26557153-66DE-4025-9ACB-769CD90ADF1C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{4491953A-DD9B-4932-9319-A8C3456D8940} = {4491953A-DD9B-4932-9319-A8C3456D8940}
 	EndProjectSection
@@ -86,6 +88,14 @@ Global
 		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE}.StaticDebug|Win32.Build.0 = StaticDebug|Win32
 		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE}.StaticRelease|Win32.ActiveCfg = StaticRelease|Win32
 		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE}.StaticRelease|Win32.Build.0 = StaticRelease|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.Debug|Win32.Build.0 = Debug|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.Release|Win32.ActiveCfg = Release|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.Release|Win32.Build.0 = Release|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{7B0C179F-DD07-4D71-9E92-6841B834D4D6}.StaticRelease|Win32.Build.0 = Release|Win32
 		{4491953A-DD9B-4932-9319-A8C3456D8940}.Debug|Win32.ActiveCfg = Debug|Win32
 		{4491953A-DD9B-4932-9319-A8C3456D8940}.Debug|Win32.Build.0 = Debug|Win32
 		{4491953A-DD9B-4932-9319-A8C3456D8940}.Release|Win32.ActiveCfg = Release|Win32
