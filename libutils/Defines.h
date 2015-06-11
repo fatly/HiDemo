@@ -11,7 +11,7 @@ namespace
 	typedef unsigned short uint16;
 	typedef unsigned short ushort;
 	typedef unsigned char uchar;
-	typedef unsigned char byte;
+//	typedef unsigned char byte;
 
 	// 定长整型
 #if defined(_WIN64) || defined(__x86_64__)
@@ -88,6 +88,10 @@ namespace
 #define SAFE_DELETE_ARRAY(x) if ((x) != 0){delete[] (x); (x) = 0;}
 #endif
 
+#ifndef SAFE_RELEASE
+#define SAFE_RELEASE(x) if ((x) != 0){(x)->Release(); (x) = 0;}
+#endif
+
 	template<class T> inline void swap(T & l, T & r)
 	{
 		T temp = l;
@@ -101,6 +105,9 @@ namespace
 	{
 		value = max((minValue), min((value), (maxValue)));
 	}
+
+#define VIDEO_WIDTH		640
+#define VIDEO_HEIGHT	480
 
 }
 

@@ -6,7 +6,7 @@
 #include "Defines.h"
 #include "Diagnosis.h"
 #include "Object.h"
-#include "String.h"
+#include "IString.h"
 #include "Thread.h"
 #include "Array.h"
 #include "List.h"

@@ -1,6 +1,6 @@
 #ifndef __CORE_STRINGARRAY_H__
 #define __CORE_STRINGARRAY_H__
-#include "String.h"
+#include "IString.h"
 #include "Array.h"
 
 namespace e

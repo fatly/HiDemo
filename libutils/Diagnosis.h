@@ -1,6 +1,6 @@
 #ifndef __CORE_DIAGNOSIS_H__
 #define __CORE_DIAGNOSIS_H__
-#include "String.h"
+#include "IString.h"
 #include <stdlib.h>
 
 namespace e
@@ -25,7 +25,9 @@ namespace e
 	void DebugWriteLine(const String & msg);
 	void DebugWriteLine(const String & msg, const String & file, const int line);
 
+#ifndef ASSERT
 #	define ASSERT(x) do {if (!(x)){ e::OnAssertFailed("Assert Failed : " #x, __FILE__, __LINE__); DEBUG_BREAK; }} while (0);
+#endif
 //#	define TRACE(x) e::DebugWrite((x), __FILE__, __LINE__)
 //#	define TRACE_LINE(x) e::DebugWriteLine((x), __FILE__, __LINE__)
 #	define TRACE(x) e::DebugWrite(x)

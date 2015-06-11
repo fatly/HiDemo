@@ -1,5 +1,5 @@
 #include "private.h"
-#include "String.h"
+#include "IString.h"
 #include "Diagnosis.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -1502,7 +1502,7 @@ namespace e
 			float f = float(bytes) / float(1024 * 1024);
 			int a = (int)f;
 			int b = (int)(f * 10 + 0.5f) % 10;
-			return String::Format(L"%4d.%1dM", a, b);
+			return String::Format(TEXT("%4d.%1dM"), a, b);
 		}
 		else if (bytes >= 900)
 		{

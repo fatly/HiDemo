@@ -30,9 +30,6 @@
     <ClInclude Include="Defines.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="String.h">
-      <Filter>core</Filter>
-    </ClInclude>
     <ClInclude Include="Thread.h">
       <Filter>core</Filter>
     </ClInclude>
@@ -59,6 +56,9 @@
     </ClInclude>
     <ClInclude Include="libutils.h">
       <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="IString.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

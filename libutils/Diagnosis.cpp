@@ -1,6 +1,5 @@
 #include "private.h"
 #include "Diagnosis.h"
-#include "String.h"
 #include "Thread.h"
 #include "Treap.h"
 

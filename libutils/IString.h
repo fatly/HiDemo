@@ -183,11 +183,11 @@ namespace e
 #		define TEXT(x) L##x
 #	endif
 #else
-#	error Can not compile without UNICODE flag.
-	//typedef StringA String
-	//#	ifndef TEXT
-	//#		define TEXT(x)
-	//#	endif
+//#	error Can not compile without UNICODE flag.
+	typedef StringA String;
+#	ifndef TEXT
+#		define TEXT(x)
+#	endif
 #endif
 
 	String BytesToMKBText(uint _bytes);
