@@ -92,7 +92,7 @@ namespace e
 	}
 }
 	//////////////////////////////////////////////////////////////////////////
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(MEMTRACE)
 
 #undef malloc
 #undef realloc
@@ -449,7 +449,7 @@ namespace e
 			debug_memory_heap_insert(header);
 		}
 	}
+}
 
 #endif //end ifdef _DEBUG
 
-}

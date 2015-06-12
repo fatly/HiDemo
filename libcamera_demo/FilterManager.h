@@ -14,11 +14,12 @@ namespace e
 	class FilterManager
 	{
 	public:
-		FilterManager();
-		~FilterManager();
+		FilterManager(void);
+		virtual ~FilterManager(void);
 	public:
 		HRESULT Start(void);
 		HRESULT Stop(void);
+		bool IsStarted(void) const;
 		void SetVideoSize(int width, int height);
 		void SetDataType(const TCHAR* type);
 		void SetDeviceName(const TCHAR* name);

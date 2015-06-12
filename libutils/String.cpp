@@ -6,10 +6,12 @@
 #include <string.h>
 #include <locale.h>
 
+#if defined(MEMTRACE)
 #undef malloc
 #undef realloc
 #undef calloc
 #undef free
+#endif
 
 namespace e
 {

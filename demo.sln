@@ -33,6 +33,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libutils_demo", "libutils_d
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcamera_demo", "libcamera_demo\libcamera_demo.vcxproj", "{F6C4C325-8432-4E87-A302-AAA57C1D8D92}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1570CC15-B45E-4770-8A4B-E09F1D613BC4} = {1570CC15-B45E-4770-8A4B-E09F1D613BC4}
+		{4491953A-DD9B-4932-9319-A8C3456D8940} = {4491953A-DD9B-4932-9319-A8C3456D8940}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstrmbase", "libstrmbase\libstrmbase.vcxproj", "{1570CC15-B45E-4770-8A4B-E09F1D613BC4}"
 EndProject

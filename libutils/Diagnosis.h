@@ -58,7 +58,7 @@ namespace e
 }
 
 //memory diagnosis
-#if defined(_DEBUG)
+#if defined(_DEBUG) && defined(MEMTRACE)
 
 namespace e
 {

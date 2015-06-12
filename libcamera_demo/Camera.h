@@ -10,18 +10,19 @@ namespace e
 	class Camera
 	{
 	public:
-		Camera();
-		~Camera();
+		Camera(void);
+		virtual ~Camera(void);
 	public:
 		bool Start(void);
 		void Stop(void);
+		bool Restart(void);
 		void GetFormat(void);
 	private:
-		void _FormatHandle(TCHAR* type, int width, int height);
-		void _SampleHandle(uchar* buffer, int width, int height, int bitCount);
+		virtual void FormatHandle(TCHAR* type, int width, int height);
+		virtual void SampleHandle(uchar* buffer, int width, int height, int bitCount);
 
-		static void FormatHandle(void* param, TCHAR* type, int width, int height);
-		static void SampleHandle(void* param, uchar* buffer, int width, int height, int bitCount);
+		static void _FormatHandle(void* param, TCHAR* type, int width, int height);
+		static void _SampleHandle(void* param, uchar* buffer, int width, int height, int bitCount);
 	private:
 		FilterManager* filterManager;
 	};

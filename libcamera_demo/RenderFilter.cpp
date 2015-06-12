@@ -70,7 +70,7 @@ namespace e
 		}
 		else if (::IsEqualCLSID(mt->subtype, MEDIASUBTYPE_YUY2))
 		{
-			ffscaler.SetAttribute(SWS_PF_YUV422, SWS_PF_RGBA, SWS_SA_BILINEAR);
+			ffscaler.SetAttribute(SWS_PF_YUV422, SWS_PF_BGRA, SWS_SA_BILINEAR);
 			dataType = YUY2;
 		}
 		else if (::IsEqualCLSID(mt->subtype, MEDIASUBTYPE_YVYU))

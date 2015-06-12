@@ -2,8 +2,10 @@
 #include "Thread.h"
 #include "Diagnosis.h"
 
+#if defined(MEMTRACE)
 #undef malloc
 #undef free
+#endif
 
 namespace e
 {

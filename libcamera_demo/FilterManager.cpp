@@ -81,7 +81,7 @@ namespace e
 		}
 	}
 
-	FilterManager::FilterManager()
+	FilterManager::FilterManager(void)
 	{
 		graphBuilder = 0;
 		captureGraphBuilder2 = 0;
@@ -106,17 +106,9 @@ namespace e
 		fnFormatParam = 0;
 	}
 
-	FilterManager::~FilterManager()
+	FilterManager::~FilterManager(void)
 	{
-		Stop();
-
-		SAFE_DELETE(dataType);
-		SAFE_DELETE(deviceName);
-		SAFE_RELEASE(videoRender);
-		SAFE_RELEASE(videoDecoder);
-		SAFE_RELEASE(videoCapture);
-		SAFE_RELEASE(captureGraphBuilder2);
-		SAFE_RELEASE(graphBuilder);
+		CleanFilter();
 	}
 
 	HRESULT FilterManager::Start(void)
@@ -133,6 +125,11 @@ namespace e
 	HRESULT FilterManager::Stop(void)
 	{
 		return CleanFilter();
+	}
+
+	bool FilterManager::IsStarted(void) const
+	{
+		return isStarted;
 	}
 
 	HRESULT FilterManager::InitFilter(void)
@@ -261,6 +258,7 @@ namespace e
 		SAFE_RELEASE(videoRender);
 		SAFE_RELEASE(videoDecoder);
 		SAFE_RELEASE(videoCapture);
+		SAFE_RELEASE(captureGraphBuilder2);
 
 		isStarted = false;
 
