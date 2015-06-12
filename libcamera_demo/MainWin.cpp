@@ -19,6 +19,8 @@ namespace e
 		beautify = 0;
 		beautify = new Beautify(480, 360);
 		assert(beautify);
+
+		enableBeautify = true;
 	}
 
 	MainWin::~MainWin(void)
@@ -110,6 +112,7 @@ namespace e
 	{
 		if (key == 82) Camera::Start();//r
 		if (key == 83) Camera::Stop();//s
+		if (key == 69) enableBeautify = !enableBeautify;//e
 
 		beautify->KeyDown(key);
 	}
@@ -237,23 +240,23 @@ namespace e
 
 	void MainWin::SampleHandle(uchar* buffer, int width, int height, int bitCount)
 	{
-		if (beautify)
+		if (beautify && enableBeautify)
 		{
 			beautify->Process(buffer, width, height, bitCount);
-
-			if (hBitmap == 0)
-			{
-				hBitmap = CreateBitmap(width, height, bitCount);
-				assert(hBitmap);
-			}
-
-			SetBitmap(buffer, width, height, bitCount);
-
-			assert(hWnd);
-			HDC hDC = ::GetDC(hWnd);
-			DrawBitmap(hDC, hBitmap, width, height);
-			::ReleaseDC(hWnd, hDC);
 		}
+
+		if (hBitmap == 0)
+		{
+			hBitmap = CreateBitmap(width, height, bitCount);
+			assert(hBitmap);
+		}
+
+		SetBitmap(buffer, width, height, bitCount);
+
+		assert(hWnd);
+		HDC hDC = ::GetDC(hWnd);
+		DrawBitmap(hDC, hBitmap, width, height);
+		::ReleaseDC(hWnd, hDC);
 	}
 }
 

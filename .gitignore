@@ -2,6 +2,13 @@
 /bin/*.exe
 /bin/*.ilk
 /bin/*.pdb
+/bin/libdui.dll
+/lib/libdui.lib
+/lib/libdui.exp
+/lib/libmp4v2.lib
+/lib/libmp4v2.exp
+/lib/libutils.lib
+/lib/libstrmbase.lib
 *.suo
 *.sdf
 *.opensdf

@@ -32,6 +32,7 @@ namespace e
 		HWND hWnd;
 		HBITMAP hBitmap;
 		Beautify* beautify;
+		bool enableBeautify;
 	};
 }
 
