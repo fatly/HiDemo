@@ -110,8 +110,8 @@ namespace e
 
 	void MainWin::OnKeyDown(int key)
 	{
-		if (key == 82) Camera::Start();//r
-		if (key == 83) Camera::Stop();//s
+		if (key == 83) Camera::Start();//s
+		if (key == 80) Camera::Stop();//p
 		if (key == 69) enableBeautify = !enableBeautify;//e
 
 		beautify->KeyDown(key);
