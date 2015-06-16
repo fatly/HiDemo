@@ -15,6 +15,7 @@ namespace e
 
 		filterManager->SetDataType(_T("YUY2"));
 		filterManager->SetDeviceName(deviceName);
+		filterManager->SetFrameRate(15);
 		filterManager->SetVideoSize(VIDEO_WIDTH, VIDEO_HEIGHT);
 		filterManager->SetHandle(&Camera::_SampleHandle, this, HANDLE_TYPE_SAMPLE);
 		filterManager->SetHandle(&Camera::_FormatHandle, this, HANDLE_TYPE_FORMAT);

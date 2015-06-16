@@ -115,6 +115,10 @@ namespace e
 		if (key == 69) enableBeautify = !enableBeautify;//e
 
 		beautify->KeyDown(key);
+
+		TCHAR buf[32] = { 0 };
+		_stprintf_s(buf, _T("key = %d\n"), key);
+		OutputDebugString(buf);
 	}
 
 	void MainWin::OnDestroy(void)
@@ -184,10 +188,15 @@ namespace e
 		MSG msg;
 		while (::GetMessage(&msg, 0, 0, 0))
 		{
-			if (msg.message == WM_QUIT) break;
-
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
+			if (msg.message == WM_QUIT)
+			{
+				break;
+			}
+			else
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
 		}
 	}
 
@@ -206,6 +215,7 @@ namespace e
 			OnKeyDown((int)wParam);
 			break;
 		case WM_CLOSE:
+			Stop();
 			PostQuitMessage(0);
 			break;
 		case WM_DESTROY:

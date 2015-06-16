@@ -5,7 +5,7 @@
 
 namespace e
 {
-	void Gaussian(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma);
+	void Gaussian(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma, int mode);
 }
 
 #endif

@@ -1,7 +1,7 @@
 #ifndef __CORE_DEFINES_H__
 #define __CORE_DEFINES_H__
 
-namespace
+namespace e
 {
 	// 不定长整形
 	typedef char int8;
