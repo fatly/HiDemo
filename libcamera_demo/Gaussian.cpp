@@ -1,13 +1,17 @@
 #include "Gaussian.h"
 #include <math.h>
 
+#pragma warning(disable:4244)
+
+#define CLAMP_TO_EDGE
+
 namespace e
 {
 	inline float CalcParam(float sigma)
 	{
 		return exp(-(1.695f / sigma));
 	}
-
+	//simple recursive gaussian
 	void Gaussian0(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
 	{
 		float a = CalcParam(sigma);
@@ -88,7 +92,7 @@ namespace e
 		float coefp;
 		float coefn;
 	};
-
+	//recursive gaussian
 	void Gaussian(uint8* dst
 		, uint8* src
 		, int width
@@ -170,7 +174,7 @@ namespace e
 			xn[0] = *(p0 + 0);
 			xn[1] = *(p0 + 1);
 			xn[2] = *(p0 + 2);
-			xn[3] = *(p0 + 3);
+			//xn[3] = *(p0 + 3);
 
 			for (int i = 0; i < 4; i++)
 			{
@@ -232,6 +236,9 @@ namespace e
 		param.a1 = k * (param.alpha - 1.0f) * param.ema;
 		param.a2 = k * (param.alpha + 1.0f) * param.ema;
 		param.a3 = -k * param.ema2;
+
+		param.coefp = (param.a0 + param.a1) / (1.0f + param.b1 + param.b2);
+		param.coefn = (param.a2 + param.a3) / (1.0f + param.b1 + param.b2);
 	}
 
 	void Gaussian1(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)

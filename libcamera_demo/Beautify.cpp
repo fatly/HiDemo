@@ -5,6 +5,7 @@
 #include "libutils.h"
 
 #pragma comment(lib, "libutils.lib")
+#pragma warning(disable:4244)
 
 #define INT_MULT(a,b,t)  ((t) = (a) * (b) + 0x80, ((((t) >> 8) + (t)) >> 8))
 

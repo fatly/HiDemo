@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "MainWin.h"
 #include <windows.h>
 
@@ -23,12 +22,6 @@ int main(int argc, char* argv[])
 	}
 	catch (...)
 	{
-		if (window != 0)
-		{
-			delete window;
-			window = 0;
-		}
-
 		printf("create main window exception\n");
 	}
 

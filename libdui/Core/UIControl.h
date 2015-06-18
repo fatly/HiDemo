@@ -99,7 +99,7 @@ public:
     virtual CDuiString GetToolTip() const;
     virtual void SetToolTip(LPCTSTR pstrText);
 	virtual void SetToolTipWidth(int nWidth);
-	virtual int	  GetToolTipWidth(void);	// 多行ToolTip单行最长宽度
+	virtual int	 GetToolTipWidth(void);	// 多行ToolTip单行最长宽度
 
     // 快捷键
     virtual TCHAR GetShortcut() const;

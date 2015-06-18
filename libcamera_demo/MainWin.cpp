@@ -85,14 +85,12 @@ namespace e
 			, NULL
 			, NULL
 			, ::GetModuleHandle(NULL)
-			, 0);
+			, this);
 
 		if (hWnd == 0)
 		{
 			return false;
 		}
-
-		::SetWindowLongPtr(hWnd, GWL_USERDATA, (UINT_PTR)this);
 
 		return true;
 	}
@@ -123,7 +121,7 @@ namespace e
 
 	void MainWin::OnDestroy(void)
 	{
-		delete this;
+		//delete this;
 	}
 
 	HBITMAP MainWin::CreateBitmap(int width, int height, int bitCount)
@@ -207,6 +205,12 @@ namespace e
 		case WM_CREATE:
 			OnCreate();
 			break;
+		case WM_ERASEBKGND:
+		{	RECT rect;
+			::GetClientRect(hWnd, &rect);
+			::FillRect((HDC)wParam, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+			break;
+		}
 		case WM_PAINT:
 			ValidateRect(hWnd, NULL);
 			UpdateView();
@@ -216,10 +220,10 @@ namespace e
 			break;
 		case WM_CLOSE:
 			Stop();
-			PostQuitMessage(0);
-			break;
+			DestroyWindow(hWnd);
 		case WM_DESTROY:
 			OnDestroy();
+			PostQuitMessage(0);
 			break;
 		default:
 			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -230,17 +234,27 @@ namespace e
 
 	LRESULT CALLBACK MainWin::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		MainWin* win = (MainWin*)::GetWindowLongPtr(hWnd, GWL_USERDATA);
+		MainWin* win = 0;
+
+		if (uMsg == WM_NCCREATE)
+		{
+			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+			win = static_cast<MainWin*>(cs->lpCreateParams);
+			win->hWnd = hWnd;
+			::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(win));
+		}
+		else
+		{
+			win = reinterpret_cast<MainWin*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			if (uMsg == WM_NCDESTROY && win != 0)
+			{
+				::SetWindowLongPtr(hWnd, GWLP_USERDATA, 0);
+			}
+		}
+
 		if (win)
 		{
 			return win->WindowProc(hWnd, uMsg, wParam, lParam);
-		}
-		else if (uMsg == WM_ERASEBKGND)
-		{
-			RECT rect;
-			::GetClientRect(hWnd, &rect);
-			::FillRect((HDC)wParam, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
-			return 0;
 		}
 		else
 		{
