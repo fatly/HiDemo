@@ -1,11 +1,12 @@
+#include "private.h"
 #include "Resample.h"
 #include <assert.h>
 
 namespace e
 {
 
-#define div4(x) ((x) >> 2)
-#define div16(x) ((x) >> 4)
+#define div4(x) ((uint8)((x) >> 2))
+#define div16(x) ((uint8)((x) >> 4))
 
 
 	Resample::Resample()
@@ -68,6 +69,7 @@ namespace e
 		{
 			out[i] = div4(3 * in_near[i] + in_far[i] + 2);
 		}
+
 		return out;
 	}
 

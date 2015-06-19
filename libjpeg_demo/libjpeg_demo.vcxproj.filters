@@ -24,7 +24,7 @@
     <ClCompile Include="Resample.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="..\libdui\Utils\stb_image.c">
+    <ClCompile Include="private.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,6 +36,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Resample.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="private.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1764,7 +1764,7 @@ static void YCbCr_to_RGB_row(uint8 *out, const uint8 *y, const uint8 *pcb, const
       int cb = pcb[i] - 128;
       r = y_fixed + cr*float2fixed(1.40200f);
       g = y_fixed - cr*float2fixed(0.71414f) - cb*float2fixed(0.34414f);
-      b = y_fixed                            + cb*float2fixed(1.77200f);
+      b = y_fixed + cb*float2fixed(1.77200f);
       r >>= 16;
       g >>= 16;
       b >>= 16;

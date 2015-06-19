@@ -1,16 +1,16 @@
+#include "private.h"
 #include "decoder.h"
 #include <assert.h>
 #include <memory.h>
 #include <stdlib.h>
-#include "Diagnosis.h"
 #include "Resample.h"
 
 namespace e
 {
 #define MARKET_NONE 0xff
-#define f2f(x) ((int)((x) * 2096 + 0.5))
-#define fsh(x) ((x) << 12);
 #define RESTART(x) ((x) >= 0xd0 && (x)<=0xd7)
+#define f2f(x) ((int)((x) * 4096 + 0.5))
+#define fsh(x) ((x) << 12);
 
 #define IDCT_1D(s0,s1,s2,s3,s4,s5,s6,s7)\
 	int t0, t1, t2, t3, p1, p2, p3, p4, p5, x0, x1, x2, x3;\
@@ -163,12 +163,10 @@ namespace e
 		j->todo = j->restart_interval ? j->restart_interval : 0x7fffffff;
 	}
 
-
 	Decoder::Decoder(void)
 	{
 		lastError = 0;
 	}
-
 
 	Decoder::~Decoder(void)
 	{
@@ -705,12 +703,13 @@ namespace e
 			j->Component[i].w2 = j->mcu_x * j->Component[i].h * 8;
 			j->Component[i].h2 = j->mcu_y * j->Component[i].v * 8;
 			j->Component[i].raw_data = malloc(j->Component[i].w2 * j->Component[i].h2 + 15);
+
 			if (j->Component[i].raw_data == 0)
 			{
 				for (--i; i >= 0; i--)
 				{
 					free(j->Component[i].raw_data);
-					j->Component[i].raw_data = 0;
+					j->Component[i].data = 0;
 				}
 
 				return Error("out of memory");
@@ -794,6 +793,7 @@ namespace e
 					while (!AtEof(j->s))
 					{
 						int x = Get8(j->s);
+
 						if (x == 255)
 						{
 							j->marker = Get8(j->s);
@@ -864,10 +864,12 @@ namespace e
 
 	uint8* Decoder::LoadJpegImage(Jpeg* j, int* out_x, int* out_y, int* comp, int req_comp)
 	{
-		if (req_comp < 0 || req_comp>4)
+		if (req_comp < 0 || req_comp > 4)
 		{
 			return 0;
 		}
+
+		j->s->img_n = 0;
 
 		if (!DecodeJpegImage(j))
 		{
@@ -959,7 +961,7 @@ namespace e
 
 					if (++r.ypos < j->Component[k].y)
 					{
-						r.line0 += j->Component[k].w2;
+						r.line1 += j->Component[k].w2;
 					}
 				}
 			}
