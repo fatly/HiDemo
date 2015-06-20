@@ -236,12 +236,8 @@ namespace e
 			break;
 		case WM_CLOSE:
 			Stop();
-<<<<<<< HEAD
-			PostQuitMessage(0);
-			break;
-=======
 			DestroyWindow(hWnd);
->>>>>>> origin/master
+			break;
 		case WM_DESTROY:
 			OnDestroy();
 			PostQuitMessage(0);

@@ -5,12 +5,14 @@
 #include "libutils.h"
 
 #pragma comment(lib, "libutils.lib")
+#pragma warning(disable:4244)
 
 #define INT_MULT(a,b,t)  ((t) = (a) * (b) + 0x80, ((((t) >> 8) + (t)) >> 8))
 
 namespace e
 {
-	void Screen(uint8* dst, uint8* src, int width, int height, int bitCount)
+	//1.0 - (1.0 - a) * (1.0 - b);	
+	void Beautify::Screen(uint8* dst, uint8* src, int width, int height, int bitCount)
 	{
 		int lineBytes = WIDTHBYTES(bitCount * width);
 		int bpp = bitCount / 8;
@@ -24,9 +26,9 @@ namespace e
 			for (int x = 0; x < width; x++)
 			{
 				//screen op
-				*(p1 + 0) = 255 - INT_MULT((255 - *(p0 + 0)), (255 - *(p1 + 0)), temp);
-				*(p1 + 1) = 255 - INT_MULT((255 - *(p0 + 1)), (255 - *(p1 + 1)), temp);
-				*(p1 + 2) = 255 - INT_MULT((255 - *(p0 + 2)), (255 - *(p1 + 2)), temp);
+				*(p1 + 0) = 255 - INT_MULT((255 - *(p0 + 0) * alpha0), (255 - *(p1 + 0) * alpha1), temp);
+				*(p1 + 1) = 255 - INT_MULT((255 - *(p0 + 1) * alpha0), (255 - *(p1 + 1) * alpha1), temp);
+				*(p1 + 2) = 255 - INT_MULT((255 - *(p0 + 2) * alpha0), (255 - *(p1 + 2) * alpha1), temp);
 
 				p0 += bpp;
 				p1 += bpp;
@@ -46,7 +48,7 @@ namespace e
 		}
 	}
 
-	void SoftLight(uint8* dst, uint8* src, int width, int height, int bitCount)
+	void Beautify::SoftLight(uint8* dst, uint8* src, int width, int height, int bitCount)
 	{
 		int lineBytes = WIDTHBYTES(bitCount * width);
 		int bpp = bitCount / 8;
@@ -58,9 +60,9 @@ namespace e
 
 			for (int x = 0; x < width; x++)
 			{
-				*(p1 + 0) = softlight(*(p1 + 0), *(p0 + 0));
-				*(p1 + 1) = softlight(*(p1 + 1), *(p0 + 1));
-				*(p1 + 2) = softlight(*(p1 + 2), *(p0 + 2));
+				*(p1 + 0) = softlight(*(p1 + 0) * alpha0, *(p0 + 0) * alpha1);
+				*(p1 + 1) = softlight(*(p1 + 1) * alpha0, *(p0 + 1) * alpha1);
+				*(p1 + 2) = softlight(*(p1 + 2) * alpha0, *(p0 + 2) * alpha1);
 
 				p0 += bpp;
 				p1 += bpp;
@@ -76,6 +78,10 @@ namespace e
 		this->enable = true;
 		this->src = new uint8[width * height * 4];
 		this->tmp = new uint8[width * height * 4];
+		this->alpha0 = 1.0f;
+		this->alpha1 = 1.0f;
+		this->mode = 0;
+		this->blendHandle = &Beautify::Screen;
 	}
 
 
@@ -97,12 +103,12 @@ namespace e
 		int bytes = WIDTHBYTES(width * bitCount) * height;
 		memcpy(src, buffer, bytes);
 
-		Gaussian(tmp, src, width, height, bitCount, sigma);
-		Gaussian(src, tmp, height, width, bitCount, sigma);
+		Gaussian(tmp, src, width, height, bitCount, sigma, mode);
+		Gaussian(src, tmp, height, width, bitCount, sigma, mode);
 
 		if (enable)
 		{
-			Screen(buffer, src, width, height, bitCount);
+			(this->*blendHandle)(buffer, src, width, height, bitCount);
 		}
 		else
 		{
@@ -113,10 +119,30 @@ namespace e
 	void Beautify::KeyDown(int key)
 	{
 		if (key == 65) sigma += 0.1f;//a
-		if (key == 68) sigma -= 0.1f;//d
-		if (key == 70) enable = !enable;
+		else if (key == 68) sigma -= 0.1f;//d
+		else if (key == 70) enable = !enable;
+		else if (key == 38) alpha0 += 0.1f;
+		else if (key == 40) alpha0 -= 0.1f;
+		else if (key == 37) alpha1 += 0.1f;
+		else if (key == 39) alpha1 -= 0.1f;
+		else if (key == 77) mode = !mode;
+		else if (key == 78)
+		{
+			if (blendHandle == &Beautify::Screen)
+			{
+				blendHandle = &Beautify::SoftLight;
+			}
+			else
+			{
+				blendHandle = &Beautify::Screen;
+			}
+		}
 
 		if (sigma < 0.1f) sigma = 0.1f;
+		if (alpha0 > 1.0f) alpha0 = 1.0f;
+		if (alpha0 < 0.0f) alpha0 = 0.0f;
+		if (alpha1 > 1.0f) alpha1 = 1.0f;
+		if (alpha1 < 0.0f) alpha1 = 0.0f;
 	}
 }
 

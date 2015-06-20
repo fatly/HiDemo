@@ -6,14 +6,9 @@
 namespace e
 {
 	//////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 	//const TCHAR* deviceName = _T("@device:pnp:\\\\?\\usb#vid_045e&pid_0772&mi_00#6&368b747d&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global");
 	const TCHAR* deviceName = _T("@device:pnp:\\\\?\\usb#vid_045e&pid_0772&mi_00#7&2b609639&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global");
-=======
-	const TCHAR* deviceName = _T("@device:pnp:\\\\?\\usb#vid_045e&pid_0772&mi_00#7&1f8cc2a&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global");
-	//const TCHAR* deviceName = _T("@device:sw:{860BB310-5D01-11D0-BD3B-00A0C911CE86}\\{E18AF7A1-06F5-45B5-832C-462F87B13A71}");
-	
->>>>>>> origin/master
+
 	Camera::Camera(void)
 	{
 		filterManager = new FilterManager();
