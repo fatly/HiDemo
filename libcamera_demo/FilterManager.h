@@ -26,6 +26,7 @@ namespace e
 		void SetFrameRate(const int frameRate);
 		void SetHandle(void* fnHandle, void* param, int type);
 		void GetFormat(void);
+		void GetDevice(void);
 	private:
 		HRESULT InitFilter(void);
 		HRESULT CleanFilter(void);
@@ -33,6 +34,7 @@ namespace e
 		HRESULT SetFormat(void);
 		HRESULT SetFrameRate(void);
 		HRESULT EnumFormat(void);
+		HRESULT EnumDevice(void);
 	private:
 		IGraphBuilder* graphBuilder;
 		ICaptureGraphBuilder2* captureGraphBuilder2;
@@ -51,6 +53,9 @@ namespace e
 
 		FormatHandle fnFormatHandle;
 		void* fnFormatParam;
+
+		DeviceHandle fnDeviceHandle;
+		void* fnDeviceParam;
 	};
 }
 

@@ -467,6 +467,11 @@ namespace e
 		return S_OK;
 	}
 
+	HRESULT FilterManager::EnumDevice(void)
+	{
+		return S_OK;
+	}
+
 	void FilterManager::SetVideoSize(int width, int height)
 	{
 		this->videoWidth = width;
@@ -493,6 +498,11 @@ namespace e
 		EnumFormat();
 	}
 
+	void FilterManager::GetDevice(void)
+	{
+		EnumDevice();
+	}
+
 	void FilterManager::SetHandle(void* fnHandle, void* param, int type)
 	{
 		if (type == HANDLE_TYPE_FORMAT)
@@ -504,6 +514,11 @@ namespace e
 		{
 			fnSampleHandle = (SampleHanlde)fnHandle;
 			fnSampleParam = param;
+		}
+		else if (type == HANDLE_TYPE_DEVICE)
+		{
+			fnDeviceHandle = (DeviceHandle)fnHandle;
+			fnDeviceParam = param;
 		}
 	}
 

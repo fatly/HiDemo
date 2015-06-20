@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "MainWin.h"
 #include <windows.h>
 
@@ -10,17 +9,20 @@ int main(int argc, char* argv[])
 {
 	::CoInitialize(NULL);
 
+	MainWin* window = 0;
+
 	try
 	{
-		MainWin* window = new MainWin;
+		window = new MainWin;
 		window->Create();
 		window->ShowWindow();
 		window->MainLoop();
 		delete window;
+		window = 0;
 	}
 	catch (...)
 	{
-		
+		printf("create main window exception\n");
 	}
 
 	::CoUninitialize();

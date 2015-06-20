@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmp4v2_demo", "libmp4v2_demo\libmp4v2_demo.vcxproj", "{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -39,6 +39,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libcamera_demo", "libcamera
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libstrmbase", "libstrmbase\libstrmbase.vcxproj", "{1570CC15-B45E-4770-8A4B-E09F1D613BC4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg_demo", "libjpeg_demo\libjpeg_demo.vcxproj", "{72BA3AF1-584C-4897-8051-08403E6A02AF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4491953A-DD9B-4932-9319-A8C3456D8940} = {4491953A-DD9B-4932-9319-A8C3456D8940}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -136,13 +141,21 @@ Global
 		{1570CC15-B45E-4770-8A4B-E09F1D613BC4}.StaticDebug|Win32.Build.0 = Debug|Win32
 		{1570CC15-B45E-4770-8A4B-E09F1D613BC4}.StaticRelease|Win32.ActiveCfg = Release|Win32
 		{1570CC15-B45E-4770-8A4B-E09F1D613BC4}.StaticRelease|Win32.Build.0 = Release|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.Debug|Win32.Build.0 = Debug|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.Release|Win32.ActiveCfg = Release|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.Release|Win32.Build.0 = Release|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.StaticDebug|Win32.ActiveCfg = Debug|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.StaticDebug|Win32.Build.0 = Debug|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.StaticRelease|Win32.ActiveCfg = Release|Win32
+		{72BA3AF1-584C-4897-8051-08403E6A02AF}.StaticRelease|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
+		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{4491953A-DD9B-4932-9319-A8C3456D8940} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{1570CC15-B45E-4770-8A4B-E09F1D613BC4} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 	EndGlobalSection

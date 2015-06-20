@@ -1,7 +1,7 @@
 #ifndef __CORE_DEFINES_H__
 #define __CORE_DEFINES_H__
 
-namespace
+namespace e
 {
 	// 不定长整形
 	typedef char int8;
@@ -103,7 +103,12 @@ namespace
 		, const T & minValue
 		, const T & maxValue)
 	{
-		value = max((minValue), min((value), (maxValue)));
+		value = MAX((minValue), MIN((value), (maxValue)));
+	}
+
+	template<class T> inline T clamp(T x, T a, T b)
+	{
+		return MAX(a, MIN(x, b));
 	}
 
 #define VIDEO_WIDTH		640

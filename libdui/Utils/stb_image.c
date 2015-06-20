@@ -1628,11 +1628,14 @@ static int decode_jpeg_image(jpeg *j)
    j->restart_interval = 0;
    if (!decode_jpeg_header(j, SCAN_load)) return 0;
    m = get_marker(j);
-   while (!EOI(m)) {
-      if (SOS(m)) {
+   while (!EOI(m)) 
+   {
+      if (SOS(m)) 
+	  {
          if (!process_scan_header(j)) return 0;
          if (!parse_entropy_coded_data(j)) return 0;
-         if (j->marker == MARKER_none ) {
+         if (j->marker == MARKER_none ) 
+		 {
             // handle 0s at the end of image data from IP Kamera 9060
             while (!at_eof(j->s)) {
                int x = get8(j->s);
@@ -1645,18 +1648,21 @@ static int decode_jpeg_image(jpeg *j)
             }
             // if we reach eof without hitting a marker, get_marker() below will fail and we'll eventually return 0
          }
-      } else {
+      } 
+	  else 
+	  {
          if (!process_marker(j, m)) return 0;
       }
+
       m = get_marker(j);
    }
+
    return 1;
 }
 
 // static jfif-centered resampling (across block boundaries)
 
-typedef uint8 *(*resample_row_func)(uint8 *out, uint8 *in0, uint8 *in1,
-                                    int w, int hs);
+typedef uint8 *(*resample_row_func)(uint8 *out, uint8 *in0, uint8 *in1, int w, int hs);
 
 #define div4(x) ((uint8) ((x) >> 2))
 
@@ -1758,7 +1764,7 @@ static void YCbCr_to_RGB_row(uint8 *out, const uint8 *y, const uint8 *pcb, const
       int cb = pcb[i] - 128;
       r = y_fixed + cr*float2fixed(1.40200f);
       g = y_fixed - cr*float2fixed(0.71414f) - cb*float2fixed(0.34414f);
-      b = y_fixed                            + cb*float2fixed(1.77200f);
+      b = y_fixed + cb*float2fixed(1.77200f);
       r >>= 16;
       g >>= 16;
       b >>= 16;

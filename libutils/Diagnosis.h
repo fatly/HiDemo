@@ -1,5 +1,6 @@
 #ifndef __CORE_DIAGNOSIS_H__
 #define __CORE_DIAGNOSIS_H__
+#include "config.h"
 #include "IString.h"
 #include <stdlib.h>
 

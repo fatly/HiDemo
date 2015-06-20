@@ -178,6 +178,10 @@ namespace e
 			hr = pM->BindToStorage(0, 0, IID_IPropertyBag, (void **)&pBag);
 			if (SUCCEEDED(hr))
 			{
+// 				VARIANT var;
+// 				var.vt = VT_BSTR;
+// 				pBag->Read(TEXT("FriendlyName"), &var, NULL);
+
 				LPOLESTR name;
 				hr = pM->GetDisplayName(0, 0, &name);
 

@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <memory.h>
 #include <locale.h>
 
 #if defined(MEMTRACE)
