@@ -75,8 +75,8 @@ namespace e
 			return false;
 		}
 
-		DWORD ws = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 		int x = 100, y = 100, w = 600, h = 500;
+		DWORD ws = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 		hWnd = ::CreateWindowEx(WS_EX_APPWINDOW
 			, WIN_CLASS_NAME
 			, TEXT("BeautifyDemo")
@@ -85,14 +85,12 @@ namespace e
 			, NULL
 			, NULL
 			, ::GetModuleHandle(NULL)
-			, 0);
+			, this);
 
 		if (hWnd == 0)
 		{
 			return false;
 		}
-
-		::SetWindowLongPtr(hWnd, GWL_USERDATA, (UINT_PTR)this);
 
 		return true;
 	}
@@ -110,16 +108,36 @@ namespace e
 
 	void MainWin::OnKeyDown(int key)
 	{
-		if (key == 83) Camera::Start();//s
-		if (key == 80) Camera::Stop();//p
-		if (key == 69) enableBeautify = !enableBeautify;//e
+		if (key == 83)//s
+		{
+			bool ret = Start();
+
+			if (!ret)
+			{
+				MessageBox(hWnd, _T("Start Camera Fail"), _T("error"), MB_OK);
+			}
+		}
+
+		if (key == 80)//p
+		{
+			Stop();
+		}
+
+		if (key == 69)//e
+		{
+			enableBeautify = !enableBeautify;
+		}
 
 		beautify->KeyDown(key);
+
+		TCHAR buf[32] = { 0 };
+		_stprintf_s(buf, _T("key = %d\n"), key);
+		OutputDebugString(buf);
 	}
 
 	void MainWin::OnDestroy(void)
 	{
-		delete this;
+		//delete this;
 	}
 
 	HBITMAP MainWin::CreateBitmap(int width, int height, int bitCount)
@@ -184,10 +202,15 @@ namespace e
 		MSG msg;
 		while (::GetMessage(&msg, 0, 0, 0))
 		{
-			if (msg.message == WM_QUIT) break;
-
-			::TranslateMessage(&msg);
-			::DispatchMessage(&msg);
+			if (msg.message == WM_QUIT)
+			{
+				break;
+			}
+			else
+			{
+				::TranslateMessage(&msg);
+				::DispatchMessage(&msg);
+			}
 		}
 	}
 
@@ -198,6 +221,12 @@ namespace e
 		case WM_CREATE:
 			OnCreate();
 			break;
+		case WM_ERASEBKGND:
+		{	RECT rect;
+			::GetClientRect(hWnd, &rect);
+			::FillRect((HDC)wParam, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
+			break;
+		}
 		case WM_PAINT:
 			ValidateRect(hWnd, NULL);
 			UpdateView();
@@ -206,10 +235,16 @@ namespace e
 			OnKeyDown((int)wParam);
 			break;
 		case WM_CLOSE:
+			Stop();
+<<<<<<< HEAD
 			PostQuitMessage(0);
 			break;
+=======
+			DestroyWindow(hWnd);
+>>>>>>> origin/master
 		case WM_DESTROY:
 			OnDestroy();
+			PostQuitMessage(0);
 			break;
 		default:
 			return ::DefWindowProc(hWnd, uMsg, wParam, lParam);
@@ -220,17 +255,27 @@ namespace e
 
 	LRESULT CALLBACK MainWin::_WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	{
-		MainWin* win = (MainWin*)::GetWindowLongPtr(hWnd, GWL_USERDATA);
+		MainWin* win = 0;
+
+		if (uMsg == WM_NCCREATE)
+		{
+			LPCREATESTRUCT cs = reinterpret_cast<LPCREATESTRUCT>(lParam);
+			win = static_cast<MainWin*>(cs->lpCreateParams);
+			win->hWnd = hWnd;
+			::SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LPARAM>(win));
+		}
+		else
+		{
+			win = reinterpret_cast<MainWin*>(::GetWindowLongPtr(hWnd, GWLP_USERDATA));
+			if (uMsg == WM_NCDESTROY && win != 0)
+			{
+				::SetWindowLongPtr(hWnd, GWLP_USERDATA, 0);
+			}
+		}
+
 		if (win)
 		{
 			return win->WindowProc(hWnd, uMsg, wParam, lParam);
-		}
-		else if (uMsg == WM_ERASEBKGND)
-		{
-			RECT rect;
-			::GetClientRect(hWnd, &rect);
-			::FillRect((HDC)wParam, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
-			return 0;
 		}
 		else
 		{
