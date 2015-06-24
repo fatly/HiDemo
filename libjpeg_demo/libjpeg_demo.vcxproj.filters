@@ -18,20 +18,20 @@
     <ClCompile Include="libjpeg_demo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="decoder.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Resample.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="private.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Encoder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Decoder.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="decoder.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="BaseClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -39,6 +39,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="private.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Encoder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Decoder.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

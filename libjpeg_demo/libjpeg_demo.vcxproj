@@ -89,7 +89,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="decoder.cpp" />
+    <ClCompile Include="Decoder.cpp" />
+    <ClCompile Include="Encoder.cpp" />
     <ClCompile Include="libjpeg_demo.cpp" />
     <ClCompile Include="private.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -99,7 +100,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseClass.h" />
-    <ClInclude Include="decoder.h" />
+    <ClInclude Include="Decoder.h" />
+    <ClInclude Include="Encoder.h" />
     <ClInclude Include="private.h" />
     <ClInclude Include="Resample.h" />
   </ItemGroup>

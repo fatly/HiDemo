@@ -111,6 +111,11 @@ namespace e
 		return MAX(a, MIN(x, b));
 	}
 
+	template<class T> inline T clamp0255(T x)
+	{
+		return clamp<T>(x, 0, 255);
+	}
+
 #define VIDEO_WIDTH		640
 #define VIDEO_HEIGHT	480
 

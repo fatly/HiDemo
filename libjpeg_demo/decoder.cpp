@@ -482,6 +482,7 @@ namespace e
 							{
 								int x2 = (z->Component[n].h * j + x) * 8;
 								int y2 = (z->Component[n].v * i + y) * 8;
+
 								if (!DecodeBlock(z, data, z->hfdc + z->Component[n].hd, z->hfac + z->Component[n].ha, n))
 								{
 									return false;
@@ -525,7 +526,7 @@ namespace e
 			}
 			j->restart_interval = Get16(j->s);
 			return true;
-		case 0xdb:
+		case 0xdb://DQT，Define Quantization Table，定义量化表
 			L = Get16(j->s) - 2;
 			while (L > 0)
 			{
@@ -553,7 +554,7 @@ namespace e
 				L -= 65;
 			}
 			return L == 0;
-		case 0xc4:
+		case 0xc4://Difine Huffman Table，定义哈夫曼表
 			L = Get16(j->s) - 2;
 			while (L > 0)
 			{
@@ -636,9 +637,9 @@ namespace e
 			if (j->Component[k].ha > 3) return Error("bad AC haffman");
 			j->order[i] = k;
 		}
-
+		//压缩图像数据
 		if (Get8(j->s) != 0) return Error("bad SOS");
-		Get8(j->s);
+		if (Get8(j->s) != 0x3f) return Error("bad SOS");
 		if (Get8(j->s) != 0) return Error("bad SOS");
 
 		return true;
@@ -753,7 +754,7 @@ namespace e
 
 				m = GetMarker(j);
 			}
-		}
+		}//end while(!SOF)
 
 		if (!ProcessFrameHeader(j, scan))
 		{
@@ -776,7 +777,7 @@ namespace e
 
 		while (!EOI(m))
 		{
-			if (SOS(m))
+			if (SOS(m))//Start of Scan，扫描开始 12字节
 			{
 				if (!ProcessScanHeader(j))
 				{

@@ -60,6 +60,27 @@ namespace e
 		int scan_n, order[4];
 		int restart_interval, todo;
 	};
+
+	//JPEG encoder
+	struct JpegEncoderStruct
+	{
+		uint16 mcu_width;
+		uint16 mcu_height;
+		uint16 hori_mcus;
+		uint16 vert_mcus;
+		uint16 rows_in_bottom_mcus;
+		uint16 cols_in_right_mcus;
+		uint16 lenght_minus_mcu_width;
+		uint16 lenght_minus_width;
+		uint16 mcu_width_size;
+		uint16 offset;
+		int16 ldc1;
+		int16 ldc2;
+		int16 ldc3;
+		uint16 rows;
+		uint16 cols;
+		uint16 incr;
+	};
 }
 
 #endif
