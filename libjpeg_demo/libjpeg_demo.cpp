@@ -2,12 +2,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <conio.h>
 #include "decoder.h"
 #include "Encoder.h"
 
 using namespace e;
 
-int  DecodeImage(void)
+int DecodeImage(void)
 {
 	//char* file = "e:\\images\\texture\\tex2.jpg";
 	char* file = "f:\\res.jpg";
@@ -67,25 +68,16 @@ int  DecodeImage(void)
 
 int EncodeImage(void)
 {
-	//http://blog.csdn.net/dog0138/article/details/5862332
-
-	const char* file = "e:\\images\\texture\\tex0.bmp";
+	const char* file = "f:\\a.bmp";
 
 	e::Bitmap bm(file);
-	uchar* rgb = (uchar*)malloc(bm.Width() * bm.Height() * 3);
-	uchar* tmp = (uchar*)malloc(bm.Width() * bm.Height() * 3);
 
-	for (int y = 0; y < bm.Height(); y++)
-	{
-		uint8* p = bm.Get(0, y);
-		
-		memcpy(rgb + y*bm.Width() * 3, p, bm.Width() * 3);
-	}
+	uchar* tmp = (uchar*)malloc(bm.Width() * bm.Height() * 3);
 
 	do 
 	{
 		Encoder encoder;
-		uint32 size = encoder.EncodeImage(tmp, rgb, 1, 0, bm.Width(), bm.Height());
+		uint32 size = encoder.EncodeImage(tmp, bm.bits, bm.Width(), bm.Height(), bm.biBitCount, 85);
 		printf("encode image width = %d, height = %d, size = %d\n", bm.Width(), bm.Height(), size);
 
 		const char* outfile = "f:\\res.jpg";
@@ -99,7 +91,6 @@ int EncodeImage(void)
 
 	} while (0);
 
-	free(rgb);
 	free(tmp);
 
 	return 0;
@@ -107,10 +98,21 @@ int EncodeImage(void)
 
 int main(int argc, char* argv[])
 {
-	if (0)
+	char c = _getch();
+
+	if (c == 'e')
+	{
 		EncodeImage();
+	}
 	else
+	{
 		DecodeImage();
+	}
+
+// 	if (1)
+// 		EncodeImage();
+// 	else
+// 		DecodeImage();
 
 	system("pause");
 	return 0;

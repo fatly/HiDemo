@@ -1,53 +1,99 @@
 #ifndef __CORE_JPEG_ENCODER_H__
 #define __CORE_JPEG_ENCODER_H__
-#include "BaseClass.h"
-
-#define BLOCK_SIZE 64
+#include "Defines.h"
+#include "Bitmap.h"
 
 namespace e
 {
+	class HuffmanTable
+	{
+	public:
+		uint codes[256];
+		uint8 code_sizes[256];
+		uint8 bits[17];
+		uint8 values[256];
+		uint32 counts[256];
+		void Optimize(int tableLenght);
+		void Compute(void);
+		void Dump(const char* file);
+	};
+
+	class HuffmanDCAC
+	{
+	public:
+		int quantization_table[64];
+		HuffmanTable dc, ac;
+	};
+
+	class Component
+	{
+	public:
+		uint8 h_samples;
+		uint8 v_samples;
+		int last_dc_value;
+	};
+
+	enum subsample_e{Y_ONLY = 0, H1V1 = 1, H2V1 = 2, H2V2 = 3};
+
 	class Encoder
 	{
 	public:
-		Encoder();
-		virtual ~Encoder();
-
-		uint32 EncodeImage(uint8* output
-			, uint8* input
-			, uint32 qualityFactor
-			, uint32 format
-			, uint32 width
-			, uint32 height);
-
+		Encoder(void);
+		virtual ~Encoder(void);
+	public:
+		int EncodeImage(uint8* output, uint8* input, int width, int height, int bitCount, int quality);
 	private:
-		uint8* WriteMarkers(uint8* out, uint32 format, uint32 width, uint32 height);
-		void ReadYUV422(JpegEncoderStruct* jes, uint8* input);
-		void RGB2YUV422(uint8* output, uint8* input, int width, int height);
-		void Initialize(JpegEncoderStruct* jes, uint32 format, uint32 width, uint32 height);
-		void InitializeQuantizationTables(uint32 qualityFactor);
-		uint8* CloseBitStream(uint8* output);
+		void Initialize(int width, int height, int bitCount, bool nochroma);
+		void Pretreatment(uint8* input, int width, int height, int bitCount);
+		void InitQuantTable(int quality, bool nochroma);
+		void ComputeQuantTable(int32* dst, int16* src, int quality);
+		void SubSample(void);
+		int16 GetPixel(int x, int y, int channel);
+		int16 BlendQuad(int x, int y, int channel);
+		int16 BlendDual(int x, int y, int channel);
+		int16* GetDQ(int x, int y, int channel);
+		void LoadBlock(int16* dst, int x, int y, int channel);
+		void ResetLastDC(void);
+		void CodeMCURow(int y, bool write);
+		void CodeBlock(int16* data, HuffmanDCAC* huff, Component* comp, bool write);
+		void ComputeHuffmanTables(void);
 		void DCT(int16* data);
-		void Quantization(int16* const data, uint16* const quant_table);
-		uint8* Haffman(JpegEncoderStruct* jes, uint16 component, uint8* output);
-		uint8* EncodeMCU(JpegEncoderStruct* jes, uint32 format, uint8* output);
+		void QuantizePixels(int16* dst, int16* src, int32* quants);
+		void Compress(void);
+		void PutBits(uint bits, int len);
+		void PutSignalBits(int num, int len);
+		uint BitCount(int value);
+		void Cleanup(void);
+
+		void EmitByte(uint8 value);
+		void EmitWord(uint16 value);
+		void EmitMarker(int value);
+		void EmitJFIFAPP0(void);
+		void EmitDQT(void);
+		void EmitSOF(void);
+		void EmitDHT(uint8* bits, uint8* values, int index, bool ac_flag);
+		void EmitDHTs(void);
+		void EmitSOS(void);
+		void EmitStartMarkers(void);
+		void EmitEndMarker(void);
+
+		void Dump(const char* file, int channel);
 	private:
-		uint8 LQT[BLOCK_SIZE];
-		uint8 CQT[BLOCK_SIZE];
-		uint16 ILQT[BLOCK_SIZE];
-		uint16 ICQT[BLOCK_SIZE];
-		int16 Y1[BLOCK_SIZE];
-		int16 Y2[BLOCK_SIZE];
-		int16 Y3[BLOCK_SIZE];
-		int16 Y4[BLOCK_SIZE];
-		int16 CB[BLOCK_SIZE];
-		int16 CR[BLOCK_SIZE];
-		int16 temp[BLOCK_SIZE];
-		int32 lcode;
-		uint16 bitindex;
-
-		typedef void (Encoder::*ReadFormatHandle)(JpegEncoderStruct*, uint8*);
-
-		ReadFormatHandle fnReadFormat;
+		int w;
+		int h;
+		int w1[3];
+		int h1[3];
+		int compCount;
+		int16* data[3];
+		int mcu_w;
+		int mcu_h;
+		int quality;
+		int subsampling;
+		Component comp[3];
+		HuffmanDCAC huffman[2];
+		uint32 bit_buffer;
+		uint32 bits_in;
+		uint8* output_buffer;
 	};
 }
 

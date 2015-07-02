@@ -13,3 +13,4 @@
 *.sdf
 *.opensdf
 /ipch
+bin/libmp4v2.dll

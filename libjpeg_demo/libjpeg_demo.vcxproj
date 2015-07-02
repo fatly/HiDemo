@@ -91,6 +91,7 @@
   <ItemGroup>
     <ClCompile Include="Decoder.cpp" />
     <ClCompile Include="Encoder.cpp" />
+    <ClCompile Include="Encoder0.cpp" />
     <ClCompile Include="libjpeg_demo.cpp" />
     <ClCompile Include="private.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -102,6 +103,7 @@
     <ClInclude Include="BaseClass.h" />
     <ClInclude Include="Decoder.h" />
     <ClInclude Include="Encoder.h" />
+    <ClInclude Include="Encoder0.h" />
     <ClInclude Include="private.h" />
     <ClInclude Include="Resample.h" />
   </ItemGroup>

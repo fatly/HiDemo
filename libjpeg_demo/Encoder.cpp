@@ -1,521 +1,701 @@
 #include "private.h"
 #include "Encoder.h"
 #include <assert.h>
-
-#define FOUR_ZERO_ZERO	0
-#define FOUR_TWO_TWO	2
+#include <stdio.h>
 
 namespace e
 {
-	static uint8 zigzag_table[] = {
-		0, 1, 5, 6, 14, 15, 27, 28, 
-		2, 4, 7, 13, 16, 26, 29, 42, 
-		3, 8, 12, 17, 25, 30, 41, 43, 
-		9, 11, 18, 24, 31, 40, 44, 53, 
-		10, 19, 23, 32, 39, 45, 52, 54, 
-		20, 22, 33, 38, 46, 51, 55, 60, 
-		21, 34, 37, 47, 50, 56, 59, 61, 
-		35, 36, 48, 49, 57, 58, 62, 63
+	static uint8 zag_table[] = {
+// 		0, 1, 5, 6, 14, 15, 27, 28,
+// 		2, 4, 7, 13, 16, 26, 29, 42,
+// 		3, 8, 12, 17, 25, 30, 41, 43,
+// 		9, 11, 18, 24, 31, 40, 44, 53,
+// 		10, 19, 23, 32, 39, 45, 52, 54,
+// 		20, 22, 33, 38, 46, 51, 55, 60,
+// 		21, 34, 37, 47, 50, 56, 59, 61,
+// 		35, 36, 48, 49, 57, 58, 62, 63
+		0, 1, 8, 16, 9, 2, 3, 10,
+		17, 24, 32, 25, 18, 11, 4, 5,
+		12, 19, 26, 33, 40, 48, 41, 34,
+		27, 20, 13, 6, 7, 14, 21, 28,
+		35, 42, 49, 56, 57, 50, 43, 36,
+		29, 22, 15, 23, 30, 37, 44, 51,
+		58, 59, 52, 45, 38, 31, 39, 46,
+		53, 60, 61, 54, 47, 55, 62, 63
 	};
 
-	static uint16 marketdata[] = {
-		// dht
-		0xFFC4, 0x01A2, 0x00,
-		// luminance dc (2 - 16) + 1
-		0x0105, 0x0101, 0x00101, 0x0101, 0x0000, 0x00000, 00000, 00000,
-		// luminance dc (2 - 12) + 1
-		0x0102, 0x0304, 0x0506, 0x0708, 0x090A, 0x0B01,
-		// chrominance dc (1 - 16)
-		0x0003, 0x0101, 0x0101, 0x0101, 0x0101, 0x0100, 0x0000, 0x0000,
-		// chrominance dc (1 - 12)
-		0x0001, 0x00203, 0x0405, 0x0607, 0x0809, 0x00A0B,
-		// luminance ac 1 + (1 - 15)
-		0x1000, 0x0201, 0x0303, 0x0204, 0x0305, 0x0504, 0x0400, 0x0001,
-		// luminance ac 1 + (1 - 162) + 1
-		0x7D01, 0x0203, 0x0004, 0x1105, 0x1221, 0x3141, 0x0613, 0x5161, 0x0722,
-		0x7114, 0x3281, 0x91A1, 0x0823, 0x42B1, 0xC115, 0x52D1, 0xF024, 0x3362,
-		0x7282, 0x090A, 0x1617, 0x1819, 0x1A25, 0x2627, 0x2829, 0x2A34, 0x3536,
-		0x3738, 0x393A, 0x4344, 0x4546, 0x4748, 0x494A, 0x5354, 0x5556, 0x5758,
-		0x595A, 0x6364, 0x6566, 0x6768, 0x696A, 0x7374, 0x7576, 0x7778, 0x797A,
-		0x8384, 0x8586, 0x8788, 0x898A, 0x9293, 0x9495, 0x9697, 0x9899, 0x9AA2,
-		0xA3A4, 0xA5A6, 0xA7A8, 0xA9AA, 0xB2B3, 0xB4B5, 0xB6B7, 0xB8B9, 0xBAC2,
-		0xC3C4, 0xC5C6, 0xC7C8, 0xC9CA, 0xD2D3, 0xD4D5, 0xD6D7, 0xD8D9, 0xDAE1,
-		0xE2E3, 0xE4E5, 0xE6E7, 0xE8E9, 0xEAF1, 0xF2F3, 0xF4F5, 0xF6F7, 0xF8F9,
-		0xFA11,
-		// chrominance ac (1 - 16)
-		0x0002, 0x0102, 0x0404, 0x0304, 0x0705, 0x0404, 0x0001, 0x0277,
-		// chrominance ac (1 - 162)
-		0x0001, 0x0203, 0x1104, 0x0521, 0x3106, 0x1241, 0x5107, 0x6171, 0x1322,
-		0x3281, 0x0814, 0x4291, 0xA1B1, 0xC109, 0x2333, 0x52F0, 0x1562, 0x72D1,
-		0x0A16, 0x2434, 0xE125, 0xF117, 0x1819, 0x1A26, 0x2728, 0x292A, 0x3536,
-		0x3738, 0x393A, 0x4344, 0x4546, 0x4748, 0x494A, 0x5354, 0x5556, 0x5758,
-		0x595A, 0x6364, 0x6566, 0x6768, 0x696A, 0x7374, 0x7576, 0x7778, 0x797A,
-		0x8283, 0x8485, 0x8687, 0x8889, 0x8A92, 0x9394, 0x9596, 0x9798, 0x999A,
-		0xA2A3, 0xA4A5, 0xA6A7, 0xA8A9, 0xAAB2, 0xB3B4, 0xB5B6, 0xB7B8, 0xB9BA,
-		0xC2C3, 0xC4C5, 0xC6C7, 0xC8C9, 0xCAD2, 0xD3D4, 0xD5D6, 0xD7D8, 0xD9DA,
-		0xE2E3, 0xE4E5, 0xE6E7, 0xE8E9, 0xEAF2, 0xF3F4, 0xF5F6, 0xF7F8, 0xF9FA
+	static int16 luminance_quant_table[] = {
+		16, 11, 10, 16, 24, 40, 51, 61,
+		12, 12, 14, 19, 26, 58, 60, 55,
+		14, 13, 16, 24, 40, 57, 69, 56,
+		14, 17, 22, 29, 51, 87, 80, 62,
+		18, 22, 37, 56, 68, 109, 103, 77,
+		24, 35, 55, 64, 81, 104, 113, 92,
+		49, 64, 78, 87, 103, 121, 120, 101,
+		72, 92, 95, 98, 112, 100, 103, 99
 	};
 
-	static uint8 bitsize[] = {
-		0, 1, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 
-		5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 
-		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 
-		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 
-		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 
-		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-		7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8,
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 
-		8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8, 8
+	static int16 chrominance_quant_table[] = {
+		17, 18, 24, 47, 99, 99, 99, 99,
+		18, 21, 26, 66, 99, 99, 99, 99,
+		24, 26, 56, 99, 99, 99, 99, 99,
+		47, 66, 99, 99, 99, 99, 99, 99,
+		99, 99, 99, 99, 99, 99, 99, 99,
+		99, 99, 99, 99, 99, 99, 99, 99,
+		99, 99, 99, 99, 99, 99, 99, 99,
+		99, 99, 99, 99, 99, 99, 99, 99
 	};
 
-	static uint16 luminance_dc_code_table[] = {
-		0x0000, 0x0002, 0x0003, 0x0004, 0x0005, 0x0006,
-		0x000E, 0x001E, 0x003E, 0x007E, 0x00FE, 0x01FE
+	// Various JPEG enums and tables.
+	enum { 
+		M_SOF0 = 0xC0, 
+		M_DHT = 0xC4, 
+		M_SOI = 0xD8, 
+		M_EOI = 0xD9, 
+		M_SOS = 0xDA, 
+		M_DQT = 0xDB, 
+		M_APP0 = 0xE0 
 	};
 
-	static uint16 luminance_dc_size_table[] = {
-		0x0002, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003,
-		0x0004, 0x0005, 0x0006, 0x0007, 0x0008, 0x0009
+	enum { 
+		DC_LUM_CODES = 12, 
+		AC_LUM_CODES = 256, 
+		DC_CHROMA_CODES = 12, 
+		AC_CHROMA_CODES = 256, 
+		MAX_HUFF_SYMBOLS = 257, 
+		MAX_HUFF_CODESIZE = 32 
 	};
 
-	static uint16 chrominance_dc_code_table[] = {
-		0x0000, 0x0001, 0x0002, 0x0006, 0x000E, 0x001E, 
-		0x003E, 0x007E, 0x00FE, 0x01FE, 0x03FE, 0x07FE
-	};
-
-	static uint16 chrominance_dc_size_table[] = {
-		0x0002, 0x0002, 0x0002, 0x0003, 0x0004, 0x0005,
-		0x0006, 0x0007, 0x0008, 0x0009, 0x000A, 0x000B
-	};
-
-	static uint16 luminance_ac_code_table[] = {
-		0x000A, 0x0000, 0x0001, 0x0004, 0x000B, 0x001A, 0x0078, 0x00F8, 0x03F6,
-		0xFF82, 0xFF83, 0x000C, 0x001B, 0x0079, 0x01F6, 0x07F6, 0xFF84, 0xFF85,
-		0xFF86, 0xFF87, 0xFF88, 0x001C, 0x00F9, 0x03F7, 0x0FF4, 0xFF89, 0xFF8A,
-		0xFF8b, 0xFF8C, 0xFF8D, 0xFF8E, 0x003A, 0x01F7, 0x0FF5, 0xFF8F, 0xFF90,
-		0xFF91, 0xFF92, 0xFF93, 0xFF94, 0xFF95, 0x003B, 0x03F8, 0xFF96, 0xFF97,
-		0xFF98, 0xFF99, 0xFF9A, 0xFF9B, 0xFF9C, 0xFF9D, 0x007A, 0x07F7, 0xFF9E,
-		0xFF9F, 0xFFA0, 0xFFA1, 0xFFA2, 0xFFA3, 0xFFA4, 0xFFA5, 0x007B, 0x0FF6,
-		0xFFA6, 0xFFA7, 0xFFA8, 0xFFA9, 0xFFAA, 0xFFAB, 0xFFAC, 0xFFAD, 0x00FA,
-		0x0FF7, 0xFFAE, 0xFFAF, 0xFFB0, 0xFFB1, 0xFFB2, 0xFFB3, 0xFFB4, 0xFFB5,
-		0x01F8, 0x7FC0, 0xFFB6, 0xFFB7, 0xFFB8, 0xFFB9, 0xFFBA, 0xFFBB, 0xFFBC,
-		0xFFBD, 0x01F9, 0xFFBE, 0xFFBF, 0xFFC0, 0xFFC1, 0xFFC2, 0xFFC3, 0xFFC4,
-		0xFFC5, 0xFFC6, 0x01FA, 0xFFC7, 0xFFC8, 0xFFC9, 0xFFCA, 0xFFCB, 0xFFCC,
-		0xFFCD, 0xFFCE, 0xFFCF, 0x03F9, 0xFFD0, 0xFFD1, 0xFFD2, 0xFFD3, 0xFFD4,
-		0xFFD5, 0xFFD6, 0xFFD7, 0xFFD8, 0x03FA, 0xFFD9, 0xFFDA, 0xFFDB, 0xFFDC,
-		0xFFDD, 0xFFDE, 0xFFDF, 0xFFE0, 0xFFE1, 0x07F8, 0xFFE2, 0xFFE3, 0xFFE4,
-		0xFFE5, 0xFFE6, 0xFFE7, 0xFFE8, 0xFFE9, 0xFFEA, 0xFFEB, 0xFFEC, 0xFFED,
-		0xFFEE, 0xFFEF, 0xFFF0, 0xFFF1, 0xFFF2, 0xFFF3, 0xFFF4, 0xFFF5, 0xFFF6,
-		0xFFF7, 0xFFF8, 0xFFF9, 0xFFFA, 0xFFFB, 0xFFFC, 0xFFFD, 0xFFFE, 0x07F9
-	};
-
-	static uint16 luminance_ac_size_table[] = {
-		0x0004, 0x0002, 0x0002, 0x0003, 0x0004, 0x0005, 0x0007, 0x0008, 0x000A,
-		0x0010, 0x0010, 0x0004, 0x0005, 0x0007, 0x0009, 0x000B, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0005, 0x0008, 0x000A, 0x000C, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0006, 0x0009, 0x000C, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0006, 0x000A, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0007, 0x000B, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0007, 0x000C,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0008,
-		0x000C, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0009, 0x000F, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0009, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0009, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x000A, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x000A, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x000B, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x000B
-	};
-
-	static uint16 chrominance_ac_code_table[] = {
-		0x0000, 0x0001, 0x0004, 0x000A, 0x0018, 0x0019, 0x0038, 0x0078, 0x01F4,
-		0x03F6, 0x0FF4, 0x000B, 0x0039, 0x00F6, 0x01F5, 0x07F6, 0x0FF5, 0xFF88,
-		0xFF89, 0xFF8A, 0xFF8B, 0x001A, 0x00F7, 0x03F7, 0x0FF6, 0x7FC2, 0xFF8C,
-		0xFF8D, 0xFF8E, 0xFF8F, 0xFF90, 0x001B, 0x00F8, 0x03F8, 0x0FF7, 0xFF91,
-		0xFF92, 0xFF93, 0xFF94, 0xFF95, 0xFF96, 0x003A, 0x01F6, 0xFF97, 0xFF98,
-		0xFF99, 0xFF9A, 0xFF9B, 0xFF9C, 0xFF9D, 0xFF9E, 0x003B, 0x03F9, 0xFF9F,
-		0xFFA0, 0xFFA1, 0xFFA2, 0xFFA3, 0xFFA4, 0xFFA5, 0xFFA6, 0x0079, 0x07F7,
-		0xFFA7, 0xFFA8, 0xFFA9, 0xFFAA, 0xFFAB, 0xFFAC, 0xFFAD, 0xFFAE, 0x007A,
-		0x07F8, 0xFFAF, 0xFFB0, 0xFFB1, 0xFFB2, 0xFFB3, 0xFFB4, 0xFFB5, 0xFFB6,
-		0x00F9, 0xFFB7, 0xFFB8, 0xFFB9, 0xFFBA, 0xFFBB, 0xFFBC, 0xFFBD, 0xFFBE,
-		0xFFBF, 0x01F7, 0xFFC0, 0xFFC1, 0xFFC2, 0xFFC3, 0xFFC4, 0xFFC5, 0xFFC6,
-		0xFFC7, 0xFFC8, 0x01F8, 0xFFC9, 0xFFCA, 0xFFCB, 0xFFCC, 0xFFCD, 0xFFCE,
-		0xFFCF, 0xFFD0, 0xFFD1, 0x01F9, 0xFFD2, 0xFFD3, 0xFFD4, 0xFFD5, 0xFFD6,
-		0xFFD7, 0xFFD8, 0xFFD9, 0xFFDA, 0x01FA, 0xFFDB, 0xFFDC, 0xFFDD, 0xFFDE,
-		0xFFDF, 0xFFE0, 0xFFE1, 0xFFE2, 0xFFE3, 0x07F9, 0xFFE4, 0xFFE5, 0xFFE6,
-		0xFFE7, 0xFFE8, 0xFFE9, 0xFFEA, 0xFFEb, 0xFFEC, 0x3FE0, 0xFFED, 0xFFEE,
-		0xFFEF, 0xFFF0, 0xFFF1, 0xFFF2, 0xFFF3, 0xFFF4, 0xFFF5, 0x7FC3, 0xFFF6,
-		0xFFF7, 0xFFF8, 0xFFF9, 0xFFFA, 0xFFFB, 0xFFFC, 0xFFFD, 0xFFFE, 0x03FA
-	};
-
-	static uint16 chrominance_ac_size_table[] = {
-		0x0002, 0x0002, 0x0003, 0x0004, 0x0005, 0x0005, 0x0006, 0x0007, 0x0009,
-		0x000A, 0x000C, 0x0004, 0x0006, 0x0008, 0x0009, 0x000B, 0x000C, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0005, 0x0008, 0x000A, 0x000C, 0x000F, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0005, 0x0008, 0x000A, 0x000C, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0006, 0x0009, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0006, 0x000A, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0007, 0x000B,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0007,
-		0x000B, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0008, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0009, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0009, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0009, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0009, 0x0010, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x000B, 0x0010, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x000E, 0x0010, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x000F, 0x0010,
-		0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x0010, 0x000A
-	};
-
-	uint16 DSP_Division(uint32 numer, uint32 denom)
+	inline void BGR2YCC(uint8 b, uint8 g, uint8 r,  int8 & Y, int8 & Cb, int8 & Cr)
 	{
-		denom <<= 15;
-		for (int i = 16; i > 0; i--)
+		Y = (uint8)((0.299 * r) + (0.587 * g) + (0.114 * b) - 128);
+		Cb = (uint8)(-(0.168736 * r) - (0.331264 * g) + (0.5 * b));
+		Cr = (uint8)((0.5 * r) - (0.418688 * g) - (0.081312 * b));
+	}
+
+	struct SymbolFreq{ uint key, index; };
+
+	SymbolFreq* RadixSortSyms(int count, SymbolFreq* sym0, SymbolFreq* sym1)
+	{
+		const uint maxPasses = 4;
+		uint32 hist[256 * maxPasses] = { 0 };
+		for (int i = 0; i < count; i++)
 		{
-			if (numer > denom)
+			uint freq = sym0[i].key;
+			hist[freq & 0xff]++;
+			hist[256+((freq >> 8) & 0xff)]++;
+			hist[256*2+((freq >> 16) & 0xff)]++;
+			hist[256*3+((freq >> 24) & 0xff)]++;
+		}
+
+		uint totalPasses = maxPasses;
+		SymbolFreq* p0 = sym0, *p1 = sym1;
+
+		while ((totalPasses > 1) && (count == hist[(totalPasses - 1) * 256]))
+		{
+			totalPasses--;
+		}
+
+		for (uint pass_shift = 0, pass = 0; pass < totalPasses; pass++, pass_shift += 8)
+		{
+			uint offset = 0;
+			uint offsets[256] = { 0 };
+			const uint32* p = &hist[pass << 8];
+
+			for (int i = 0; i < 256; i++)
 			{
-				numer -= denom;
-				numer <<= 1;
-				numer++;
+				offsets[i] = offset;
+				offset += p[i];
+			}
+
+			for (int i = 0; i < count; i++)
+			{
+				p1[offsets[(p0[i].key >> pass_shift) & 0xff]++] = p0[i];
+			}
+
+			SymbolFreq* temp = p0;
+			p0 = p1;
+			p1 = temp;
+		}
+
+		return p0;
+	}
+
+	void CalculateMinimumRedundancy(SymbolFreq* A, int n)
+	{
+		if (n == 0)
+		{
+			return;
+		}
+		else if (n == 1)
+		{
+			A[0].key = 1; 
+			return;
+		}
+
+		int root, leaf, next, avb1, used, depth;
+
+		root = 0;
+		leaf = 2;
+		A[0].key += A[1].key;
+
+		for (next = 1; next < n - 1; next++)
+		{
+			if (leaf >= n || A[root].key < A[leaf].key)
+			{
+				A[next].key = A[root].key;
+				A[root].key = next;
+				root++;
 			}
 			else
 			{
-				numer <<= 1;
+				A[next].key = A[leaf].key;
+				leaf++;
+			}
+
+			if (leaf >= n || (root < next && A[root].key < A[leaf].key))
+			{
+				A[next].key += A[root].key;
+				A[root].key = next;
+				root++;
+			}
+			else
+			{
+				A[next].key += A[leaf].key;
+				leaf++;
 			}
 		}
 
-		return (uint16)(numer);
+		A[n - 2].key = 0;
+		for (next = n - 3; next >= 0; next--)
+		{
+			A[next].key = A[A[next].key].key + 1;
+		}
+
+		avb1 = 1;
+		used = depth = 0;
+		root = n - 2;
+		next = n - 1;
+
+		while (avb1 > 0)
+		{
+			while (root >= 0 && (int)A[root].key == depth)
+			{
+				used++;
+				root--;
+			}
+
+			while (avb1 > used)
+			{
+				A[next].key = depth;
+				next--;
+				avb1--;
+			}
+
+			avb1 = 2 * used; depth++; used = 0;
+		}
+	}
+
+	static void HuffmanEnforceMaxCodeSize(int* codesCount, int codeListLen, int maxCodeSize)
+	{
+		if (codeListLen <= 1) return;
+
+		for (int i = maxCodeSize + 1; i <= MAX_HUFF_CODESIZE; i++)
+		{
+			codesCount[maxCodeSize] += codesCount[i];
+		}
+
+		uint32 total = 0;
+		for (int i = maxCodeSize; i > 0; i--)
+		{
+			total += (((uint32)codesCount[i]) << (maxCodeSize - i));
+		}
+
+		while (total != (1UL << maxCodeSize))
+		{
+			codesCount[maxCodeSize]--;
+
+			for (int i = maxCodeSize - 1; i > 0; i--)
+			{
+				if (codesCount[i])
+				{
+					codesCount[i]--;
+					codesCount[i + 1] += 2;
+					break;
+				}
+			}
+			
+			total--;
+		}
+	}
+
+	void HuffmanTable::Optimize(int tableLenght)
+	{
+		SymbolFreq sym0[MAX_HUFF_SYMBOLS], sym1[MAX_HUFF_SYMBOLS];
+		sym0[0].key = 1; sym0[0].index = 0;
+		int usedCount = 1;
+
+		for (int i = 0; i < tableLenght; i++)
+		{
+			if (counts[i])
+			{
+				sym0[usedCount].key = counts[i];
+				sym0[usedCount].index = i + 1;
+				usedCount++;
+			}
+		}
+
+		SymbolFreq* syms = RadixSortSyms(usedCount, sym0, sym1);
+		CalculateMinimumRedundancy(syms, usedCount);
+
+		int codesCount[MAX_HUFF_CODESIZE + 1] = { 0 };
+		for (int i = 0; i < usedCount; i++)
+		{
+			codesCount[syms[i].key]++;
+		}
+
+		const uint CODE_SIZE_LIMIT = 16;
+		HuffmanEnforceMaxCodeSize(codesCount, usedCount, CODE_SIZE_LIMIT);
+
+		memset(bits, 0, sizeof(bits));
+		for (int i = 1; i <= (int)CODE_SIZE_LIMIT; i++)
+		{
+			bits[i] = static_cast<uint8>(codesCount[i]);
+		}
+
+		for (int i = CODE_SIZE_LIMIT; i >= 1; i--)
+		{
+			if (bits[i])
+			{
+				bits[i]--;
+				break;
+			}
+		}
+
+		for (int i = usedCount - 1; i >= 1; i--)
+		{
+			values[usedCount - 1 - i] = static_cast<uint8>(syms[i].index - 1);
+		}
+	}
+
+	void HuffmanTable::Compute(void)
+	{
+		int last_p, si;
+		uint8 huffSize[257];
+		uint huffCode[257];
+		uint code;
+
+		int p = 0; 
+		for (char l = 1; l <= 16; l++)
+		{
+			for (int i = 1; i <= bits[l]; i++)
+			{
+				huffSize[p++] = l;
+			}
+		}
+
+		huffSize[p] = 0;
+		last_p = p;
+
+		code = 0;
+		si = huffSize[0];
+		p = 0;
+
+		while (huffSize[p])
+		{
+			while (huffSize[p] == si)
+			{
+				huffCode[p++] = code++;
+			}
+
+			code <<= 1;
+			si++;
+		}
+
+		memset(codes, 0, sizeof(codes[0]) * 256);
+		memset(code_sizes, 0, sizeof(code_sizes[0]) * 256);
+
+		for (p = 0; p < last_p; p++)
+		{
+			codes[values[p]] = huffCode[p];
+			code_sizes[values[p]] = huffSize[p];
+		}
+	}
+
+	void HuffmanTable::Dump(const char* file)
+	{
+		FILE* fp = 0;
+		fopen_s(&fp, file, "w");
+
+		if (fp)
+		{
+			for (int i = 0; i < 256; i++)
+			{
+				fprintf(fp, "%d ", codes[i]);
+			}
+
+			fprintf(fp, "\r\n");
+
+			for (int i = 0; i < 256; i++)
+			{
+				fprintf(fp, "%d ", code_sizes[i]);
+			}
+
+			fprintf(fp, "\r\n");
+
+			for (int i = 0; i < 17; i++)
+			{
+				fprintf(fp, "%d ", bits[i]);
+			}
+
+			fprintf(fp, "\r\n");
+
+			for (int i = 0; i < 256; i++)
+			{
+				fprintf(fp, "%d ", values[i]);
+			}
+
+			fprintf(fp, "\r\n");
+
+			for (int i = 0; i < 256; i++)
+			{
+				fprintf(fp, "%d ", counts[i]);
+			}
+
+			fprintf(fp, "\r\n");
+
+			fclose(fp);
+		}
 	}
 
 	Encoder::Encoder()
 	{
-		fnReadFormat = 0;
-		lcode = 0;
-		bitindex = 0;
+		w = h = 0;
+		w1[0] = w1[1] = w1[2] = 0;
+		h1[0] = h1[1] = h1[2] = 0;
+		data[0] = data[1] = data[3] = 0;
+		compCount = 0;
+		quality = 85;
+		subsampling = -1;
+		output_buffer = 0;
 	}
 
 	Encoder::~Encoder()
 	{
-
+		Cleanup();
 	}
 
-	uint8* Encoder::WriteMarkers(uint8* out, uint32 format, uint32 width, uint32 height)
+	void Encoder::Initialize(int width, int height, int bitCount, bool nochroma)
 	{
-		uint16 header_lenght;
-		uint8 number_of_components;
-
-		//Start of image market
-		*out++ = 0xff;
-		*out++ = 0xd8;
-
-		//Quantization table marker
-		*out++ = 0xff;
-		*out++ = 0xdb;
-
-		//Quantization table lenght
-		*out++ = 0x00;
-		*out++ = 0x84;
-
-		//PQ,TQ
-		*out++ = 0x00;
-
-		//LQT table
-		for (int i = 0; i < 64; i++)
+		switch (subsampling)
 		{
-			*out++ = LQT[i];
+		case Y_ONLY:
+			comp[0].h_samples = 1;
+			comp[0].v_samples = 1;
+			mcu_w = 8;
+			mcu_h = 8;
+			break;
+		case H1V1:
+			comp[0].h_samples = 1;
+			comp[0].v_samples = 1;
+			comp[1].h_samples = 1;
+			comp[1].v_samples = 1;
+			comp[2].h_samples = 1;
+			comp[2].v_samples = 1;
+			mcu_w = 8;
+			mcu_h = 8;
+			break;
+		case H2V1:
+			comp[0].h_samples = 2;
+			comp[0].v_samples = 1;
+			comp[1].h_samples = 1;
+			comp[1].v_samples = 1;
+			comp[2].h_samples = 1;
+			comp[2].v_samples = 1;
+			mcu_w = 16;
+			mcu_h = 8;
+			break;
+		case H2V2:
+			comp[0].h_samples = 2;
+			comp[0].v_samples = 2;
+			comp[1].h_samples = 1;
+			comp[1].v_samples = 1;
+			comp[2].h_samples = 1;
+			comp[2].v_samples = 1;
+			mcu_w = 16;
+			mcu_h = 16;
+			break;
+		default:
+			assert(0);
+			break;
 		}
 
-		//PQ,TQ
-		*out++ = 0x01;
+		w = width;
+		h = height;
+		w1[0] = w1[1] = w1[2] = (w + mcu_w - 1) & (~(mcu_w - 1));
+		h1[0] = h1[1] = h1[2] = (h + mcu_h - 1) & (~(mcu_h - 1));
 
-		//CQT table
-		for (int i = 0; i < 64; i++)
+		for (int i = 0; i < compCount; i++)
 		{
-			*out++ = CQT[i];
+			data[i] = (int16*)malloc(w1[i] * h1[i] * sizeof(int16));
+			assert(data[i] != 0);
 		}
 
-		//haffman table (DHT)
-		for (int i = 0; i < 210; i++)
-		{
-			*out++ = (uint8)(marketdata[i] >> 8);
-			*out++ = (uint8)(marketdata[i]);
-		}
+		memset(&huffman, 0, sizeof(huffman));
 
-		//FOUR_ZERO_ZERO
-		number_of_components = 3;
+		InitQuantTable(quality, nochroma);
 
-		//frame header(SOF)
-
-		//Start of frame marker
-		*out++ = 0xff;
-		*out++ = 0xc0;
-		header_lenght = (uint16)(8 + 3 * number_of_components);
-
-		//frame lenght
-		*out++ = (uint8)(header_lenght >> 8);
-		*out++ = (uint8)(header_lenght);
-
-		//precision(P)
-		*out++ = 0x08;
-
-		//image height
-		*out++ = (uint8)(height >> 8);
-		*out++ = (uint8)(height);
-
-		//image width
-		*out++ = (uint8)(width >> 8);
-		*out++ = (uint8)(width);
-
-		//Nf
-		*out++ = number_of_components;
-
-		//FOUR_ZERO_ZERO
-		*out++ = 0x01;
-		*out++ = 0x21;
-		*out++ = 0x00;
-		*out++ = 0x02;
-		*out++ = 0x11;
-		*out++ = 0x01;
-		*out++ = 0x03;
-		*out++ = 0x11;
-		*out++ = 0x01;
-
-		//Scan header(SOS)
-
-		//Start of scan marker
-		*out++ = 0xff;
-		*out++ = 0xda;
-		header_lenght = (uint16)(6 + (number_of_components << 1));
-
-		//scan header lenght
-		*out++ = (uint8)(header_lenght >> 8);
-		*out++ = (uint8)(header_lenght);
-
-		//Ns
-		*out++ = number_of_components;
-		//FOUR_ZERO_ZERO
-		*out++ = 0x01;
-		*out++ = 0x00;
-		*out++ = 0x02;
-		*out++ = 0x11;
-		*out++ = 0x03;
-		*out++ = 0x11;
-
-		*out++ = 0x00;
-		*out++ = 0x3f;
-		*out++ = 0x00;
-
-		return out;
+		ResetLastDC();
 	}
 
-	void Encoder::ReadYUV422(JpegEncoderStruct* jes, uint8* input)
+	void Encoder::InitQuantTable(int quality, bool nochroma)
 	{
-		uint16 y1_cols, y2_cols;
-		int16* y1_ptr = Y1;
-		int16* y2_ptr = Y2;
-		int16* cb_ptr = CB;
-		int16* cr_ptr = CR;
-		uint16 rows = jes->rows;
-		uint16 cols = jes->cols;
-		uint16 incr = jes->incr;
+		ComputeQuantTable(huffman[0].quantization_table, luminance_quant_table, quality);
+		ComputeQuantTable(huffman[1].quantization_table, nochroma ? luminance_quant_table : chrominance_quant_table, quality);
+	}
 
-		if (cols <= 8)
+	void Encoder::ComputeQuantTable(int32* dst, int16* src, int quality)
+	{
+		int q;
+
+		if (quality < 50)
 		{
-			y1_cols = cols;
-			y2_cols = 0;
+			q = 5000 / quality;
 		}
 		else
 		{
-			y1_cols = 8;
-			y2_cols = (uint16)(cols - 8);
+			q = 200 - quality * 2;
 		}
 
-		for (int i = rows; i > 0; i--)
+		for (int i = 0; i < 64; i++)
 		{
-			for (int j = y1_cols>>1; j > 0; j--)
+			int32 j = (src[i] * q + 50) / 100;
+			dst[i] = MIN(MAX(j, 1), 1024 / 3);
+		}
+
+		if (dst[0] > 8) dst[0] = (dst[0] + 24) / 4;
+		if (dst[1] > 24) dst[1] = (dst[1] + 24) / 2;
+		if (dst[2] > 24) dst[2] = (dst[2] + 24) / 2;
+	}
+
+	void Encoder::ResetLastDC(void)
+	{
+		bit_buffer = 0;
+		bits_in = 0;
+		comp[0].last_dc_value = 0;
+		comp[1].last_dc_value = 0;
+		comp[2].last_dc_value = 0;
+	}
+
+	void Encoder::Pretreatment(uint8* input, int width, int height, int bitCount)
+	{
+		//BGR2YCC
+		int bytesPerPixel = bitCount / 8;
+		int lineBytes = WIDTHBYTES(width*bitCount);
+
+		for (int y = 0; y < height; y++)
+		{
+			uint8* p = input + lineBytes * y;
+			
+			for (int x = 0; x < width; x++)
 			{
-				*y1_ptr++ = *input++ - 128;
-				*cb_ptr++ = *input++ - 128;
-				*y1_ptr++ = *input++ - 128;
-				*cr_ptr++ = *input++ - 128;
+				int8 Y, U, V;
+
+				BGR2YCC(*(p + 0), *(p + 1), *(p + 2), Y, U, V);
+
+				data[0][w1[0] * y + x] = Y;
+				data[1][w1[1] * y + x] = U;
+				data[2][w1[2] * y + x] = V;
+
+				p += bytesPerPixel;
 			}
 
-			for (int j = y2_cols >> 1; j > 0; j--)
+			for (int x = width; x < w1[0]; x++)
 			{
-				*y2_ptr++ = *input++ - 128;
-				*cb_ptr++ = *input++ - 128;
-				*y2_ptr++ = *input++ - 128;
-				*cr_ptr++ = *input++ - 128;
+				data[0][w1[0] * y + x] = data[0][w1[0] * y + width - 1];
+				data[1][w1[1] * y + x] = data[1][w1[1] * y + width - 1];
+				data[2][w1[2] * y + x] = data[2][w1[2] * y + width - 1];
 			}
+		}
 
-			if (cols <= 8)
+		for (int y = height; y < h1[0]; y++)
+		{
+			for (int x = 0; x < w1[0]; x++)
 			{
-				for (int j = 8 - y1_cols; j > 0; j--)
+				data[0][w1[0] * y + x] = data[0][w1[0] * (y - 1) + x];
+				data[1][w1[1] * y + x] = data[1][w1[1] * (y - 1) + x];
+				data[2][w1[2] * y + x] = data[2][w1[2] * (y - 1) + x];
+			}
+		}
+
+		SubSample();
+
+		// overflow white and black, making distortions overflow as well,
+		// so distortions (ringing) will be clamped by the decoder
+		if (huffman[0].quantization_table[0] > 2)
+		{
+			for (int c = 0; c < compCount; c++)
+			{
+				for (int y = 0; y < h1[c]; y++)
 				{
-					*y1_ptr++ = *(y1_ptr - 1);
+					for (int x = 0; x < w1[c]; x++)
+					{
+						int16 px = data[c][w1[c] * y + x];
+
+						if (px <= -128)
+							px -= huffman[0].quantization_table[0];
+						else if (px >= 128)
+							px += huffman[0].quantization_table[0];
+
+						data[c][w1[c] * y + x] = px;
+					}
 				}
+			}
+		}
 
-				for (int j = 8 - y2_cols; j > 0; j--)
+		Dump("f:\\dump1.txt", 0);
+	}
+
+	inline int16 Encoder::GetPixel(int x, int y, int channel)
+	{
+		return data[channel][w1[channel] * y + x];
+	}
+
+	int16 Encoder::BlendQuad(int x, int y, int channel)
+	{
+		int a = 129 - abs(GetPixel(x, y, 0));
+		int b = 129 - abs(GetPixel(x + 1, y, 0));
+		int c = 129 - abs(GetPixel(x, y + 1, 0));
+		int d = 129 - abs(GetPixel(x + 1, y + 1, 0));
+
+		return (GetPixel(x, y, channel) * a
+			+ GetPixel(x + 1, y, channel) * b
+			+ GetPixel(x, y + 1, channel) * c
+			+ GetPixel(x + 1, y + 1, channel) * d) / ((a + b + c + d) == 0 ? 1 : (a + b + c + d));
+	}
+
+	inline int16 Encoder::BlendDual(int x, int y, int channel)
+	{
+		int16 a = 129 - abs(GetPixel(x, y, 0));
+		int16 b = 129 - abs(GetPixel(x + 1, y, 0));
+		return (GetPixel(x, y, channel)*a + GetPixel(x + 1, y, channel) * b) / (a + b);
+	}
+
+	void Encoder::SubSample(void)
+	{
+		if (comp[0].h_samples == 2)
+		{
+			if (comp[0].v_samples == 2)
+			{
+				for (int c = 1; c < compCount; c++)
 				{
-					*y2_ptr++ = *(y1_ptr - 1);
+					for (int y = 0; y < h1[c]; y+=2)
+					{
+						for (int x = 0; x < w1[c]; x+=2)
+						{
+							data[c][w1[c] / 4 * y + x / 2] = BlendQuad(x, y, c);
+						}
+					}
+
+					w1[c] /= 2;
+					h1[c] /= 2;
 				}
 			}
 			else
 			{
-				for (int j = 8 - y2_cols; j > 0; j--)
+				for (int c = 1; c < compCount; c++)
 				{
-					*y2_ptr++ = *(y2_ptr - 1);
+					for (int y = 0; y < h1[c]; y++)
+					{
+						for (int x = 0; x < w1[c]; x+=2)
+						{
+							data[c][w1[c] / 2 * y + x / 2] = BlendDual(x, y, c);
+						}
+					}
+
+					w1[c] /= 2;
 				}
 			}
-
-			for (int j = (16 - cols) >> 1; j > 0; j--)
-			{
-				*cb_ptr++ = *(cb_ptr - 1);
-				*cr_ptr++ = *(cr_ptr - 1);
-			}
-
-			input += incr;
 		}
+	}
 
-		for (int i = 8 - rows; i > 0; i--)
+	void Encoder::Compress(void)
+	{
+		for (int c = 0; c < compCount; c++)
 		{
-			for (int j = 8; j > 0; j--)
+			int16 sample[64];
+			for (int y = 0; y < h1[c]; y += 8)
 			{
-				*y1_ptr++ = *(y1_ptr - 8);
-				*y2_ptr++ = *(y2_ptr - 8);
-				*cb_ptr++ = *(cb_ptr - 8);
-				*cr_ptr++ = *(cr_ptr - 8);
+				for (int x = 0; x < w1[c]; x += 8)
+				{
+					LoadBlock(sample, x, y, c);
+					QuantizePixels(GetDQ(x, y, c), sample, huffman[c>0].quantization_table);
+				}
 			}
 		}
+
+		Dump("f:\\dump1.txt", 0);
+
+		for (int y = 0; y < h; y += mcu_h)
+		{
+			CodeMCURow(y, false);
+		}		
+
+		ComputeHuffmanTables();
+		ResetLastDC();
+
+		huffman[0].dc.Dump("f:\\huff_dump1.txt");
+
+		EmitStartMarkers();
+		for (int y = 0; y < h; y += mcu_h)
+		{
+			CodeMCURow(y, true);
+		}
+		EmitEndMarker();
 	}
 
-	void Encoder::RGB2YUV422(uint8* output, uint8* input, int width, int height)
+	inline int16* Encoder::GetDQ(int x, int y, int channel)
 	{
-		uint8 R, G, B, R1, G1, B1;
-		int32 Y, Yp, Cb, Cr;
-		uint8* inbuf = input;
-		uint32 size = width * height / 2;
+		return &data[channel][64 * (y / 8 * w1[channel] / 8 + x / 8)];
+	}
 
-		for (uint32 i = size; i > 0; i--)
+	void Encoder::LoadBlock(int16* dst, int x, int y, int channel)
+	{
+		for (int i = 0; i < 8; i++, dst+=8)
 		{
-			B = inbuf[0];
-			G = inbuf[1];
-			R = inbuf[2];
-			B1 = inbuf[3];
-			G1 = inbuf[4];
-			R1 = inbuf[5];
-			inbuf += 6;
-
-			Y = clamp0255((77 * R + 150 * G + 29 * B) >> 8);
-			Yp = clamp0255((77 * R1 + 150 * G1 + 29 * B) >> 8);
-			Cb = clamp0255(((-43 * R - 85 * G + 128 * B) >> 8) + 128);
-			Cr = clamp0255(((128 * R - 107 * G - 21 * B) >> 8) + 128);
-
-			*input++ = (uint8)Y;
-			*input++ = (uint8)Cb;
-			*input++ = (uint8)Yp;
-			*input++ = (uint8)Cr;
+			dst[0] = GetPixel(x + 0, y + i, channel);
+			dst[1] = GetPixel(x + 1, y + i, channel);
+			dst[2] = GetPixel(x + 2, y + i, channel);
+			dst[3] = GetPixel(x + 3, y + i, channel);
+			dst[4] = GetPixel(x + 4, y + i, channel);
+			dst[5] = GetPixel(x + 5, y + i, channel);
+			dst[6] = GetPixel(x + 6, y + i, channel);
+			dst[7] = GetPixel(x + 7, y + i, channel);
 		}
 	}
 
-	void Encoder::Initialize(JpegEncoderStruct* jes, uint32 format, uint32 width, uint32 height)
+	static inline int16 RoundToZero(int16 j, const int32 quant)
 	{
-		uint16 mcu_width, mcu_height, bytes_per_pixel;
-
-		lcode = 0;
-		bitindex = 0;
-		jes->mcu_width = mcu_width = 16;
-		jes->mcu_height = mcu_height = 8;
-		jes->hori_mcus = (uint16)((width + mcu_width - 1) >> 4);
-		jes->vert_mcus = (uint16)((height + mcu_height - 1) >> 3);
-		bytes_per_pixel = 2;
-		fnReadFormat = &Encoder::ReadYUV422;
-
-		jes->rows_in_bottom_mcus = (uint16)(height - (jes->vert_mcus - 1) * mcu_height);
-		jes->cols_in_right_mcus = (uint16)(width - (jes->hori_mcus - 1) * mcu_width);
-		jes->lenght_minus_mcu_width = (uint16)((width - mcu_width) * bytes_per_pixel);
-		jes->lenght_minus_width = (uint16)((width - jes->cols_in_right_mcus) * bytes_per_pixel);
-		jes->mcu_width_size = (uint16)(mcu_width * bytes_per_pixel);
-		jes->offset = (uint16)((width * (mcu_height - 1) - (mcu_width - jes->cols_in_right_mcus)) * bytes_per_pixel);
-		jes->ldc1 = 0;
-		jes->ldc2 = 0;
-		jes->ldc3 = 0;
+		if (j < 0)
+		{
+			int16 temp = -j + (quant >> 1);
+			return (temp < quant) ? 0 : static_cast<int16>(-(temp / quant));
+		}
+		else
+		{
+			int16 temp = j + (quant >> 1);
+			return (temp < quant) ? 0 : static_cast<int16>(temp / quant);
+		}
 	}
 
-	void Encoder::InitializeQuantizationTables(uint32 qualityFactor)
+	void Encoder::QuantizePixels(int16* dst, int16* src, int32* quants)
 	{
-		uint8 luminance_quant_table[] = {
-			16, 11, 10, 16, 24, 40, 51, 61,
-			12, 12, 14, 19, 26, 58, 60, 55, 
-			14, 13, 16, 24, 40, 57, 69, 56, 
-			14, 17, 22, 29, 51, 87, 80, 62,
-			18, 22, 37, 56, 68, 109, 103, 77,
-			24, 35, 55, 64, 81, 104, 113, 92,
-			49, 64, 78, 87, 103, 121, 120, 101,
-			72, 92, 95, 98, 112, 100, 103, 99
-		};
-
-		uint8 chrominance_quant_table[] = {
-			17, 18, 24, 47, 99, 99, 99, 99,
-			18, 21, 26, 66, 99, 99, 99, 99,
-			24, 26, 56, 99, 99, 99, 99, 99,
-			47, 66, 99, 99, 99, 99, 99, 99,
-			99, 99, 99, 99, 99, 99, 99, 99,
-			99, 99, 99, 99, 99, 99, 99, 99,
-			99, 99, 99, 99, 99, 99, 99, 99,
-			99, 99, 99, 99, 99, 99, 99, 99
-		};
+		DCT(src);
 
 		for (int i = 0; i < 64; i++)
 		{
-			uint16 index = zigzag_table[i];
-			uint32 value = luminance_quant_table[i] * qualityFactor;
-			value = (value + 0x200) >> 10;
-
-			if (value == 0)
-				value = 1;
-			else if (value > 255)
-				value = 255;
-
-			CQT[index] = value;
-			ICQT[index] = DSP_Division(0x8000, value);
+			dst[i] = RoundToZero(src[zag_table[i]], quants[i]);
 		}
-	}
-
-	uint8* Encoder::CloseBitStream(uint8* output)
-	{
-		if (bitindex > 0)
-		{
-			lcode <<= (32 - bitindex);
-			uint16 count = (bitindex + 7) >> 3;
-			uint8* ptr = (uint8*)&lcode + 3;
-
-			for (uint16 i = count; i > 0; i--)
-			{
-				if ((*output++ = *ptr--) == 0xff)
-				{
-					*output = 0;
-				}
-			}
-		}
-
-		//End of image marker
-		*output++ = 0xff;
-		*output++ = 0xd9;
-
-		return output;
 	}
 
 	void Encoder::DCT(int16* data)
@@ -575,316 +755,382 @@ namespace e
 			x5 = x7 + x6;
 			x7 -= x6;
 
-			data[ 0] = (int16)((x4 + x5) >> s1);
+			data[0] = (int16)((x4 + x5) >> s1);
 			data[32] = (int16)((x4 - x5) >> s1);
 			data[16] = (int16)((x8 * c2 + x7 * c6) >> s3);
 			data[48] = (int16)((x8 * c6 - x7 * c2) >> s3);
 			data[56] = (int16)((x0 * c7 - x1 * c5 + x2 * c3 - x3 * c1) >> s3);
 			data[40] = (int16)((x0 * c5 - x1 * c1 + x2 * c7 + x3 * c3) >> s3);
 			data[24] = (int16)((x0 * c3 - x1 * c7 - x2 * c1 - x3 * c5) >> s3);
-			data[ 8] = (int16)((x0 * c1 + x1 * c3 + x2 * c5 + x3 * c7) >> s3);
+			data[8] = (int16)((x0 * c1 + x1 * c3 + x2 * c5 + x3 * c7) >> s3);
 
 			data++;
 		}
 	}
 
-	void Encoder::Quantization(int16* const data, uint16* const quant_table)
+	void Encoder::CodeMCURow(int y, bool write)
 	{
-		int32 value;
-		for (int i = 63; i > 0; i--)
+		if (compCount == 1)
 		{
-			value = data[i] * quant_table[i];
-			value = (value + 0x4000) >> 15;
-			temp[zigzag_table[i]] = (int16)value;
+			for (int x = 0; x < w; x += mcu_w)
+			{
+				CodeBlock(GetDQ(x, y, 0), &huffman[0], &comp[0], write);
+			}
+		}
+		else if (comp[0].h_samples == 1 && comp[0].v_samples == 1)
+		{
+			for (int x = 0; x < w; x += mcu_w)
+			{
+				CodeBlock(GetDQ(x, y, 0), &huffman[0], &comp[0], write);
+				CodeBlock(GetDQ(x, y, 1), &huffman[1], &comp[1], write);
+				CodeBlock(GetDQ(x, y, 2), &huffman[1], &comp[1], write);
+			}
+		}
+		else if (comp[0].h_samples == 2 && comp[0].v_samples == 1)
+		{
+			for (int x = 0; x < w; x += mcu_w)
+			{
+				CodeBlock(GetDQ(x + 0, y, 0), &huffman[0], &comp[0], write);
+				CodeBlock(GetDQ(x + 8, y, 0), &huffman[0], &comp[0], write);
+				CodeBlock(GetDQ(x / 2, y, 1), &huffman[1], &comp[1], write);
+				CodeBlock(GetDQ(x / 2, y, 2), &huffman[1], &comp[2], write);
+			}
+		}
+		else if (comp[0].h_samples == 2 && comp[0].v_samples == 2)
+		{
+			for (int x = 0; x < w; x += mcu_w)
+			{
+				CodeBlock(GetDQ(x + 0, y + 0, 0), &huffman[0], &comp[0], write);
+				CodeBlock(GetDQ(x + 8, y + 0, 0), &huffman[0], &comp[0], write);
+				CodeBlock(GetDQ(x + 0, y + 8, 0), &huffman[0], &comp[0], write);
+				CodeBlock(GetDQ(x + 8, y + 8, 0), &huffman[0], &comp[0], write);
+				CodeBlock(GetDQ(x / 2, y / 2, 1), &huffman[1], &comp[1], write);
+				CodeBlock(GetDQ(x / 2, y / 2, 2), &huffman[1], &comp[2], write);
+			}
 		}
 	}
 
-	uint8* Encoder::Haffman(JpegEncoderStruct* jes, uint16 component, uint8* output)
+	void Encoder::CodeBlock(int16* data, HuffmanDCAC* huff, Component* comp, bool write)
 	{
-		uint16* dc_code_table = 0;
-		uint16* dc_size_table = 0;
-		uint16* ac_code_table = 0;
-		uint16* ac_size_table = 0;
-		int16* temp_ptr, coeff, last_dc;
-		uint16 abs_coeff, huffcode, huffsize, runlenght = 0, data_size = 0, index;
-		int16 bit_in_next_word;
-		uint16 numbits;
-		uint32 data;
+		const int dc_delta = data[0] - comp->last_dc_value;
+		comp->last_dc_value = data[0];
 
-		temp_ptr = temp;
-		coeff = *temp_ptr++;
+		const uint nbits = BitCount(dc_delta);
 
-		if (component == 1)
+		if (write)
 		{
-			dc_code_table = luminance_dc_code_table;
-			dc_size_table = luminance_dc_size_table;
-			ac_code_table = luminance_ac_code_table;
-			ac_size_table = luminance_ac_size_table;
-			last_dc = jes->ldc1;
-			jes->ldc1 = coeff;
+			PutBits(huff->dc.codes[nbits], huff->dc.code_sizes[nbits]);
+			PutSignalBits(dc_delta, nbits);
 		}
 		else
 		{
-			dc_code_table = chrominance_dc_code_table;
-			dc_size_table = chrominance_ac_size_table;
-			ac_code_table = chrominance_ac_code_table;
-			ac_size_table = chrominance_ac_size_table;
+			huff->dc.counts[nbits]++;
+		}
 
-			if (component == 2)
+		int run_len = 0;
+		for (int i = 1; i < 64; i++)
+		{
+			const int16 ac_val = data[i];
+			if (ac_val == 0)
 			{
-				last_dc = jes->ldc2;
-				jes->ldc2 = coeff;
+				run_len++;
 			}
 			else
 			{
-				last_dc = jes->ldc3;
-				jes->ldc3 = coeff;
-			}
-		}
-
-		coeff -= last_dc;
-		abs_coeff = coeff < 0 ? -coeff-- : coeff;
-
-		while (abs_coeff != 0)
-		{
-			abs_coeff >>= 1;
-			data_size++;
-		}
-
-		huffcode = dc_code_table[data_size];
-		huffsize = dc_size_table[data_size];
-
-		coeff &= (1 << data_size) - 1;
-		data = (huffcode << data_size) | coeff;
-		numbits = huffsize + data_size;
-
-		//PUTBITS
-		{
-			bit_in_next_word = (int16)(bitindex + numbits - 32);
-			if (bit_in_next_word < 0)
-			{
-				lcode = (lcode << numbits) | data;
-				bitindex += numbits;
-			}
-			else
-			{
-				lcode = (lcode << (numbits - 32)) | (data >> bit_in_next_word);
-				if ((*output++ = (uint8)(lcode >> 24)) == 0xff)
-					*output++ = 0;
-				if ((*output++ = (uint8)(lcode >> 16)) == 0xff)
-					*output++ = 0;
-				if ((*output++ = (uint8)(lcode >> 8)) == 0xff)
-					*output++ = 0;
-				if ((*output++ = (uint8)(lcode)) == 0xff)
-					*output++ = 0;
-
-				lcode = data;
-				bitindex = bit_in_next_word;
-			}
-		}
-
-		for (int i = 63; i > 0; i--)
-		{
-			if ((coeff = *temp_ptr++) != 0)
-			{
-				while (runlenght > 15)
+				while (run_len >= 16)
 				{
-					runlenght -= 16;
-					data = ac_code_table[161];
-					numbits = ac_size_table[161];
-					//PUTBITS
-					{
-						bit_in_next_word = (int16)(bitindex + numbits - 32);
-						if (bit_in_next_word < 0)
-						{
-							lcode = (lcode << numbits) | data;
-							bitindex += numbits;
-						}
-						else
-						{
-							lcode = (lcode << (32 - bitindex)) | (data >> bit_in_next_word);
-							if ((*output++ = (uint8)(lcode >> 24)) == 0xff)
-								*output++ = 0;
-							if ((*output++ = (uint8)(lcode >> 16)) == 0xff)
-								*output++ = 0;
-							if ((*output++ = (uint8)(lcode >> 8)) == 0xff)
-								*output++ = 0;
-							if ((*output++ = (uint8)(lcode)) == 0xff)
-								*output++ = 0;
-							lcode = data;
-							bitindex = bit_in_next_word;
-						}
-					}
-				}// end while
-
-				abs_coeff = coeff < 0 ? -coeff-- : coeff;
-				if ((abs_coeff >> 8) == 0)
-				{
-					data_size = bitsize[abs_coeff];
-				}
-				else
-				{
-					data_size = bitsize[abs_coeff >> 8] + 8;
-				}
-
-				index = runlenght * 10 + data_size;
-				huffcode = ac_code_table[index];
-				huffsize = ac_size_table[index];
-				coeff &= (1 << data_size) - 1;
-				data = (huffcode << data_size) | coeff;
-				numbits = huffsize + data_size;
-				//PUTBITS
-				{
-					bit_in_next_word = (int16)(bitindex + numbits - 32);
-					if (bit_in_next_word < 0)
-					{
-						lcode = (lcode << numbits) | data;
-						bitindex += numbits;
-					}
+					if (write)
+						PutBits(huff->ac.codes[0xF0], huff->ac.code_sizes[0xF0]);
 					else
-					{
-						lcode = (lcode << (32 - numbits)) | (data >> bit_in_next_word);
-						if ((*output++ = (uint8)(lcode >> 24)) == 0xff)
-							*output++ = 0;
-						if ((*output++ = (uint8)(lcode >> 16)) == 0xff)
-							*output++ = 0;
-						if ((*output++ = (uint8)(lcode >> 8)) == 0xff)
-							*output++ = 0;
-						if ((*output++ = (uint8)(lcode)) == 0xff)
-							*output++ = 0;
-						lcode = data;
-						bitindex = bit_in_next_word;
-					}
+						huff->ac.counts[0xF0]++;
+
+					run_len -= 16;
 				}
 
-				runlenght = 0;
-			}
-			else
-			{
-				runlenght++;
-			}
-		}
+				const uint nbits = BitCount(ac_val);
+				const int code = (run_len << 4) + nbits;
 
-		if (runlenght != 0)
-		{
-			data = ac_code_table[0];
-			numbits = ac_size_table[0];
-			//PUTBITS
-			{
-				bit_in_next_word = (int16)(bitindex + numbits - 32);
-				if (bit_in_next_word < 0)
+				if (write)
 				{
-					lcode = (lcode << numbits) | data;
-					bitindex += numbits;
+					PutBits(huff->ac.codes[code], huff->ac.code_sizes[code]);
+					PutSignalBits(ac_val, nbits);
 				}
 				else
 				{
-					lcode = (lcode << (32 - numbits)) | (data >> bit_in_next_word);
-					if ((*output++ = (uint8)(lcode >> 24)) == 0xff)
-						*output++ = 0;
-					if ((*output++ = (uint8)(lcode >> 16)) == 0xff)
-						*output++ = 0;
-					if ((*output++ = (uint8)(lcode >> 8)) == 0xff)
-						*output++ = 0;
-					if ((*output++ = (uint8)(lcode)) == 0xff)
-						*output++ = 0;
-					lcode = data;
-					bitindex = bit_in_next_word;
+					huff->ac.counts[code]++;
 				}
+
+				run_len = 0;
 			}
 		}
 
-		return output;
-	}
-
-	uint8* Encoder::EncodeMCU(JpegEncoderStruct* jes, uint32 format, uint8* output)
-	{
-		DCT(Y1);
-		Quantization(Y1, ILQT);
-		output = Haffman(jes, 1, output);
-
-		if (format == FOUR_ZERO_ZERO)
+		if (run_len)
 		{
-			return output;
-		}
-
-		DCT(Y2);
-		Quantization(Y2, ILQT);
-		output = Haffman(jes, 1, output);
-		if (format == FOUR_TWO_TWO) goto chroma;
-
-		DCT(Y3);
-		Quantization(Y3, ILQT);
-		output = Haffman(jes, 1, output);
-
-		DCT(Y4);
-		Quantization(Y4, ILQT);
-		output = Haffman(jes, 1, output);
-
-	chroma:
-		DCT(CB);
-		Quantization(CB, ICQT);
-		output = Haffman(jes, 2, output);
-
-		DCT(CR);
-		Quantization(CR, ICQT);
-		output = Haffman(jes, 3, output);
-
-		return output;
-	}
-
-	uint32 Encoder::EncodeImage(uint8* output, uint8* input, uint32 qualityFactor, uint32 format, uint32 width, uint32 height)
-	{
-		uint8* out = output;
-
-		JpegEncoderStruct jpegEncoderStruct;
-		JpegEncoderStruct* jes = &jpegEncoderStruct;
-		format = FOUR_TWO_TWO;
-		RGB2YUV422(output, input, width, height);
-
-		//initialize JPEG control structure
-		Initialize(jes, format, width, height);
-
-		//quantization init
-		InitializeQuantizationTables(qualityFactor);
-
-		//Write marker data
-		output = WriteMarkers(output, format, width, height);
-
-		for (int i = 1; i <= jes->vert_mcus; i++)
-		{
-			if (i < jes->vert_mcus)
-				jes->rows = jes->mcu_height;
+			if (write)
+				PutBits(huff->ac.codes[0], huff->ac.code_sizes[0]);
 			else
-				jes->rows = jes->rows_in_bottom_mcus;
+				huff->ac.counts[0]++;
+		}
+	}
 
-			for (int j = 1; j <= jes->hori_mcus; j++)
-			{
-				if (j < jes->hori_mcus)
-				{
-					jes->cols = jes->mcu_width;
-					jes->incr = jes->lenght_minus_mcu_width;
-				}
-				else
-				{
-					jes->cols = jes->cols_in_right_mcus;
-					jes->incr = jes->lenght_minus_width;
-				}
+	inline void Encoder::PutBits(uint bits, int len)
+	{
+		bit_buffer |= ((uint32)(bits << (24 - (bits_in += len))));
 
-				assert(fnReadFormat);
-				(this->*fnReadFormat)(jes, input);
-				// encode data in MCU
-				output = EncodeMCU(jes, format, output);
-				input += jes->mcu_width_size;
-			}
+		while (bits_in >= 8)
+		{
+			uint8 c;
+#define PUT_BYTE(c) {*output_buffer++=(c);}
+			PUT_BYTE(c = (uint8)((bit_buffer >> 16) & 0xff));
+			if (c == 0xff)
+				PUT_BYTE(0x00);
 
-			input += jes->offset;
+			bit_buffer <<= 8;
+			bits_in -= 8;
+		}
+	}
+
+	inline void Encoder::PutSignalBits(int num, int len)
+	{
+		if (num < 0) num--;
+
+		PutBits(num & ((1 << len) - 1), len);
+	}
+
+	inline uint Encoder::BitCount(int value)
+	{
+		if (value < 0) value = -value;
+
+		uint count = 0;
+
+		while (value)
+		{
+			count++;
+			value >>= 1;
 		}
 
-		//Close Routine
-		output = CloseBitStream(output);
+		return count;
+	}
 
-		return (uint32)(output - out);
+	void Encoder::ComputeHuffmanTables(void)
+	{
+		huffman[0].dc.Optimize(DC_LUM_CODES);
+		huffman[0].dc.Compute();
+
+		huffman[0].ac.Optimize(AC_LUM_CODES);
+		huffman[0].ac.Compute();
+
+		if (compCount > 1)
+		{
+			huffman[1].dc.Optimize(DC_CHROMA_CODES);
+			huffman[1].dc.Compute();
+
+			huffman[1].ac.Optimize(AC_CHROMA_CODES);
+			huffman[1].ac.Compute();
+		}
+	}
+
+	void Encoder::Cleanup(void)
+	{
+		w = h = 0;
+		for (int i = 0; i < 3; i++)
+		{
+			w1[i] = h1[i] = 0;
+
+			if (data[i])
+			{
+				free(data[i]);
+				data[i] = 0;
+			}
+		}
+
+		output_buffer = 0;
+	}
+
+	inline void Encoder::EmitByte(uint8 value)
+	{
+		*output_buffer++ = value;
+	}
+
+	inline void Encoder::EmitWord(uint16 value)
+	{
+		EmitByte((uint8)(value >> 8) & 0xff);
+		EmitByte((uint8)(value & 0xff));
+	}
+
+	inline void Encoder::EmitMarker(int value)
+	{
+		EmitByte(uint8(0xff));
+		EmitByte(uint8(value));
+	}
+
+	inline void Encoder::EmitJFIFAPP0(void)
+	{
+		EmitMarker(M_APP0);
+		EmitWord(2 + 4 + 1 + 2 + 1 + 2 + 2 + 1 + 1);
+		EmitByte(0x4a); EmitByte(0x46); EmitByte(0x49); EmitByte(0x46);
+		EmitByte(0);
+		EmitByte(1);
+		EmitByte(1);
+		EmitByte(0);
+		EmitWord(1);
+		EmitWord(1);
+		EmitByte(0);
+		EmitByte(0);
+	}
+
+	inline void Encoder::EmitDQT(void)
+	{
+		for (int c = 0; c < ((compCount == 3) ? 2 : 1); c++)
+		{
+			EmitMarker(M_DQT);
+			EmitWord(64 + 1 + 2);
+			EmitByte(static_cast<uint8>(c));
+			for (int i = 0; i < 64; i++)
+			{
+				EmitByte(static_cast<uint8>(huffman[c].quantization_table[i]));
+			}
+		}
+	}
+
+	inline void Encoder::EmitSOF(void)
+	{
+		EmitMarker(M_SOF0); //baseline
+		EmitWord(3 * compCount + 2 + 5 + 1);
+		EmitByte(8); //precision
+		EmitWord(h);
+		EmitWord(w);
+		EmitByte(compCount);
+
+		for (int i = 0; i < compCount; i++)
+		{
+			EmitByte(static_cast<uint8>(i + 1)); // component ID
+			EmitByte((comp[i].h_samples << 4) + comp[i].v_samples);//h and v sampling;
+			EmitByte(i > 0);// quantization table num
+		}
+	}
+
+	inline void Encoder::EmitDHT(uint8* bits, uint8* values, int index, bool ac_flag)
+	{
+		EmitMarker(M_DHT);
+		int lenght = 0;
+		for (int i = 1; i <= 16; i++)
+		{
+			lenght += bits[i];
+		}
+
+		EmitWord(lenght + 2 + 1 + 16);
+		EmitByte(static_cast<uint8>((ac_flag << 4) + index));
+
+		for (int i = 1; i <= 16; i++)
+		{
+			EmitByte(bits[i]);
+		}
+
+		for (int i = 0; i < lenght; i++)
+		{
+			EmitByte(values[i]);
+		}
+	}
+
+	inline void Encoder::EmitDHTs(void)
+	{
+		EmitDHT(huffman[0].dc.bits, huffman[0].dc.values, 0, false);
+		EmitDHT(huffman[0].ac.bits, huffman[0].ac.values, 0, true);
+
+		if (compCount == 3)
+		{
+			EmitDHT(huffman[1].dc.bits, huffman[1].dc.values, 1, false);
+			EmitDHT(huffman[1].ac.bits, huffman[1].ac.values, 1, true);
+		}
+	}
+
+	inline void Encoder::EmitSOS(void)
+	{
+		EmitMarker(M_SOS);
+		EmitWord(2 * compCount + 2 + 1 + 3);
+		EmitByte(compCount);
+
+		for (int i = 0; i < compCount; i++)
+		{
+			EmitByte(static_cast<uint8>(i + 1));
+
+			if (i == 0)
+				EmitByte((0 << 4) + 0);
+			else
+				EmitByte((1 << 4) + 1);
+		}
+		//spectral selection
+		EmitByte(0);
+		EmitByte(63);
+		EmitByte(0);
+	}
+
+	inline void Encoder::EmitStartMarkers(void)
+	{
+		EmitMarker(M_SOI);
+		EmitJFIFAPP0();
+		EmitDQT();
+		EmitSOF();
+		EmitDHTs();
+		EmitSOS();
+	}
+
+	inline void Encoder::EmitEndMarker(void)
+	{
+		PutBits(0x7f, 7);
+		EmitMarker(M_EOI);
+	}
+
+	void Encoder::Dump(const char* file, int channel)
+	{
+		FILE *fp = 0;
+		fopen_s(&fp, file, "w");
+
+		if (fp)
+		{
+			for (int y = 0; y < h1[channel]; y++)
+			{
+				for (int x = 0; x < w1[channel]; x++)
+				{
+					int value = data[channel][w1[channel] * y + x];
+					fprintf(fp, "%d ", value);
+				}
+				fprintf(fp, "\r\n");
+			}
+
+			fclose(fp);
+		}
+	}
+
+	int Encoder::EncodeImage(uint8* output, uint8* input, int width, int height, int bitCount, int quality)
+	{
+		int bpp = bitCount / 8;
+
+		if (bpp == 1)
+			subsampling = Y_ONLY;
+		else
+			subsampling = H2V2;
+
+		this->compCount = bpp>1?3:1;
+		this->quality = quality;
+		this->output_buffer = output;
+
+		bool nochroma = false;
+		if (bpp == 1) nochroma = true;
+
+		Initialize(width, height, bitCount, nochroma);
+
+		Pretreatment(input, width, height, bitCount);
+
+		Compress();
+
+		int size = output_buffer - output;
+
+		Cleanup();
+
+		return size;
 	}
 }
+
 
