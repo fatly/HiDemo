@@ -883,7 +883,9 @@ namespace e
 #define PUT_BYTE(c) {*output_buffer++=(c);}
 			PUT_BYTE(c = (uint8)((bit_buffer >> 16) & 0xff));
 			if (c == 0xff)
+			{
 				PUT_BYTE(0x00);
+			}
 
 			bit_buffer <<= 8;
 			bits_in -= 8;
