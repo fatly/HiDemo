@@ -68,9 +68,9 @@ namespace e
 
 	inline void BGR2YCC(uint8 b, uint8 g, uint8 r,  int8 & Y, int8 & Cb, int8 & Cr)
 	{
-		Y = (uint8)((0.299 * r) + (0.587 * g) + (0.114 * b) - 128);
-		Cb = (uint8)(-(0.168736 * r) - (0.331264 * g) + (0.5 * b));
-		Cr = (uint8)((0.5 * r) - (0.418688 * g) - (0.081312 * b));
+		Y = (0.299 * r) + (0.587 * g) + (0.114 * b) - 128;
+		Cb = -(0.168736 * r) - (0.331264 * g) + (0.5 * b);
+		Cr = (0.5 * r) - (0.418688 * g) - (0.081312 * b);
 	}
 
 	struct SymbolFreq{ uint key, index; };
@@ -371,8 +371,8 @@ namespace e
 	Encoder::Encoder()
 	{
 		w = h = 0;
-		w1[0] = w1[1] = w1[2] = 0;
-		h1[0] = h1[1] = h1[2] = 0;
+		w2[0] = w2[1] = w2[2] = 0;
+		h2[0] = h2[1] = h2[2] = 0;
 		data[0] = data[1] = data[3] = 0;
 		compCount = 0;
 		quality = 85;
@@ -432,12 +432,12 @@ namespace e
 
 		w = width;
 		h = height;
-		w1[0] = w1[1] = w1[2] = (w + mcu_w - 1) & (~(mcu_w - 1));
-		h1[0] = h1[1] = h1[2] = (h + mcu_h - 1) & (~(mcu_h - 1));
+		w2[0] = w2[1] = w2[2] = (w + mcu_w - 1) & (~(mcu_w - 1));
+		h2[0] = h2[1] = h2[2] = (h + mcu_h - 1) & (~(mcu_h - 1));
 
 		for (int i = 0; i < compCount; i++)
 		{
-			data[i] = (int16*)malloc(w1[i] * h1[i] * sizeof(int16));
+			data[i] = (int16*)malloc(w2[i] * h2[i] * sizeof(int16));
 			assert(data[i] != 0);
 		}
 
@@ -499,32 +499,32 @@ namespace e
 			
 			for (int x = 0; x < width; x++)
 			{
-				int8 Y, U, V;
+				int8 Y, Cb, Cr;
 
-				BGR2YCC(*(p + 0), *(p + 1), *(p + 2), Y, U, V);
+				BGR2YCC(*(p + 0), *(p + 1), *(p + 2), Y, Cb, Cr);
 
-				data[0][w1[0] * y + x] = Y;
-				data[1][w1[1] * y + x] = U;
-				data[2][w1[2] * y + x] = V;
+				data[0][w2[0] * y + x] = Y;
+				data[1][w2[1] * y + x] = Cb;
+				data[2][w2[2] * y + x] = Cr;
 
 				p += bytesPerPixel;
 			}
 
-			for (int x = width; x < w1[0]; x++)
+			for (int x = width; x < w2[0]; x++)
 			{
-				data[0][w1[0] * y + x] = data[0][w1[0] * y + width - 1];
-				data[1][w1[1] * y + x] = data[1][w1[1] * y + width - 1];
-				data[2][w1[2] * y + x] = data[2][w1[2] * y + width - 1];
+				data[0][w2[0] * y + x] = data[0][w2[0] * y + width - 1];
+				data[1][w2[1] * y + x] = data[1][w2[1] * y + width - 1];
+				data[2][w2[2] * y + x] = data[2][w2[2] * y + width - 1];
 			}
 		}
 
-		for (int y = height; y < h1[0]; y++)
+		for (int y = height; y < h2[0]; y++)
 		{
-			for (int x = 0; x < w1[0]; x++)
+			for (int x = 0; x < w2[0]; x++)
 			{
-				data[0][w1[0] * y + x] = data[0][w1[0] * (y - 1) + x];
-				data[1][w1[1] * y + x] = data[1][w1[1] * (y - 1) + x];
-				data[2][w1[2] * y + x] = data[2][w1[2] * (y - 1) + x];
+				data[0][w2[0] * y + x] = data[0][w2[0] * (y - 1) + x];
+				data[1][w2[1] * y + x] = data[1][w2[1] * (y - 1) + x];
+				data[2][w2[2] * y + x] = data[2][w2[2] * (y - 1) + x];
 			}
 		}
 
@@ -536,18 +536,18 @@ namespace e
 		{
 			for (int c = 0; c < compCount; c++)
 			{
-				for (int y = 0; y < h1[c]; y++)
+				for (int y = 0; y < h2[c]; y++)
 				{
-					for (int x = 0; x < w1[c]; x++)
+					for (int x = 0; x < w2[c]; x++)
 					{
-						int16 px = data[c][w1[c] * y + x];
+						int16 px = data[c][w2[c] * y + x];
 
 						if (px <= -128)
 							px -= huffman[0].quantization_table[0];
 						else if (px >= 128)
 							px += huffman[0].quantization_table[0];
 
-						data[c][w1[c] * y + x] = px;
+						data[c][w2[c] * y + x] = px;
 					}
 				}
 			}
@@ -558,10 +558,10 @@ namespace e
 
 	inline int16 Encoder::GetPixel(int x, int y, int channel)
 	{
-		return data[channel][w1[channel] * y + x];
+		return data[channel][w2[channel] * y + x];
 	}
 
-	int16 Encoder::BlendQuad(int x, int y, int channel)
+	inline int16 Encoder::BlendQuad(int x, int y, int channel)
 	{
 		int a = 129 - abs(GetPixel(x, y, 0));
 		int b = 129 - abs(GetPixel(x + 1, y, 0));
@@ -589,31 +589,31 @@ namespace e
 			{
 				for (int c = 1; c < compCount; c++)
 				{
-					for (int y = 0; y < h1[c]; y+=2)
+					for (int y = 0; y < h2[c]; y+=2)
 					{
-						for (int x = 0; x < w1[c]; x+=2)
+						for (int x = 0; x < w2[c]; x+=2)
 						{
-							data[c][w1[c] / 4 * y + x / 2] = BlendQuad(x, y, c);
+							data[c][w2[c] / 4 * y + x / 2] = BlendQuad(x, y, c);
 						}
 					}
 
-					w1[c] /= 2;
-					h1[c] /= 2;
+					w2[c] /= 2;
+					h2[c] /= 2;
 				}
 			}
 			else
 			{
 				for (int c = 1; c < compCount; c++)
 				{
-					for (int y = 0; y < h1[c]; y++)
+					for (int y = 0; y < h2[c]; y++)
 					{
-						for (int x = 0; x < w1[c]; x+=2)
+						for (int x = 0; x < w2[c]; x+=2)
 						{
-							data[c][w1[c] / 2 * y + x / 2] = BlendDual(x, y, c);
+							data[c][w2[c] / 2 * y + x / 2] = BlendDual(x, y, c);
 						}
 					}
 
-					w1[c] /= 2;
+					w2[c] /= 2;
 				}
 			}
 		}
@@ -624,9 +624,9 @@ namespace e
 		for (int c = 0; c < compCount; c++)
 		{
 			int16 sample[64];
-			for (int y = 0; y < h1[c]; y += 8)
+			for (int y = 0; y < h2[c]; y += 8)
 			{
-				for (int x = 0; x < w1[c]; x += 8)
+				for (int x = 0; x < w2[c]; x += 8)
 				{
 					LoadBlock(sample, x, y, c);
 					QuantizePixels(GetDQ(x, y, c), sample, huffman[c>0].quantization_table);
@@ -656,7 +656,7 @@ namespace e
 
 	inline int16* Encoder::GetDQ(int x, int y, int channel)
 	{
-		return &data[channel][64 * (y / 8 * w1[channel] / 8 + x / 8)];
+		return &data[channel][64 * (y / 8 * w2[channel] / 8 + x / 8)];
 	}
 
 	void Encoder::LoadBlock(int16* dst, int x, int y, int channel)
@@ -935,7 +935,7 @@ namespace e
 		w = h = 0;
 		for (int i = 0; i < 3; i++)
 		{
-			w1[i] = h1[i] = 0;
+			w2[i] = h2[i] = 0;
 
 			if (data[i])
 			{
@@ -1089,11 +1089,11 @@ namespace e
 
 		if (fp)
 		{
-			for (int y = 0; y < h1[channel]; y++)
+			for (int y = 0; y < h2[channel]; y++)
 			{
-				for (int x = 0; x < w1[channel]; x++)
+				for (int x = 0; x < w2[channel]; x++)
 				{
-					int value = data[channel][w1[channel] * y + x];
+					int value = data[channel][w2[channel] * y + x];
 					fprintf(fp, "%d ", value);
 				}
 				fprintf(fp, "\r\n");

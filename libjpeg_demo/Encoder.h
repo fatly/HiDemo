@@ -41,7 +41,12 @@ namespace e
 		Encoder(void);
 		virtual ~Encoder(void);
 	public:
-		int EncodeImage(uint8* output, uint8* input, int width, int height, int bitCount, int quality);
+		int EncodeImage(uint8* output
+			, uint8* input
+			, int width
+			, int height
+			, int bitCount
+			, int quality);
 	private:
 		void Initialize(int width, int height, int bitCount, bool nochroma);
 		void Pretreatment(uint8* input, int width, int height, int bitCount);
@@ -81,8 +86,8 @@ namespace e
 	private:
 		int w;
 		int h;
-		int w1[3];
-		int h1[3];
+		int w2[3];
+		int h2[3];
 		int compCount;
 		int16* data[3];
 		int mcu_w;
