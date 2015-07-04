@@ -25,21 +25,21 @@ namespace e
 	};
 
 	static int16 luminance_quant_table[] = {
-		16, 11, 10, 16, 24, 40, 51, 61,
-		12, 12, 14, 19, 26, 58, 60, 55,
-		14, 13, 16, 24, 40, 57, 69, 56,
-		14, 17, 22, 29, 51, 87, 80, 62,
-		18, 22, 37, 56, 68, 109, 103, 77,
-		24, 35, 55, 64, 81, 104, 113, 92,
-		49, 64, 78, 87, 103, 121, 120, 101,
-		72, 92, 95, 98, 112, 100, 103, 99
+		16, 11, 12, 14, 12, 10, 16, 14,
+		13, 14, 18, 17, 16, 19, 24, 40,
+		26, 24, 22, 22, 24, 49, 35, 37,
+		29, 40, 58, 51, 61, 60, 57, 51,
+		56, 55, 64, 72, 92, 78, 64, 68,
+		87, 69, 55, 56, 80, 109, 81, 87,
+		95, 98, 103, 104, 103, 62, 77, 113,
+		121, 112, 100, 120, 92, 101, 103, 99
 	};
 
 	static int16 chrominance_quant_table[] = {
-		17, 18, 24, 47, 99, 99, 99, 99,
-		18, 21, 26, 66, 99, 99, 99, 99,
-		24, 26, 56, 99, 99, 99, 99, 99,
-		47, 66, 99, 99, 99, 99, 99, 99,
+		17, 18, 18, 24, 21, 24, 47, 26,
+		26, 47, 99, 66, 56, 66, 99, 99,
+		99, 99, 99, 99, 99, 99, 99, 99,
+		99, 99, 99, 99, 99, 99, 99, 99,
 		99, 99, 99, 99, 99, 99, 99, 99,
 		99, 99, 99, 99, 99, 99, 99, 99,
 		99, 99, 99, 99, 99, 99, 99, 99,
@@ -66,11 +66,16 @@ namespace e
 		MAX_HUFF_CODESIZE = 32 
 	};
 
+	static inline int Round(float x)
+	{
+		return (int)(x < 0 ? x - 0.5f : x + 0.5f);
+	}
+
 	inline void BGR2YCC(uint8 b, uint8 g, uint8 r,  int8 & Y, int8 & Cb, int8 & Cr)
 	{
-		Y = (0.299 * r) + (0.587 * g) + (0.114 * b) - 128;
-		Cb = -(0.168736 * r) - (0.331264 * g) + (0.5 * b);
-		Cr = (0.5 * r) - (0.418688 * g) - (0.081312 * b);
+		Y = (int8)Round((0.299f * r) + (0.587f * g) + (0.114f * b) - 128.0f);
+		Cb = (int8)Round(-(0.168736f * r) - (0.331264f * g) + (0.5f * b));
+		Cr = (int8)Round((0.5f * r) - (0.418688f * g) - (0.081312f * b));
 	}
 
 	struct SymbolFreq{ uint key, index; };
@@ -378,6 +383,7 @@ namespace e
 		quality = 85;
 		subsampling = -1;
 		output_buffer = 0;
+		original_buffer = 0;
 	}
 
 	Encoder::~Encoder()
@@ -623,7 +629,7 @@ namespace e
 	{
 		for (int c = 0; c < compCount; c++)
 		{
-			int16 sample[64];
+			double sample[64];
 			for (int y = 0; y < h2[c]; y += 8)
 			{
 				for (int x = 0; x < w2[c]; x += 8)
@@ -634,7 +640,11 @@ namespace e
 			}
 		}
 
-		Dump("f:\\dump1.txt", 0);
+		Dump("f:\\dump_dctq1.txt", 0);
+
+//		LoadData("f:\\dump_dctq0_a.txt", 0);
+//		LoadData("f:\\dump_dctq0_b.txt", 1);
+//		LoadData("f:\\dump_dctq0_c.txt", 2);
 
 		for (int y = 0; y < h; y += mcu_h)
 		{
@@ -644,7 +654,11 @@ namespace e
 		ComputeHuffmanTables();
 		ResetLastDC();
 
-		huffman[0].dc.Dump("f:\\huff_dump1.txt");
+// 		huffman[0].dc.Dump("f:\\dump_huff1_a.txt");
+// 		huffman[0].ac.Dump("f:\\dump_huff1_b.txt");
+// 		huffman[1].dc.Dump("f:\\dump_huff1_c.txt");
+// 		huffman[1].ac.Dump("f:\\dump_huff1_d.txt");
+
 
 		EmitStartMarkers();
 		for (int y = 0; y < h; y += mcu_h)
@@ -674,7 +688,23 @@ namespace e
 		}
 	}
 
-	static inline int16 RoundToZero(int16 j, const int32 quant)
+	void Encoder::LoadBlock(double* dst, int x, int y, int channel)
+	{
+		for (int i = 0; i < 8; i++, dst += 8)
+		{
+			dst[0] = GetPixel(x + 0, y + i, channel);
+			dst[1] = GetPixel(x + 1, y + i, channel);
+			dst[2] = GetPixel(x + 2, y + i, channel);
+			dst[3] = GetPixel(x + 3, y + i, channel);
+			dst[4] = GetPixel(x + 4, y + i, channel);
+			dst[5] = GetPixel(x + 5, y + i, channel);
+			dst[6] = GetPixel(x + 6, y + i, channel);
+			dst[7] = GetPixel(x + 7, y + i, channel);
+		}
+	}
+
+	template<class T>
+	static inline int16 RoundToZero(T j, const int32 quant)
 	{
 		if (j < 0)
 		{
@@ -694,7 +724,106 @@ namespace e
 
 		for (int i = 0; i < 64; i++)
 		{
-			dst[i] = RoundToZero(src[zag_table[i]], quants[i]);
+			dst[i] = RoundToZero<int16>(src[zag_table[i]], quants[i]);
+		}
+	}
+
+	void Encoder::QuantizePixels(int16* dst, double* src, int32* quants)
+	{
+		DCT(src);
+
+		for (int i = 0; i < 64; i++)
+		{
+			dst[i] = RoundToZero<double>(src[zag_table[i]], quants[i]);
+		}
+	}
+
+	void Encoder::DCT(double* data)
+	{
+		double z1, z2, z3, z4, z5, tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp10, tmp11, tmp12, tmp13, *data_ptr;
+
+		data_ptr = data;
+
+		for (int c = 0; c < 8; c++) {
+			tmp0 = data_ptr[0] + data_ptr[7];
+			tmp7 = data_ptr[0] - data_ptr[7];
+			tmp1 = data_ptr[1] + data_ptr[6];
+			tmp6 = data_ptr[1] - data_ptr[6];
+			tmp2 = data_ptr[2] + data_ptr[5];
+			tmp5 = data_ptr[2] - data_ptr[5];
+			tmp3 = data_ptr[3] + data_ptr[4];
+			tmp4 = data_ptr[3] - data_ptr[4];
+			tmp10 = tmp0 + tmp3;
+			tmp13 = tmp0 - tmp3;
+			tmp11 = tmp1 + tmp2;
+			tmp12 = tmp1 - tmp2;
+			data_ptr[0] = tmp10 + tmp11;
+			data_ptr[4] = tmp10 - tmp11;
+			z1 = (tmp12 + tmp13) * 0.541196100;
+			data_ptr[2] = z1 + tmp13 * 0.765366865;
+			data_ptr[6] = z1 + tmp12 * -1.847759065;
+			z1 = tmp4 + tmp7;
+			z2 = tmp5 + tmp6;
+			z3 = tmp4 + tmp6;
+			z4 = tmp5 + tmp7;
+			z5 = (z3 + z4) * 1.175875602;
+			tmp4 *= 0.298631336;
+			tmp5 *= 2.053119869;
+			tmp6 *= 3.072711026;
+			tmp7 *= 1.501321110;
+			z1 *= -0.899976223;
+			z2 *= -2.562915447;
+			z3 *= -1.961570560;
+			z4 *= -0.390180644;
+			z3 += z5;
+			z4 += z5;
+			data_ptr[7] = tmp4 + z1 + z3;
+			data_ptr[5] = tmp5 + z2 + z4;
+			data_ptr[3] = tmp6 + z2 + z3;
+			data_ptr[1] = tmp7 + z1 + z4;
+			data_ptr += 8;
+		}
+
+		data_ptr = data;
+
+		for (int c = 0; c < 8; c++) {
+			tmp0 = data_ptr[8 * 0] + data_ptr[8 * 7];
+			tmp7 = data_ptr[8 * 0] - data_ptr[8 * 7];
+			tmp1 = data_ptr[8 * 1] + data_ptr[8 * 6];
+			tmp6 = data_ptr[8 * 1] - data_ptr[8 * 6];
+			tmp2 = data_ptr[8 * 2] + data_ptr[8 * 5];
+			tmp5 = data_ptr[8 * 2] - data_ptr[8 * 5];
+			tmp3 = data_ptr[8 * 3] + data_ptr[8 * 4];
+			tmp4 = data_ptr[8 * 3] - data_ptr[8 * 4];
+			tmp10 = tmp0 + tmp3;
+			tmp13 = tmp0 - tmp3;
+			tmp11 = tmp1 + tmp2;
+			tmp12 = tmp1 - tmp2;
+			data_ptr[8 * 0] = (tmp10 + tmp11) / 8.0;
+			data_ptr[8 * 4] = (tmp10 - tmp11) / 8.0;
+			z1 = (tmp12 + tmp13) * 0.541196100;
+			data_ptr[8 * 2] = (z1 + tmp13 * 0.765366865) / 8.0;
+			data_ptr[8 * 6] = (z1 + tmp12 * -1.847759065) / 8.0;
+			z1 = tmp4 + tmp7;
+			z2 = tmp5 + tmp6;
+			z3 = tmp4 + tmp6;
+			z4 = tmp5 + tmp7;
+			z5 = (z3 + z4) * 1.175875602;
+			tmp4 *= 0.298631336;
+			tmp5 *= 2.053119869;
+			tmp6 *= 3.072711026;
+			tmp7 *= 1.501321110;
+			z1 *= -0.899976223;
+			z2 *= -2.562915447;
+			z3 *= -1.961570560;
+			z4 *= -0.390180644;
+			z3 += z5;
+			z4 += z5;
+			data_ptr[8 * 7] = (tmp4 + z1 + z3) / 8.0;
+			data_ptr[8 * 5] = (tmp5 + z2 + z4) / 8.0;
+			data_ptr[8 * 3] = (tmp6 + z2 + z3) / 8.0;
+			data_ptr[8 * 1] = (tmp7 + z1 + z4) / 8.0;
+			data_ptr++;
 		}
 	}
 
@@ -873,7 +1002,7 @@ namespace e
 		}
 	}
 
-	inline void Encoder::PutBits(uint bits, int len)
+	inline void Encoder::PutBits(uint bits, uint len)
 	{
 		bit_buffer |= ((uint32)(bits << (24 - (bits_in += len))));
 
@@ -892,7 +1021,7 @@ namespace e
 		}
 	}
 
-	inline void Encoder::PutSignalBits(int num, int len)
+	inline void Encoder::PutSignalBits(int num, uint len)
 	{
 		if (num < 0) num--;
 
@@ -946,12 +1075,18 @@ namespace e
 			}
 		}
 
-		output_buffer = 0;
+		//output_buffer = 0;
+		//original_buffer = 0;
 	}
 
 	inline void Encoder::EmitByte(uint8 value)
 	{
 		*output_buffer++ = value;
+
+		if (output_buffer - original_buffer == 800)
+		{
+			assert(0);
+		}
 	}
 
 	inline void Encoder::EmitWord(uint16 value)
@@ -1084,27 +1219,6 @@ namespace e
 		EmitMarker(M_EOI);
 	}
 
-	void Encoder::Dump(const char* file, int channel)
-	{
-		FILE *fp = 0;
-		fopen_s(&fp, file, "w");
-
-		if (fp)
-		{
-			for (int y = 0; y < h2[channel]; y++)
-			{
-				for (int x = 0; x < w2[channel]; x++)
-				{
-					int value = data[channel][w2[channel] * y + x];
-					fprintf(fp, "%d ", value);
-				}
-				fprintf(fp, "\r\n");
-			}
-
-			fclose(fp);
-		}
-	}
-
 	int Encoder::EncodeImage(uint8* output, uint8* input, int width, int height, int bitCount, int quality)
 	{
 		int bpp = bitCount / 8;
@@ -1117,6 +1231,7 @@ namespace e
 		this->compCount = bpp>1?3:1;
 		this->quality = quality;
 		this->output_buffer = output;
+		this->original_buffer = output;
 
 		bool nochroma = false;
 		if (bpp == 1) nochroma = true;
@@ -1127,11 +1242,58 @@ namespace e
 
 		Compress();
 
-		int size = output_buffer - output;
-
 		Cleanup();
 
-		return size;
+		return output_buffer - original_buffer;
+	}
+
+	void Encoder::Dump(const char* file, int channel)
+	{
+		FILE *fp = 0;
+		fopen_s(&fp, file, "w");
+
+		if (fp)
+		{
+			for (int y = 0; y < h2[channel]; y++)
+			{
+				for (int x = 0; x < w2[channel]; x++)
+				{
+					int value = data[channel][w2[channel] * y + x];
+					fprintf(fp, "%04d ", value);
+				}
+				fprintf(fp, "\r\n");
+			}
+
+			fclose(fp);
+		}
+	}
+
+	bool Encoder::LoadData(const char* file, int channel)
+	{
+		FILE* fp = 0;
+		fopen_s(&fp, file, "r");
+
+		if (fp)
+		{
+			int c = channel;
+			for (int y = 0; y < h2[c]; y++)
+			{
+				for (int x = 0; x < w2[c]; x++)
+				{
+					int value;
+					fscanf_s(fp, "%d ", &value);
+
+					data[c][w2[c] * y + x] = (int16)value;
+				}
+
+				fscanf_s(fp, "\r\n");
+			}
+
+			fclose(fp);
+			return true;
+		}
+
+		return false;
 	}
 }
 

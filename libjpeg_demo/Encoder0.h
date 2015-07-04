@@ -25,7 +25,7 @@ namespace e
 		void RGB2YUV422(uint8* output, uint8* input, int width, int height);
 		void Initialize(JpegEncoderStruct* jes, uint32 format, uint32 width, uint32 height);
 		void InitializeQuantizationTables(uint32 qualityFactor);
-		uint8* CloseBitStream(uint8* output);
+		uint8* CloseBitStream(uint8* output);		
 		void DCT(int16* data);
 		void Quantization(int16* const data, uint16* const quant_table);
 		uint8* Haffman(JpegEncoderStruct* jes, uint16 component, uint8* output);

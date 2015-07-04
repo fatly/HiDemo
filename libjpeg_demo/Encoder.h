@@ -58,15 +58,18 @@ namespace e
 		int16 BlendDual(int x, int y, int channel);
 		int16* GetDQ(int x, int y, int channel);
 		void LoadBlock(int16* dst, int x, int y, int channel);
+		void LoadBlock(double* dst, int x, int y, int channel);
 		void ResetLastDC(void);
 		void CodeMCURow(int y, bool write);
 		void CodeBlock(int16* data, HuffmanDCAC* huff, Component* comp, bool write);
 		void ComputeHuffmanTables(void);
+		void DCT(double* data);
 		void DCT(int16* data);
 		void QuantizePixels(int16* dst, int16* src, int32* quants);
+		void QuantizePixels(int16* dst, double* src, int32* quants);
 		void Compress(void);
-		void PutBits(uint bits, int len);
-		void PutSignalBits(int num, int len);
+		void PutBits(uint bits, uint len);
+		void PutSignalBits(int num, uint len);
 		uint BitCount(int value);
 		void Cleanup(void);
 
@@ -83,6 +86,7 @@ namespace e
 		void EmitEndMarker(void);
 
 		void Dump(const char* file, int channel);
+		bool LoadData(const char* file, int channel);
 	private:
 		int w;
 		int h;
@@ -99,6 +103,7 @@ namespace e
 		uint32 bit_buffer;
 		uint32 bits_in;
 		uint8* output_buffer;
+		uint8* original_buffer;
 	};
 }
 

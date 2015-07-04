@@ -82,7 +82,7 @@ int EncodeImage(void)
 
 		const char* outfile = "f:\\res.jpg";
 		FILE* fp = 0;
-		fopen_s(&fp, outfile, "w");
+		fopen_s(&fp, outfile, "wb");
 		if (fp == 0) break;
 
 		fwrite(tmp, 1, size, fp);
