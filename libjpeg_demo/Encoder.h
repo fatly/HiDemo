@@ -85,7 +85,7 @@ namespace e
 		void EmitStartMarkers(void);
 		void EmitEndMarker(void);
 
-		void Dump(const char* file, int channel);
+		void DumpData(const char* file, int channel);
 		bool LoadData(const char* file, int channel);
 	private:
 		int w;
@@ -93,7 +93,7 @@ namespace e
 		int w2[3];
 		int h2[3];
 		int compCount;
-		int16* data[3];
+		int16* data[6];
 		int mcu_w;
 		int mcu_h;
 		int quality;
@@ -104,6 +104,7 @@ namespace e
 		uint32 bits_in;
 		uint8* output_buffer;
 		uint8* original_buffer;
+		uint32 output_size;
 	};
 }
 

@@ -11,7 +11,7 @@ using namespace e;
 int DecodeImage(void)
 {
 	//char* file = "e:\\images\\texture\\tex2.jpg";
-	char* file = "f:\\res.jpg";
+	char* file = "f:\\a.jpg";
 
 	FILE* fp = 0;
 	fopen_s(&fp, file, "rb");
@@ -47,7 +47,7 @@ int DecodeImage(void)
 			}
 
 			bm.SwapChannel(0, 2);
-			bm.Save("f:\\res.bmp");
+			bm.Save("f:\\b.bmp");
 
 			free(data);
 			printf("decode result: x = %d, y = %d, comp = %d, err=%s\n",
@@ -80,7 +80,7 @@ int EncodeImage(void)
 		uint32 size = encoder.EncodeImage(tmp, bm.bits, bm.Width(), bm.Height(), bm.biBitCount, 85);
 		printf("encode image width = %d, height = %d, size = %d\n", bm.Width(), bm.Height(), size);
 
-		const char* outfile = "f:\\res.jpg";
+		const char* outfile = "f:\\b.jpg";
 		FILE* fp = 0;
 		fopen_s(&fp, outfile, "wb");
 		if (fp == 0) break;
@@ -98,22 +98,22 @@ int EncodeImage(void)
 
 int main(int argc, char* argv[])
 {
-	char c = _getch();
-
-	if (c == 'e')
-	{
-		EncodeImage();
-	}
-	else
-	{
-		DecodeImage();
-	}
-
-// 	if (1)
+// 	char c = _getch();
+// 
+// 	if (c == 'e')
+// 	{
 // 		EncodeImage();
+// 	}
 // 	else
+// 	{
 // 		DecodeImage();
+// 	}
 
-	system("pause");
+	if (1)
+		EncodeImage();
+	else
+		DecodeImage();
+
+//	system("pause");
 	return 0;
 }

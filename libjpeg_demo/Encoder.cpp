@@ -237,7 +237,9 @@ namespace e
 	void HuffmanTable::Optimize(int tableLenght)
 	{
 		SymbolFreq sym0[MAX_HUFF_SYMBOLS], sym1[MAX_HUFF_SYMBOLS];
-		sym0[0].key = 1; sym0[0].index = 0;
+
+		sym0[0].key = 1; 
+		sym0[0].index = 0;
 		int usedCount = 1;
 
 		for (int i = 0; i < tableLenght; i++)
@@ -379,11 +381,13 @@ namespace e
 		w2[0] = w2[1] = w2[2] = 0;
 		h2[0] = h2[1] = h2[2] = 0;
 		data[0] = data[1] = data[3] = 0;
+		data[4] = data[5] = data[6] = 0;
 		compCount = 0;
 		quality = 85;
 		subsampling = -1;
 		output_buffer = 0;
 		original_buffer = 0;
+		output_size = 0;
 	}
 
 	Encoder::~Encoder()
@@ -445,6 +449,8 @@ namespace e
 		{
 			data[i] = (int16*)malloc(w2[i] * h2[i] * sizeof(int16));
 			assert(data[i] != 0);
+			data[i + 3] = (int16*)malloc(w2[i] * h2[i] * sizeof(int16));
+			assert(data[i + 3] != 0);
 		}
 
 		memset(&huffman, 0, sizeof(huffman));
@@ -558,8 +564,6 @@ namespace e
 				}
 			}
 		}
-
-		Dump("f:\\dump1.txt", 0);
 	}
 
 	inline int16 Encoder::GetPixel(int x, int y, int channel)
@@ -640,12 +644,6 @@ namespace e
 			}
 		}
 
-		Dump("f:\\dump_dctq1.txt", 0);
-
-//		LoadData("f:\\dump_dctq0_a.txt", 0);
-//		LoadData("f:\\dump_dctq0_b.txt", 1);
-//		LoadData("f:\\dump_dctq0_c.txt", 2);
-
 		for (int y = 0; y < h; y += mcu_h)
 		{
 			CodeMCURow(y, false);
@@ -653,12 +651,6 @@ namespace e
 
 		ComputeHuffmanTables();
 		ResetLastDC();
-
-// 		huffman[0].dc.Dump("f:\\dump_huff1_a.txt");
-// 		huffman[0].ac.Dump("f:\\dump_huff1_b.txt");
-// 		huffman[1].dc.Dump("f:\\dump_huff1_c.txt");
-// 		huffman[1].ac.Dump("f:\\dump_huff1_d.txt");
-
 
 		EmitStartMarkers();
 		for (int y = 0; y < h; y += mcu_h)
@@ -670,7 +662,7 @@ namespace e
 
 	inline int16* Encoder::GetDQ(int x, int y, int channel)
 	{
-		return &data[channel][64 * (y / 8 * w2[channel] / 8 + x / 8)];
+		return &data[3 + channel][64 * (y / 8 * w2[channel] / 8 + x / 8)];
 	}
 
 	void Encoder::LoadBlock(int16* dst, int x, int y, int channel)
@@ -708,12 +700,12 @@ namespace e
 	{
 		if (j < 0)
 		{
-			int16 temp = -j + (quant >> 1);
+			int16 temp = (int16)(-j + (quant >> 1));
 			return (temp < quant) ? 0 : static_cast<int16>(-(temp / quant));
 		}
 		else
 		{
-			int16 temp = j + (quant >> 1);
+			int16 temp = (int16)(j + (quant >> 1));
 			return (temp < quant) ? 0 : static_cast<int16>(temp / quant);
 		}
 	}
@@ -960,6 +952,7 @@ namespace e
 		for (int i = 1; i < 64; i++)
 		{
 			const int16 ac_val = data[i];
+
 			if (ac_val == 0)
 			{
 				run_len++;
@@ -975,7 +968,7 @@ namespace e
 
 					run_len -= 16;
 				}
-
+				//ac's bit count <= 12
 				const uint nbits = BitCount(ac_val);
 				const int code = (run_len << 4) + nbits;
 
@@ -1000,7 +993,7 @@ namespace e
 			else
 				huff->ac.counts[0]++;
 		}
-	}
+	}//end for
 
 	inline void Encoder::PutBits(uint bits, uint len)
 	{
@@ -1073,6 +1066,12 @@ namespace e
 				free(data[i]);
 				data[i] = 0;
 			}
+
+			if (data[i + 3])
+			{
+				free(data[i + 3]);
+				data[i + 3] = 0;
+			}
 		}
 
 		//output_buffer = 0;
@@ -1082,11 +1081,6 @@ namespace e
 	inline void Encoder::EmitByte(uint8 value)
 	{
 		*output_buffer++ = value;
-
-		if (output_buffer - original_buffer == 800)
-		{
-			assert(0);
-		}
 	}
 
 	inline void Encoder::EmitWord(uint16 value)
@@ -1247,7 +1241,7 @@ namespace e
 		return output_buffer - original_buffer;
 	}
 
-	void Encoder::Dump(const char* file, int channel)
+	void Encoder::DumpData(const char* file, int channel)
 	{
 		FILE *fp = 0;
 		fopen_s(&fp, file, "w");
