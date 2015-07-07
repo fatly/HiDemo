@@ -13,8 +13,8 @@ class MainFrame : public CWindowWnd, public INotifyUI
 {
 public:
 	MainFrame(){};
-	LPCTSTR GetWindowClassName() const { return _T("UIFrame"); };
-	UINT GetClassStyle() const { return UI_CLASSSTYLE_DIALOG; };
+	LPCTSTR GetWindowClassName(void) const { return _T("UIFrame"); };
+	UINT GetClassStyle(void) const { return UI_CLASSSTYLE_DIALOG; };
 	void OnFinalMessage(HWND /*hWnd*/) { delete this; };
 
 	void Init(void)
@@ -26,7 +26,8 @@ public:
 	{
 		if (msg.sType == _T("click"))
 		{
-			if (msg.pSender->GetName() == _T("closebtn") || msg.pSender->GetName() == _T("closebtn2")) {
+			if (msg.pSender->GetName() == _T("closebtn")) 
+			{
 				PostQuitMessage(0);
 				return;
 			}
