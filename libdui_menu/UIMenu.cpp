@@ -28,11 +28,7 @@ LPCTSTR CMenuUI::GetClass() const
 
 LPVOID CMenuUI::GetInterface(LPCTSTR pstrName)
 {
-	if (_tcsicmp(pstrName, kMenuUIInterfaceName) == 0)
-	{
-		return static_cast<CMenuUI*>(this);
-	}
-
+    if( _tcsicmp(pstrName, kMenuUIInterfaceName) == 0 ) return static_cast<CMenuUI*>(this);
     return CListUI::GetInterface(pstrName);
 }
 
@@ -112,7 +108,7 @@ SIZE CMenuUI::EstimateSize(SIZE szAvailable)
 		if( cxFixed < sz.cx )
 			cxFixed = sz.cx;
     }
-    return CSize(cxFixed, cyFixed);
+    return CDuiSize(cxFixed, cyFixed);
 }
 
 void CMenuUI::SetAttribute(LPCTSTR pstrName, LPCTSTR pstrValue)
@@ -176,29 +172,23 @@ BOOL CMenuWnd::Receive(ContextMenuParam param)
 void CMenuWnd::Init(CMenuElementUI* pOwner, STRINGorID xml, LPCTSTR pSkinType, POINT point)
 {
 	m_BasedPoint = point;
-	m_pOwner = pOwner;
-	m_pLayout = NULL;
+    m_pOwner = pOwner;
+    m_pLayout = NULL;
 
 	if (pSkinType != NULL)
-	{
 		m_sType = pSkinType;
-	}
 
 	m_xml = xml;
 
 	s_context_menu_observer.AddReceiver(this);
 
-	Create((m_pOwner == NULL) ? m_hParent : m_pOwner->GetManager()->GetPaintWindow()
-		, NULL
-		, WS_POPUP
-		, WS_EX_TOOLWINDOW | WS_EX_TOPMOST
-		, CDuiRect());
-	// HACK: Don't deselect the parent's caption
-	HWND hWndParent = m_hWnd;
-	while (::GetParent(hWndParent) != NULL) hWndParent = ::GetParent(hWndParent);
-	::ShowWindow(m_hWnd, SW_SHOW);
+	Create((m_pOwner == NULL) ? m_hParent : m_pOwner->GetManager()->GetPaintWindow(), NULL, WS_POPUP, WS_EX_TOOLWINDOW | WS_EX_TOPMOST, CDuiRect());
+    // HACK: Don't deselect the parent's caption
+    HWND hWndParent = m_hWnd;
+    while( ::GetParent(hWndParent) != NULL ) hWndParent = ::GetParent(hWndParent);
+    ::ShowWindow(m_hWnd, SW_SHOW);
 #if defined(WIN32) && !defined(UNDER_CE)
-	::SendMessage(hWndParent, WM_NCACTIVATE, TRUE, 0L);
+    ::SendMessage(hWndParent, WM_NCACTIVATE, TRUE, 0L);
 #endif	
 }
 
@@ -210,20 +200,19 @@ LPCTSTR CMenuWnd::GetWindowClassName() const
 void CMenuWnd::OnFinalMessage(HWND hWnd)
 {
 	RemoveObserver();
-	if (m_pOwner != NULL) {
-		for (int i = 0; i < m_pOwner->GetCount(); i++) {
-			if (static_cast<CMenuElementUI*>(m_pOwner->GetItemAt(i)->GetInterface(kMenuElementUIInterfaceName)) != NULL) {
+	if( m_pOwner != NULL ) {
+		for( int i = 0; i < m_pOwner->GetCount(); i++ ) {
+			if( static_cast<CMenuElementUI*>(m_pOwner->GetItemAt(i)->GetInterface(kMenuElementUIInterfaceName)) != NULL ) {
 				(static_cast<CMenuElementUI*>(m_pOwner->GetItemAt(i)))->SetOwner(m_pOwner->GetParent());
 				(static_cast<CMenuElementUI*>(m_pOwner->GetItemAt(i)))->SetVisible(false);
 				(static_cast<CMenuElementUI*>(m_pOwner->GetItemAt(i)->GetInterface(kMenuElementUIInterfaceName)))->SetInternVisible(false);
 			}
 		}
 		m_pOwner->m_pWindow = NULL;
-		m_pOwner->m_uButtonState &= ~UISTATE_PUSHED;
+		m_pOwner->m_uButtonState &= ~ UISTATE_PUSHED;
 		m_pOwner->Invalidate();
 	}
-
-	delete this;
+    delete this;
 }
 
 LRESULT CMenuWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -243,7 +232,6 @@ LRESULT CMenuWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			// reassigned by this operation - which is why it is important to reassign
 			// the items back to the righfull owner/manager when the window closes.
 			m_pLayout = new CMenuUI();
-			m_pm.UseParentResource(m_pOwner->GetManager());
 			m_pLayout->SetManager(&m_pm, NULL, true);
 			LPCTSTR pDefaultAttributes = m_pOwner->GetManager()->GetDefaultAttributeList(kMenuUIInterfaceName);
 			if( pDefaultAttributes ) {
@@ -318,10 +306,9 @@ LRESULT CMenuWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 					bReachRight = rcPreWindow.left >= rcWindow.right;
 					bReachBottom = rcPreWindow.top >= rcWindow.bottom;
-					if (pContextMenu->GetHWND() == m_pOwner->GetManager()->GetPaintWindow()
-						|| bReachBottom || bReachRight){
+					if( pContextMenu->GetHWND() == m_pOwner->GetManager()->GetPaintWindow() 
+						||  bReachBottom || bReachRight )
 						break;
-					}
 				}
 				pReceiver = iterator.next();
 			}
@@ -393,7 +380,7 @@ LRESULT CMenuWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			SIZE szInit = m_pm.GetInitSize();
 			CDuiRect rc;
-			CPoint point = m_BasedPoint;
+			CDuiPoint point = m_BasedPoint;
 			rc.left = point.x;
 			rc.top = point.y;
 			rc.right = rc.left + szInit.cx;
@@ -425,7 +412,7 @@ LRESULT CMenuWnd::HandleMessage(UINT uMsg, WPARAM wParam, LPARAM lParam)
 		if( m_pOwner != NULL )
 		{
 			m_pOwner->SetManager(m_pOwner->GetManager(), m_pOwner->GetParent(), false);
-			m_pOwner->SetPos(m_pOwner->GetPos());
+			m_pOwner->SetPos(m_pOwner->GetPos(), false);
 			m_pOwner->SetFocus();
 		}
 	}
@@ -706,7 +693,7 @@ void CMenuElementUI::CreateMenuWnd()
 	param.wParam = 2;
 	s_context_menu_observer.RBroadcast(param);
 
-	m_pWindow->Init(static_cast<CMenuElementUI*>(this), _T(""), _T(""), CPoint());
+	m_pWindow->Init(static_cast<CMenuElementUI*>(this), _T(""), _T(""), CDuiPoint());
 }
 
 

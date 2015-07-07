@@ -6,7 +6,11 @@
 #include "mp4v2/mp4v2.h"
 using namespace std;
 
+#ifdef _DEBUG
+#pragma comment(lib, "libmp4v2d.lib")
+#else
 #pragma comment(lib, "libmp4v2.lib")
+#endif
 
 typedef unsigned char uchar;
 

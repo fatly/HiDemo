@@ -5,7 +5,7 @@
 #pragma once
 #endif
 
-#include "Observer.h"
+#include "observer.h"
 
 namespace DuiLib {
 
@@ -47,8 +47,10 @@ public:
     LPVOID GetInterface(LPCTSTR pstrName);
 
 	virtual void DoEvent(TEventUI& event);
+
     virtual bool Add(CControlUI* pControl);
     virtual bool AddAt(CControlUI* pControl, int iIndex);
+
     virtual int GetItemIndex(CControlUI* pControl) const;
     virtual bool SetItemIndex(CControlUI* pControl, int iIndex);
     virtual bool Remove(CControlUI* pControl);
@@ -98,12 +100,20 @@ public:
 
     LPCTSTR GetClass() const;
     LPVOID GetInterface(LPCTSTR pstrName);
-	void DoPaint(HDC hDC, const RECT& rcPaint);
+
+    void DoPaint(HDC hDC, const RECT& rcPaint);
+
 	void DrawItemText(HDC hDC, const RECT& rcItem);
+
 	SIZE EstimateSize(SIZE szAvailable);
+
 	bool Activate();
+
 	void DoEvent(TEventUI& event);
+
+
 	CMenuWnd* GetMenuWnd();
+
 	void CreateMenuWnd();
 
 protected:

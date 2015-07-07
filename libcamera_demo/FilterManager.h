@@ -7,7 +7,12 @@
 #pragma comment(lib, "strmiids.lib")
 #pragma comment(lib, "quartz.lib")
 #pragma comment(lib, "winmm.lib")
+
+#ifdef _DEBUG
+#pragma comment(lib, "libstrmbased.lib")
+#else 
 #pragma comment(lib, "libstrmbase.lib")
+#endif
 
 namespace e
 {

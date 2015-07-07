@@ -56,9 +56,9 @@
 
 #ifdef _DEBUG
 #   ifdef _UNICODE
-#       pragma comment(lib, "libdui.lib")
+#       pragma comment(lib, "libduid.lib")
 #   else
-#       pragma comment(lib, "libdui.lib")
+#       pragma comment(lib, "libduid.lib")
 #   endif
 #else
 #   ifdef _UNICODE
