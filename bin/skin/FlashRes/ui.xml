@@ -6,9 +6,9 @@
 			<Control />
 			<Button name="closebtn" width="42" maxheight="18" tooltip="点击这里直接退出游戏" normalimage="file='frame_btn_close_normal.bmp' mask='#FFFF00FF'" hotimage="file='frame_btn_close_hot.bmp' mask='#FFFF00FF'" pushedimage="file='frame_btn_close_down.bmp' mask='#FFFF00FF'"/>
 		</HorizontalLayout>
-		<Button name="btn1" width="200" height="200" float="true" pos="612,132,812,332" normalimage="file='b.bmp'" hotimage="file='b.bmp'" pushedimage="file='b.bmp'"/>
+		<Button name="btn1" width="200" height="200" float="true" pos="612,132,812,332" normalimage="file='b.jpg'" hotimage="file='b.jpg'" pushedimage="file='b.jpg'"/>
 		<Container>
-			<Button name="btn2" width="512" height="512" float="true" pos="100,100,612,612" normalimage="file='a.bmp'" hotimage="file='a.bmp'" pushedimage="file='a.bmp'"/>
+			<Button name="btn2" width="512" height="512" float="true" pos="100,100,612,612" normalimage="file='a.jpg'" hotimage="file='a.jpg'" pushedimage="file='a.jpg'"/>
 			<ActiveX name="flash" clsid="{D27CDB6E-AE6D-11CF-96B8-444553540000}" mouse="true" />
 		</Container>
     </VerticalLayout>
