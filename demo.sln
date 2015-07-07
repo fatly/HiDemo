@@ -45,6 +45,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libjpeg_demo", "libjpeg_dem
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libdui_flash", "libdui_flash\libdui_flash.vcxproj", "{45891041-3127-4A97-8C7E-B345C0F68098}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE} = {F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
