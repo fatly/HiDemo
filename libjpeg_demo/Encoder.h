@@ -93,7 +93,7 @@ namespace e
 		int w2[3];
 		int h2[3];
 		int compCount;
-		int16* data[6];
+		int16* data[6];//0-2 pixels data, 3-5 quant data
 		int mcu_w;
 		int mcu_h;
 		int quality;

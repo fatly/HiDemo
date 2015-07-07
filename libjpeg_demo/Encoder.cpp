@@ -126,7 +126,7 @@ namespace e
 		return p0;
 	}
 
-	void CalculateMinimumRedundancy(SymbolFreq* A, int n)
+	static void CalculateMinimumRedundancy(SymbolFreq* A, int n)
 	{
 		if (n == 0)
 		{
@@ -237,7 +237,7 @@ namespace e
 	void HuffmanTable::Optimize(int tableLenght)
 	{
 		SymbolFreq sym0[MAX_HUFF_SYMBOLS], sym1[MAX_HUFF_SYMBOLS];
-
+		// dummy symbol, assures that no valid code contains all 1's
 		sym0[0].key = 1; 
 		sym0[0].index = 0;
 		int usedCount = 1;
@@ -254,7 +254,7 @@ namespace e
 
 		SymbolFreq* syms = RadixSortSyms(usedCount, sym0, sym1);
 		CalculateMinimumRedundancy(syms, usedCount);
-
+		// Count the # of symbols of each code size.
 		int codesCount[MAX_HUFF_CODESIZE + 1] = { 0 };
 		for (int i = 0; i < usedCount; i++)
 		{
@@ -263,13 +263,13 @@ namespace e
 
 		const uint CODE_SIZE_LIMIT = 16;
 		HuffmanEnforceMaxCodeSize(codesCount, usedCount, CODE_SIZE_LIMIT);
-
+		// Compute m_huff_bits array, which contains the # of symbols per code size.
 		memset(bits, 0, sizeof(bits));
 		for (int i = 1; i <= (int)CODE_SIZE_LIMIT; i++)
 		{
 			bits[i] = static_cast<uint8>(codesCount[i]);
 		}
-
+		// Remove the dummy symbol added above, which must be in largest bucket.
 		for (int i = CODE_SIZE_LIMIT; i >= 1; i--)
 		{
 			if (bits[i])
@@ -278,7 +278,7 @@ namespace e
 				break;
 			}
 		}
-
+		// Compute the m_huff_val array, which contains the symbol indices sorted by code size (smallest to largest).
 		for (int i = usedCount - 1; i >= 1; i--)
 		{
 			values[usedCount - 1 - i] = static_cast<uint8>(syms[i].index - 1);

@@ -469,6 +469,7 @@ STDMETHODIMP CActiveXCtrl::GetDC(LPCRECT pRect, DWORD grfFlags, HDC* phDC)
     DUITRACE(_T("AX: CActiveXCtrl::GetDC"));
     if( phDC == NULL ) return E_POINTER;
     if( m_pOwner == NULL ) return E_UNEXPECTED;
+	if( m_bWindowless ) return S_FALSE;
     *phDC = ::GetDC(m_pOwner->m_hwndHost);
     if( (grfFlags & OLEDC_PAINTBKGND) != 0 ) {
         CDuiRect rcItem = m_pOwner->GetPos();
@@ -905,9 +906,9 @@ void CActiveXUI::SetInternVisible(bool bVisible)
         ::ShowWindow(m_hwndHost, IsVisible() ? SW_SHOW : SW_HIDE);
 }
 
-void CActiveXUI::SetPos(RECT rc)
+void CActiveXUI::SetPos(RECT rc, bool bNeedInvalidate)
 {
-    CControlUI::SetPos(rc);
+    CControlUI::SetPos(rc, bNeedInvalidate);
 
     if( !m_bCreated ) DoCreateControl();
 
@@ -932,6 +933,15 @@ void CActiveXUI::SetPos(RECT rc)
         ASSERT(m_pControl->m_pWindow);
         ::MoveWindow(*m_pControl->m_pWindow, m_rcItem.left, m_rcItem.top, m_rcItem.right - m_rcItem.left, m_rcItem.bottom - m_rcItem.top, TRUE);
     }
+}
+
+void CActiveXUI::Move(SIZE szOffset, bool bNeedInvalidate)
+{
+	CControlUI::Move(szOffset, bNeedInvalidate);
+	if( !m_pControl->m_bWindowless ) {
+		ASSERT(m_pControl->m_pWindow);
+		::MoveWindow(*m_pControl->m_pWindow, m_rcItem.left, m_rcItem.top, m_rcItem.right - m_rcItem.left, m_rcItem.bottom - m_rcItem.top, TRUE);
+	}
 }
 
 void CActiveXUI::DoPaint(HDC hDC, const RECT& rcPaint)

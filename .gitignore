@@ -3,8 +3,11 @@
 /bin/*.ilk
 /bin/*.pdb
 /bin/libdui.dll
+/bin/libduid.dll
 /lib/libdui.lib
 /lib/libdui.exp
+/lib/libduid.lib
+/lib/libduid.exp
 /lib/libmp4v2.lib
 /lib/libmp4v2.exp
 /lib/libutils.lib

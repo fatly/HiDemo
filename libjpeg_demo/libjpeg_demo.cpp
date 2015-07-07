@@ -3,18 +3,18 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <conio.h>
-#include "decoder.h"
+#include "Decoder.h"
 #include "Encoder.h"
 
 using namespace e;
 
-int DecodeImage(void)
+int DecodeImage(int argc, char* argv[])
 {
-	//char* file = "e:\\images\\texture\\tex2.jpg";
-	char* file = "f:\\a.jpg";
+	const char* infile = argv[1];
+	const char* outfile = argv[2];
 
 	FILE* fp = 0;
-	fopen_s(&fp, file, "rb");
+	fopen_s(&fp, infile, "rb");
 	if (fp == 0)
 	{
 		printf("open file fail\n");
@@ -38,7 +38,7 @@ int DecodeImage(void)
 
 		if (data)
 		{
-			Bitmap bm(x, y, 24);
+			e::Bitmap bm(x, y, 24);
 
 			for (int i = 0; i < y; i++)
 			{
@@ -47,7 +47,7 @@ int DecodeImage(void)
 			}
 
 			bm.SwapChannel(0, 2);
-			bm.Save("f:\\b.bmp");
+			bm.Save(outfile);
 
 			free(data);
 			printf("decode result: x = %d, y = %d, comp = %d, err=%s\n",
@@ -66,24 +66,36 @@ int DecodeImage(void)
 	return 0;
 }
 
-int EncodeImage(void)
+int EncodeImage(int argc, char* argv[])
 {
-	const char* file = "f:\\a.bmp";
+	const char* infile = argv[1];
+	const char* outfile = argv[2];
+	const int quality = atoi(argv[3]);
 
-	e::Bitmap bm(file);
+	e::Bitmap bm(infile);
+	if (!bm.IsValid())
+	{
+		printf("input file invalid : %s\n", infile);
+		return 0;
+	}
 
 	uchar* tmp = (uchar*)malloc(bm.Width() * bm.Height() * 3);
+	assert(tmp);
 
 	do 
 	{
 		Encoder encoder;
-		uint32 size = encoder.EncodeImage(tmp, bm.bits, bm.Width(), bm.Height(), bm.biBitCount, 85);
+		uint32 size = encoder.EncodeImage(tmp, bm.bits, bm.Width(), bm.Height(), bm.biBitCount, quality);
 		printf("encode image width = %d, height = %d, size = %d\n", bm.Width(), bm.Height(), size);
 
-		const char* outfile = "f:\\b.jpg";
 		FILE* fp = 0;
 		fopen_s(&fp, outfile, "wb");
-		if (fp == 0) break;
+
+		if (fp == 0)
+		{
+			printf("open out file failed : %s\n", outfile);
+			break;
+		}
 
 		fwrite(tmp, 1, size, fp);
 
@@ -91,7 +103,7 @@ int EncodeImage(void)
 
 	} while (0);
 
-	free(tmp);
+	if (tmp) free(tmp);
 
 	return 0;
 }
@@ -110,9 +122,9 @@ int main(int argc, char* argv[])
 // 	}
 
 	if (1)
-		EncodeImage();
+		EncodeImage(argc, argv);
 	else
-		DecodeImage();
+		DecodeImage(argc, argv);
 
 //	system("pause");
 	return 0;

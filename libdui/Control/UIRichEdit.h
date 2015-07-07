@@ -2,8 +2,6 @@
 #define __UIRICHEDIT_H__
 
 #pragma once
-#include <Imm.h>
-#pragma comment(lib,"imm32.lib")
 
 namespace DuiLib {
 
@@ -85,16 +83,14 @@ public:
     int LineIndex(int nLine = -1) const;
     int LineLength(int nLine = -1) const;
     bool LineScroll(int nLines, int nChars = 0);
-	CPoint GetCharPos(long lChar) const;
+	CDuiPoint GetCharPos(long lChar) const;
     long LineFromChar(long nIndex) const;
-    CPoint PosFromChar(UINT nChar) const;
-    int CharFromPos(CPoint pt) const;
+    CDuiPoint PosFromChar(UINT nChar) const;
+    int CharFromPos(CDuiPoint pt) const;
     void EmptyUndoBuffer();
     UINT SetUndoLimit(UINT nLimit);
     long StreamIn(int nFormat, EDITSTREAM &es);
     long StreamOut(int nFormat, EDITSTREAM &es);
-	void SetAccumulateDBCMode(bool bDBCMode);
-	bool IsAccumulateDBCMode();
 
     void DoInit();
     // 注意：TxSendMessage和SendMessage是有区别的，TxSendMessage没有multibyte和unicode自动转换的功能，
@@ -120,7 +116,8 @@ public:
     void EndRight();
 
     SIZE EstimateSize(SIZE szAvailable);
-    void SetPos(RECT rc);
+	void SetPos(RECT rc, bool bNeedInvalidate = true);
+	void Move(SIZE szOffset, bool bNeedInvalidate = true);
     void DoEvent(TEventUI& event);
     void DoPaint(HDC hDC, const RECT& rcPaint);
 
@@ -142,9 +139,6 @@ protected:
     int m_iLimitText;
     LONG m_lTwhStyle;
 	bool m_bInited;
-	bool  m_fAccumulateDBC ; // TRUE - need to cumulate ytes from 2 WM_CHAR msgs
-	// we are in this mode when we receive VK_PROCESSKEY
-	UINT m_chLeadByte; // use when we are in _fAccumulateDBC mode
 };
 
 } // namespace DuiLib

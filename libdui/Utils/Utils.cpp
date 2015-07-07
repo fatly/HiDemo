@@ -8,24 +8,24 @@ namespace DuiLib
 	//
 	//
 
-	CPoint::CPoint()
+	CDuiPoint::CDuiPoint()
 	{
 		x = y = 0;
 	}
 
-	CPoint::CPoint(const POINT& src)
+	CDuiPoint::CDuiPoint(const POINT& src)
 	{
 		x = src.x;
 		y = src.y;
 	}
 
-	CPoint::CPoint(int _x, int _y)
+	CDuiPoint::CDuiPoint(int _x, int _y)
 	{
 		x = _x;
 		y = _y;
 	}
 
-	CPoint::CPoint(LPARAM lParam)
+	CDuiPoint::CDuiPoint(LPARAM lParam)
 	{
 		x = GET_X_LPARAM(lParam);
 		y = GET_Y_LPARAM(lParam);
@@ -36,24 +36,24 @@ namespace DuiLib
 	//
 	//
 
-	CSize::CSize()
+	CDuiSize::CDuiSize()
 	{
 		cx = cy = 0;
 	}
 
-	CSize::CSize(const SIZE& src)
+	CDuiSize::CDuiSize(const SIZE& src)
 	{
 		cx = src.cx;
 		cy = src.cy;
 	}
 
-	CSize::CSize(const RECT rc)
+	CDuiSize::CDuiSize(const RECT rc)
 	{
 		cx = rc.right - rc.left;
 		cy = rc.bottom - rc.top;
 	}
 
-	CSize::CSize(int _cx, int _cy)
+	CDuiSize::CDuiSize(int _cx, int _cy)
 	{
 		cx = _cx;
 		cy = _cy;
@@ -356,25 +356,25 @@ namespace DuiLib
 
 	CDuiString::CDuiString() : m_pstr(m_szBuffer)
 	{
-		m_szBuffer[0] = '\0';
+		m_szBuffer[0] = _T('\0');
 	}
 
 	CDuiString::CDuiString(const TCHAR ch) : m_pstr(m_szBuffer)
 	{
 		m_szBuffer[0] = ch;
-		m_szBuffer[1] = '\0';
+		m_szBuffer[1] = _T('\0');
 	}
 
 	CDuiString::CDuiString(LPCTSTR lpsz, int nLen) : m_pstr(m_szBuffer)
 	{      
 		ASSERT(!::IsBadStringPtr(lpsz,-1) || lpsz==NULL);
-		m_szBuffer[0] = '\0';
+		m_szBuffer[0] = _T('\0');
 		Assign(lpsz, nLen);
 	}
 
 	CDuiString::CDuiString(const CDuiString& src) : m_pstr(m_szBuffer)
 	{
-		m_szBuffer[0] = '\0';
+		m_szBuffer[0] = _T('\0');
 		Assign(src.m_pstr);
 	}
 
@@ -431,19 +431,19 @@ namespace DuiLib
 			m_pstr = static_cast<LPTSTR>(realloc(m_pstr, (cchMax + 1) * sizeof(TCHAR)));
 		}
 		_tcsncpy(m_pstr, pstr, cchMax);
-		m_pstr[cchMax] = '\0';
+		m_pstr[cchMax] = _T('\0');
 	}
 
 	bool CDuiString::IsEmpty() const 
 	{ 
-		return m_pstr[0] == '\0'; 
+		return m_pstr[0] == _T('\0'); 
 	}
 
 	void CDuiString::Empty() 
 	{ 
 		if( m_pstr != m_szBuffer ) free(m_pstr);
 		m_pstr = m_szBuffer;
-		m_szBuffer[0] = '\0'; 
+		m_szBuffer[0] = _T('\0'); 
 	}
 
 	LPCTSTR CDuiString::GetData() const
@@ -554,7 +554,7 @@ namespace DuiLib
 	{
 		Empty();
 		m_szBuffer[0] = ch;
-		m_szBuffer[1] = '\0';
+		m_szBuffer[1] = _T('\0');
 		return *this;
 	}
 
@@ -597,7 +597,7 @@ namespace DuiLib
 
 	const CDuiString& CDuiString::operator+=(const TCHAR ch)
 	{      
-		TCHAR str[] = { ch, '\0' };
+		TCHAR str[] = { ch, _T('\0') };
 		Append(str);
 		return *this;
 	}
@@ -704,83 +704,22 @@ namespace DuiLib
 		}
 		return nCount;
 	}
-    
-    int CDuiString::Format(LPCTSTR pstrFormat, va_list Args)
-    {
-#if _MSC_VER <= 1400
 
-        TCHAR *szBuffer = NULL;
-        int size = 512, nLen, counts;
-
-        //
-        //  allocate with init size
-        //
-
-        szBuffer = (TCHAR*)malloc(size);
-        ZeroMemory(szBuffer, size);
-
-        while (TRUE){
-            counts = size / sizeof(TCHAR);
-            nLen = _vsntprintf (szBuffer, counts, pstrFormat, Args);
-            if (nLen != -1 && nLen < counts){
-                break;
-            }
-
-            //
-            //  expand the buffer.
-            //
-
-            if (nLen == -1){
-                size *= 2;
-            }else{
-                size += 1 * sizeof(TCHAR);
-            }
-
-
-            //
-            //  realloc the buffer.
-            //
-
-            if ((szBuffer = (TCHAR*)realloc(szBuffer, size)) != NULL){
-                ZeroMemory(szBuffer, size);
-            }else{
-                break;
-            }
-
-        }
-
-        Assign(szBuffer);
-        free(szBuffer);
-        return nLen;
-#else
-        int nLen, totalLen;
-        TCHAR *szBuffer;
-
-        nLen = _vsntprintf(NULL, 0, pstrFormat, Args);
-        totalLen = (nLen + 1)*sizeof(TCHAR);
-        szBuffer = (TCHAR*)malloc(totalLen);
-        ZeroMemory(szBuffer, totalLen);
-        nLen = _vsntprintf(szBuffer, nLen + 1, pstrFormat, Args);
-
-        Assign(szBuffer);
-        free(szBuffer);
-
-        return nLen;
-
-#endif
-    }
-
-    int CDuiString::Format(LPCTSTR pstrFormat, ...)
-    {
-        int nRet;
-        va_list Args;
-
-        va_start(Args, pstrFormat);
-        nRet = Format(pstrFormat, Args);
-        va_end(Args);
-
-        return nRet;
-    }
+	int CDuiString::Format(LPCTSTR pstrFormat, ...)
+	{
+		LPTSTR szSprintf = NULL;
+		va_list argList;
+        int nLen;
+		va_start(argList, pstrFormat);
+        nLen = ::_vsntprintf(NULL, 0, pstrFormat, argList);
+        szSprintf = (TCHAR*)malloc((nLen + 1) * sizeof(TCHAR));
+        ZeroMemory(szSprintf, (nLen + 1) * sizeof(TCHAR));
+		int iRet = ::_vsntprintf(szSprintf, nLen + 1, pstrFormat, argList);
+		va_end(argList);
+		Assign(szSprintf);
+        free(szSprintf);
+		return iRet;
+	}
 
 	int CDuiString::SmallFormat(LPCTSTR pstrFormat, ...)
 	{
@@ -788,7 +727,7 @@ namespace DuiLib
 		TCHAR szBuffer[64] = { 0 };
 		va_list argList;
 		va_start(argList, pstrFormat);
-		int iRet = ::_vsntprintf(szBuffer, sizeof(szBuffer), sFormat, argList);
+		int iRet = ::wvsprintf(szBuffer, sFormat, argList);
 		va_end(argList);
 		Assign(szBuffer);
 		return iRet;

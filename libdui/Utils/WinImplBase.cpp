@@ -248,6 +248,15 @@ LRESULT WindowImplBase::OnSysCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BO
 	LRESULT lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
 	if( ::IsZoomed(*this) != bZoomed )
 	{
+        CControlUI* pbtnMax = static_cast<CControlUI*>(m_PaintManager.FindControl(_T("maxbtn")));         // max button
+        CControlUI* pbtnRestore = static_cast<CControlUI*>(m_PaintManager.FindControl(_T("restorebtn"))); // restore button
+
+        // toggle status of max and restore button
+        if (pbtnMax && pbtnRestore)
+        {
+            pbtnMax->SetVisible(TRUE == bZoomed);
+            pbtnRestore->SetVisible(FALSE == bZoomed);
+        }
 	}
 #else
 	LRESULT lRes = CWindowWnd::HandleMessage(uMsg, wParam, lParam);
@@ -269,12 +278,9 @@ LRESULT WindowImplBase::OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& 
 	m_PaintManager.AddPreMessageFilter(this);
 
 	CDialogBuilder builder;
-	if (m_PaintManager.GetResourcePath().IsEmpty())
-	{	// 允许更灵活的资源路径定义
-		CDuiString strResourcePath=m_PaintManager.GetInstancePath();
-		strResourcePath+=GetSkinFolder().GetData();
-		m_PaintManager.SetResourcePath(strResourcePath.GetData());
-	}
+	CDuiString strResourcePath=m_PaintManager.GetInstancePath();
+	strResourcePath+=GetSkinFolder().GetData();
+	m_PaintManager.SetResourcePath(strResourcePath.GetData());
 
 	switch(GetResourceType())
 	{

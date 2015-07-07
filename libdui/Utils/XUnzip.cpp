@@ -1,4 +1,3 @@
-#include "StdAfx.h"
 // XUnzip.cpp  Version 1.3
 //
 // Authors:      Mark Adler et al. (see below)
@@ -95,7 +94,7 @@
 //#define _USE_32BIT_TIME_T	//+++1.2
 
 
-//#define STRICT
+#define STRICT
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <time.h>

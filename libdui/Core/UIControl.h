@@ -47,7 +47,7 @@ public:
     void SetColorHSL(bool bColorHSL);
     SIZE GetBorderRound() const;
     void SetBorderRound(SIZE cxyRound);
-    bool DrawImage(HDC hDC, LPCTSTR pStrImage, LPCTSTR pStrModify = NULL);
+    bool DrawImage(HDC hDC, TDrawInfo& drawInfo);
 
 	//边框相关
 	int GetBorderSize() const;
@@ -69,7 +69,10 @@ public:
 
     // 位置相关
     virtual const RECT& GetPos() const;
-    virtual void SetPos(RECT rc);
+	virtual RECT GetRelativePos() const; // 相对(父控件)位置
+	// 只有控件为float的时候，外部调用SetPos和Move才是有效的，位置参数是相对父控件的位置
+    virtual void SetPos(RECT rc, bool bNeedInvalidate = true);
+	virtual void Move(SIZE szOffset, bool bNeedInvalidate = true);
     virtual int GetWidth() const;
     virtual int GetHeight() const;
     virtual int GetX() const;
@@ -90,16 +93,14 @@ public:
     virtual void SetMinHeight(int cy);
     virtual int GetMaxHeight() const;
     virtual void SetMaxHeight(int cy);
-    virtual void SetRelativePos(SIZE szMove,SIZE szZoom);
-    virtual void SetRelativeParentSize(SIZE sz);
-    virtual TRelativePosUI GetRelativePos() const;
-    virtual bool IsRelativePos() const;
+	virtual TPercentInfo GetFloatPercent() const;
+	virtual void SetFloatPercent(TPercentInfo piFloatPercent);
 
     // 鼠标提示
     virtual CDuiString GetToolTip() const;
     virtual void SetToolTip(LPCTSTR pstrText);
 	virtual void SetToolTipWidth(int nWidth);
-	virtual int	 GetToolTipWidth(void);	// 多行ToolTip单行最长宽度
+	virtual int	  GetToolTipWidth(void);	// 多行ToolTip单行最长宽度
 
     // 快捷键
     virtual TCHAR GetShortcut() const;
@@ -189,8 +190,8 @@ protected:
 	bool m_bKeyboardEnabled ;
     bool m_bFocused;
     bool m_bFloat;
+	TPercentInfo m_piFloatPercent;
     bool m_bSetPos; // 防止SetPos循环调用
-    TRelativePosUI m_tRelativePos;
 
     CDuiString m_sText;
     CDuiString m_sToolTip;
@@ -201,8 +202,8 @@ protected:
     DWORD m_dwBackColor;
     DWORD m_dwBackColor2;
     DWORD m_dwBackColor3;
-    CDuiString m_sBkImage;
-	CDuiString m_sForeImage;
+    TDrawInfo m_diBk;
+	TDrawInfo m_diFore;
     DWORD m_dwBorderColor;
 	DWORD m_dwFocusBorderColor;
     bool m_bColorHSL;

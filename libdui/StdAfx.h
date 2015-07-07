@@ -3,8 +3,10 @@
 //      are changed infrequently
 //
 
-#if !defined(AFX_STDAFX_H__E30B2003_188B_4EB4_AB99_3F3734D6CE6C__INCLUDED_)
-#define AFX_STDAFX_H__E30B2003_188B_4EB4_AB99_3F3734D6CE6C__INCLUDED_
+#ifndef __LIBDUI_STDAFX_H__
+#define __LIBDUI_STDAFX_H__
+
+#pragma once
 
 #ifdef __GNUC__
 // 怎么都没找到min，max的头文件-_-

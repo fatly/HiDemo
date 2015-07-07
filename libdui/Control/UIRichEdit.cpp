@@ -255,7 +255,7 @@ CTxtWinHost::~CTxtWinHost()
 
 BOOL CTxtWinHost::Init(CRichEditUI *re, const CREATESTRUCT *pcs)
 {
-    IUnknown *pUnknown = 0;
+    IUnknown *pUnk = 0;
     HRESULT hr;
 
     m_re = re;
@@ -312,14 +312,14 @@ BOOL CTxtWinHost::Init(CRichEditUI *re, const CREATESTRUCT *pcs)
 
 	if (TextServicesProc)
 	{
-		HRESULT hr = TextServicesProc(NULL, this, &pUnknown);
+		HRESULT hr = TextServicesProc(NULL, this, &pUnk);
 	}
 
-	hr = pUnknown->QueryInterface(IID_ITextServices, (void **)&pserv);
+    hr = pUnk->QueryInterface(IID_ITextServices,(void **)&pserv);
 
     // Whether the previous call succeeded or failed we are done
     // with the private interface.
-	pUnknown->Release();
+    pUnk->Release();
 
     if(FAILED(hr))
     {
@@ -1024,14 +1024,8 @@ void CTxtWinHost::SetParaFormat(PARAFORMAT2 &p)
 
 CRichEditUI::CRichEditUI() : m_pTwh(NULL), m_bVScrollBarFixing(false), m_bWantTab(true), m_bWantReturn(true), 
     m_bWantCtrlReturn(true), m_bRich(true), m_bReadOnly(false), m_bWordWrap(false), m_dwTextColor(0), m_iFont(-1), 
-    m_iLimitText(cInitTextMax), m_lTwhStyle(ES_MULTILINE), m_bInited(false), m_chLeadByte(0)
+    m_iLimitText(cInitTextMax), m_lTwhStyle(ES_MULTILINE), m_bInited(false)
 {
-
-#ifndef _UNICODE
-	m_fAccumulateDBC =true;
-#else
-	m_fAccumulateDBC= false;
-#endif
 }
 
 CRichEditUI::~CRichEditUI()
@@ -1572,9 +1566,9 @@ bool CRichEditUI::LineScroll(int nLines, int nChars)
     return (BOOL)lResult == TRUE;
 }
 
-CPoint CRichEditUI::GetCharPos(long lChar) const
+CDuiPoint CRichEditUI::GetCharPos(long lChar) const
 { 
-    CPoint pt; 
+    CDuiPoint pt; 
     TxSendMessage(EM_POSFROMCHAR, (WPARAM)&pt, (LPARAM)lChar, 0); 
     return pt;
 }
@@ -1587,14 +1581,14 @@ long CRichEditUI::LineFromChar(long nIndex) const
     return (long)lResult;
 }
 
-CPoint CRichEditUI::PosFromChar(UINT nChar) const
+CDuiPoint CRichEditUI::PosFromChar(UINT nChar) const
 { 
     POINTL pt; 
     TxSendMessage(EM_POSFROMCHAR, (WPARAM)&pt, nChar, 0); 
-    return CPoint(pt.x, pt.y); 
+    return CDuiPoint(pt.x, pt.y); 
 }
 
-int CRichEditUI::CharFromPos(CPoint pt) const
+int CRichEditUI::CharFromPos(CDuiPoint pt) const
 { 
     POINTL ptl = {pt.x, pt.y}; 
     if( !m_pTwh ) return 0;
@@ -1894,13 +1888,13 @@ void CRichEditUI::DoEvent(TEventUI& event)
 
 SIZE CRichEditUI::EstimateSize(SIZE szAvailable)
 {
-    //return CSize(m_rcItem); // 这种方式在第一次设置大小之后就大小不变了
+    //return CDuiSize(m_rcItem); // 这种方式在第一次设置大小之后就大小不变了
     return CContainerUI::EstimateSize(szAvailable);
 }
 
-void CRichEditUI::SetPos(RECT rc)
+void CRichEditUI::SetPos(RECT rc, bool bNeedInvalidate)
 {
-    CControlUI::SetPos(rc);
+    CControlUI::SetPos(rc, bNeedInvalidate);
     rc = m_rcItem;
 
     rc.left += m_rcInset.left;
@@ -1947,11 +1941,11 @@ void CRichEditUI::SetPos(RECT rc)
 
     if( m_pVerticalScrollBar != NULL && m_pVerticalScrollBar->IsVisible() ) {
         RECT rcScrollBarPos = { rc.right, rc.top, rc.right + m_pVerticalScrollBar->GetFixedWidth(), rc.bottom};
-        m_pVerticalScrollBar->SetPos(rcScrollBarPos);
+        m_pVerticalScrollBar->SetPos(rcScrollBarPos, false);
     }
     if( m_pHorizontalScrollBar != NULL && m_pHorizontalScrollBar->IsVisible() ) {
         RECT rcScrollBarPos = { rc.left, rc.bottom, rc.right, rc.bottom + m_pHorizontalScrollBar->GetFixedHeight()};
-        m_pHorizontalScrollBar->SetPos(rcScrollBarPos);
+        m_pHorizontalScrollBar->SetPos(rcScrollBarPos, false);
     }
 
     for( int it = 0; it < m_items.GetSize(); it++ ) {
@@ -1961,9 +1955,31 @@ void CRichEditUI::SetPos(RECT rc)
             SetFloatPos(it);
         }
         else {
-            pControl->SetPos(rc); // 所有非float子控件放大到整个客户区
-        }
+			SIZE sz = { rc.right - rc.left, rc.bottom - rc.top };
+			if( sz.cx < pControl->GetMinWidth() ) sz.cx = pControl->GetMinWidth();
+			if( sz.cx > pControl->GetMaxWidth() ) sz.cx = pControl->GetMaxWidth();
+			if( sz.cy < pControl->GetMinHeight() ) sz.cy = pControl->GetMinHeight();
+			if( sz.cy > pControl->GetMaxHeight() ) sz.cy = pControl->GetMaxHeight();
+			RECT rcCtrl = { rc.left, rc.top, rc.left + sz.cx, rc.top + sz.cy };
+			pControl->SetPos(rcCtrl, false);
+		}
     }
+}
+
+void CRichEditUI::Move(SIZE szOffset, bool bNeedInvalidate)
+{
+	CContainerUI::Move(szOffset, bNeedInvalidate);
+	if( m_pTwh != NULL ) {
+		RECT rc = m_rcItem;
+		rc.left += m_rcInset.left;
+		rc.top += m_rcInset.top;
+		rc.right -= m_rcInset.right;
+		rc.bottom -= m_rcInset.bottom;
+
+		if( m_pVerticalScrollBar && m_pVerticalScrollBar->IsVisible() ) rc.right -= m_pVerticalScrollBar->GetFixedWidth();
+		if( m_pHorizontalScrollBar && m_pHorizontalScrollBar->IsVisible() ) rc.bottom -= m_pHorizontalScrollBar->GetFixedHeight();
+		m_pTwh->SetClientRect(&rc);
+	}
 }
 
 void CRichEditUI::DoPaint(HDC hDC, const RECT& rcPaint)
@@ -2132,27 +2148,6 @@ LRESULT CRichEditUI::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, boo
     if( !IsMouseEnabled() && uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST ) return 0;
     if( uMsg == WM_MOUSEWHEEL && (LOWORD(wParam) & MK_CONTROL) == 0 ) return 0;
 
-	if (uMsg == WM_IME_COMPOSITION)
-	{
-		// 解决微软输入法位置异常的问题
-		HIMC hIMC = ImmGetContext(GetManager()->GetPaintWindow());
-		if (hIMC) 
-		{
-			// Set composition window position near caret position
-			POINT point;
-			GetCaretPos(&point);
-
-			COMPOSITIONFORM Composition;
-			Composition.dwStyle = CFS_POINT;
-			Composition.ptCurrentPos.x = point.x;
-			Composition.ptCurrentPos.y = point.y;
-			ImmSetCompositionWindow(hIMC, &Composition);
-
-			ImmReleaseContext(GetManager()->GetPaintWindow(),hIMC);
-		}
-		return 0;
-	}
-
     bool bWasHandled = true;
     if( (uMsg >= WM_MOUSEFIRST && uMsg <= WM_MOUSELAST) || uMsg == WM_SETCURSOR ) {
         if( !m_pTwh->IsCaptured() ) {
@@ -2214,51 +2209,6 @@ LRESULT CRichEditUI::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, boo
             return 0;
         }
     }
-
-	if(WM_CHAR == uMsg)
-	{
-#ifndef _UNICODE
-		// check if we are waiting for 2 consecutive WM_CHAR messages
-		if ( IsAccumulateDBCMode() )
-		{
-			if ( (GetKeyState(VK_KANA) & 0x1) )
-			{
-				// turn off accumulate mode
-				SetAccumulateDBCMode ( false );
-				m_chLeadByte = 0;
-			}
-			else
-			{
-				if ( !m_chLeadByte )
-				{
-					// This is the first WM_CHAR message, 
-					// accumulate it if this is a LeadByte.  Otherwise, fall thru to
-					// regular WM_CHAR processing.
-					if ( IsDBCSLeadByte ( (WORD)wParam ) )
-					{
-						// save the Lead Byte and don't process this message
-						m_chLeadByte = (WORD)wParam << 8 ;
-
-						//TCHAR a = (WORD)wParam << 8 ;
-						return 0;
-					}
-				}
-				else
-				{
-					// This is the second WM_CHAR message,
-					// combine the current byte with previous byte.
-					// This DBC will be handled as WM_IME_CHAR.
-					wParam |= m_chLeadByte;
-					uMsg = WM_IME_CHAR;
-
-					// setup to accumulate more WM_CHAR
-					m_chLeadByte = 0; 
-				}
-			}
-		}
-#endif
-	}
-
     LRESULT lResult = 0;
     HRESULT Hr = TxSendMessage(uMsg, wParam, lParam, &lResult);
     if( Hr == S_OK ) bHandled = bWasHandled;
@@ -2268,16 +2218,6 @@ LRESULT CRichEditUI::MessageHandler(UINT uMsg, WPARAM wParam, LPARAM lParam, boo
         if( m_pTwh->IsCaptured() ) bHandled = bWasHandled;
     }
     return lResult;
-}
-
-void CRichEditUI::SetAccumulateDBCMode( bool bDBCMode )
-{
-	m_fAccumulateDBC = bDBCMode;
-}
-
-bool CRichEditUI::IsAccumulateDBCMode()
-{
-	return m_fAccumulateDBC;
 }
 
 
