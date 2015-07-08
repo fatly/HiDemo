@@ -261,7 +261,7 @@ namespace e
 
 	static void debug_memory_heap_close(void)
 	{
-		ASSERT(g_debug_memory_heap != 0);
+		E_ASSERT(g_debug_memory_heap != 0);
 
 		if (g_debug_memory_heap->empty())
 		{
@@ -308,14 +308,14 @@ namespace e
 		if (p == 0) return 0;
 
 #ifdef _MSC_VER //windows 为初始的指针
-		ASSERT(p != (void*)0xcdcdcdcd);
-		ASSERT(p != (void*)0xfeeefeee);
+		E_ASSERT(p != (void*)0xcdcdcdcd);
+		E_ASSERT(p != (void*)0xfeeefeee);
 #endif
 
 		DMHPtr h = (DMHPtr)(((char*)p) - sizeof(DebugMemoryHeader));
 
-		ASSERT((h)->cookie0 == DEBUG_MEMORY_HEADER_COOKIE);
-		ASSERT(*((uint32*)(((char*)(h)) + sizeof(DebugMemoryHeader) + (h)->size)) == DEBUG_MEMORY_HEADER_COOKIE);
+		E_ASSERT((h)->cookie0 == DEBUG_MEMORY_HEADER_COOKIE);
+		E_ASSERT(*((uint32*)(((char*)(h)) + sizeof(DebugMemoryHeader)+(h)->size)) == DEBUG_MEMORY_HEADER_COOKIE);
 
 		DMHSet::Node* node = 0;
 		if (g_debug_memory_heap && (node = g_debug_memory_heap->find(h)) != 0)
@@ -325,7 +325,7 @@ namespace e
 		}
 		else
 		{
-			ASSERT(0);
+			E_ASSERT(0);
 			return 0;
 		}
 	}
@@ -435,12 +435,12 @@ namespace e
 
 	void debug_change_location(void* p, const char* file, const int line)
 	{
-		ASSERT(g_debug_memory_heap != 0);
-		ASSERT(p != 0);
+		E_ASSERT(g_debug_memory_heap != 0);
+		E_ASSERT(p != 0);
 		DebugMemoryHeader* header = debug_memory_heap_checkout(p);
 		if (header == 0)
 		{
-			ASSERT(0);
+			E_ASSERT(0);
 		}
 		else
 		{

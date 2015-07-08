@@ -1,7 +1,7 @@
 #ifndef __E_PUBLIC_H__
 #define __E_PUBLIC_H__
 
-#include "config.h"
+#include "Config.h"
 
 #include "Defines.h"
 #include "Diagnosis.h"

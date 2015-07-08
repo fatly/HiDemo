@@ -2,7 +2,7 @@
 #include "Thread.h"
 #include "Diagnosis.h"
 
-#if defined(MEMTRACE)
+#ifdef MEMTRACE
 #undef malloc
 #undef free
 #endif

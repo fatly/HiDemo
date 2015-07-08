@@ -13,7 +13,7 @@ class MainFrame : public CWindowWnd, public INotifyUI
 {
 public:
 	MainFrame(){};
-	LPCTSTR GetWindowClassName(void) const { return _T("UIFrame"); };
+	LPCTSTR GetWindowClassName(void) const { return _T("UIMainFrame"); };
 	UINT GetClassStyle(void) const { return UI_CLASSSTYLE_DIALOG; };
 	void OnFinalMessage(HWND /*hWnd*/) { delete this; };
 
@@ -167,6 +167,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	pFrame->CenterWindow();
 	pFrame->ShowWindow(true);
 	CPaintManagerUI::MessageLoop();
+	delete pFrame;
 
 	::CoUninitialize();
 	return 0;
