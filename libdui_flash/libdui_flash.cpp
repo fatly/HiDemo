@@ -72,7 +72,7 @@ public:
 
 	LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		//::PostQuitMessage(0L);
+		::PostQuitMessage(0L);
 		bHandled = FALSE;
 		return 0;
 	}

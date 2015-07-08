@@ -43,15 +43,16 @@
 #define MIN min
 #define CLAMP(x,a,b) (MIN(b,MAX(a,x)))
 
-#include "UIlib.h"
 #include "libutils.h"
+#include "UIlib.h"
 
+using namespace e;
 #ifndef NO_USING_DUILIB_NAMESPACE
 using namespace DuiLib;
 using namespace std;
 #endif
 
-using namespace e;
+
 
 #ifdef _DEBUG
 #   pragma comment(lib, "libduid.lib")
