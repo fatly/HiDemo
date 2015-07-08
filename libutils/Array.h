@@ -29,7 +29,7 @@ namespace e
 			length = r.length;
 			bufferSize = length;
 			buffer = (T*)malloc(bufferSize * sizeof(T));
-			ASSERT(buffer != 0);
+			E_ASSERT(buffer != 0);
 
 			for (size_t i = 0; i < length; i++)
 			{
@@ -50,7 +50,7 @@ namespace e
 				length = r.length;
 				bufferSize = length;
 				buffer = (T*)malloc(bufferSize * sizeof(T));
-				ASSERT(buffer != 0);
+				E_ASSERT(buffer != 0);
 				
 				for (size_t i = 0; i < length; i++)
 				{
@@ -69,7 +69,7 @@ namespace e
 				{
 					bufferSize = size + 1 + size >> 1;
 					buffer = (T*)realloc(buffer, bufferSize * sizeof(T));
-					ASSERT(buffer != 0);
+					E_ASSERT(buffer != 0);
 				}
 
 				for (size_t i = length; i < bufferSize; i++)
@@ -90,7 +90,7 @@ namespace e
 
 		void remove(const size_t index)
 		{
-			ASSERT(index >= 0 && index < length);
+			E_ASSERT(index >= 0 && index < length);
 			for (size_t i = index; i < length - 1; i++)
 			{
 				buffer[i] = buffer[i + 1];
@@ -124,14 +124,14 @@ namespace e
 			{
 				bufferSize = length + 1 + (length >> 1);
 				buffer = (T*)realloc(buffer, bufferSize * sizeof(T));
-				ASSERT(buffer != 0);
+				E_ASSERT(buffer != 0);
 			}
 			new(buffer + length - 1) T(v);
 		}
 
 		void pop_back(void)
 		{
-			ASSERT(length > 0);
+			E_ASSERT(length > 0);
 			length--;
 			(buffer + length)->~T();
 		}
@@ -178,37 +178,37 @@ namespace e
 
 		T & operator[](size_t index) 
 		{ 
-			ASSERT(length > index); 
+			E_ASSERT(length > index);
 			return buffer[index];
 		}
 
 		const T & operator[](size_t index) const
 		{
-			ASSERT(length > index);
+			E_ASSERT(length > index);
 			return buffer[index];
 		}
 
 		T & front(void)
 		{
-			ASSERT(length > 0);
+			E_ASSERT(length > 0);
 			return buffer[0];
 		}
 
 		const T & front(void) const
 		{
-			ASSERT(length > 0);
+			E_ASSERT(length > 0);
 			return buffer[0];
 		}
 		
 		T & back(void)
 		{
-			ASSERT(length > 0);
+			E_ASSERT(length > 0);
 			return buffer[length - 1];
 		}
 
 		const T & back(void) const
 		{
-			ASSERT(length > 0);
+			E_ASSERT(length > 0);
 			return buffer[length - 1];
 		}
 

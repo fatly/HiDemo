@@ -26,17 +26,17 @@ namespace e
 	void DebugWriteLine(const String & msg);
 	void DebugWriteLine(const String & msg, const String & file, const int line);
 
-#ifndef ASSERT
-#	define ASSERT(x) do {if (!(x)){ e::OnAssertFailed("Assert Failed : " #x, __FILE__, __LINE__); DEBUG_BREAK; }} while (0);
+#ifndef E_ASSERT
+#	define E_ASSERT(x) do {if (!(x)){ e::OnAssertFailed("Assert Failed : " #x, __FILE__, __LINE__); DEBUG_BREAK; }} while (0);
 #endif
 //#	define TRACE(x) e::DebugWrite((x), __FILE__, __LINE__)
 //#	define TRACE_LINE(x) e::DebugWriteLine((x), __FILE__, __LINE__)
-#	define TRACE(x) e::DebugWrite(x)
-#	define TRACE_LINE(x) e::DebugWriteLine(x)
+#	define E_TRACE(x) e::DebugWrite(x)
+#	define E_TRACE_LINE(x) e::DebugWriteLine(x)
 #else
-#	define ASSERT(x)		((void)0)
-#	define TRACE(x)			((void)0)
-#	define TRACE_LINE(x)	((void)0)
+#	define E_ASSERT(x)		((void)0)
+#	define E_TRACE(x)			((void)0)
+#	define E_TRACE_LINE(x)	((void)0)
 #endif
 
 	class Exception
