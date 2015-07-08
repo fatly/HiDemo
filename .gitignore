@@ -17,8 +17,10 @@
 /lib/libutils.lib
 /lib/libutilsd.lib
 /lib/libstrmbase.lib
+/lib/libstrmbased.lib
 *.suo
 *.sdf
 *.opensdf
 /ipch
 bin/libmp4v2.dll
+libutils/String.cpp

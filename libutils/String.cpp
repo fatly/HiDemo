@@ -7,7 +7,7 @@
 #include <memory.h>
 #include <locale.h>
 
-#if defined(MEMTRACE)
+#ifdef MEMTRACE
 #undef malloc
 #undef realloc
 #undef calloc
@@ -21,7 +21,7 @@ namespace e
 	{
 		const char* loacale_string = setlocale(LC_CTYPE, "");
 		g_loacale_inited = true;
-		TRACE(TEXT("[library] : locale set to:" + StringW(loacale_string) + StringW("\n")));
+		E_TRACE(TEXT("[library] : locale set to:" + StringW(loacale_string) + StringW("\n")));
 	}
 
 	template<typename T>
@@ -101,7 +101,7 @@ namespace e
 	StringA::StringA(int value)
 	{
 		char buf[32] = { 0 };
-		sprintf_s(buf, "%d", value);
+		sprintf_s(buf, sizeof(buf), "%d", value);
 		bufferSize = strlen(buf) + 1;
 		buffer = (char*)malloc(bufferSize);
 		strcpy_s(buffer, bufferSize, buf);
@@ -110,7 +110,7 @@ namespace e
 	StringA::StringA(uint value)
 	{
 		char buf[32] = { 0 };
-		sprintf_s(buf, "%u", value);
+		sprintf_s(buf, sizeof(buf), "%u", value);
 		bufferSize = strlen(buf) + 1;
 		buffer = (char*)malloc(bufferSize);
 		strcpy_s(buffer, bufferSize, buf);
@@ -119,7 +119,7 @@ namespace e
 	StringA::StringA(float value)
 	{
 		char buf[32] = { 0 };
-		sprintf_s(buf, "%f", value);
+		sprintf_s(buf, sizeof(buf), "%f", value);
 		bufferSize = strlen(buf) + 1;
 		buffer = (char*)malloc(bufferSize);
 		strcpy_s(buffer, bufferSize, buf);
@@ -128,7 +128,7 @@ namespace e
 	StringA::StringA(double value)
 	{
 		char buf[32] = { 0 };
-		sprintf_s(buf, "%lf", value);
+		sprintf_s(buf, sizeof(buf), "%lf", value);
 		bufferSize = strlen(buf) + 1;
 		buffer = (char*)malloc(bufferSize);
 		strcpy_s(buffer, bufferSize, buf);
@@ -209,7 +209,7 @@ namespace e
 	void StringA::Insert(int index, char ch)
 	{
 		int len = Length();
-		ASSERT(index >= 0 && index <= len);
+		E_ASSERT(index >= 0 && index <= len);
 		Reserve(len + 1);
 		for (int i = len + 1; i >= index; i--)
 		{
@@ -226,7 +226,7 @@ namespace e
 		}
 
 		int len = Length();
-		ASSERT(index >= 0 && index <= len);
+		E_ASSERT(index >= 0 && index <= len);
 		int len1 = r.Length();
 		Reserve(len + len1);
 		char * p0 = buffer + len;
@@ -242,7 +242,7 @@ namespace e
 
 	int StringA::FindChar(char ch, int pos /* = 0 */) const
 	{
-		ASSERT(pos >= 0);
+		E_ASSERT(pos >= 0);
 
 		if (pos >= 0 && pos < Length())
 		{
@@ -259,7 +259,7 @@ namespace e
 
 	int StringA::FindChar(const char* p, int pos /* = 0 */) const
 	{
-		ASSERT(pos >= 0);
+		E_ASSERT(pos >= 0);
 		if (pos < Length())
 		{
 			char * p1 = 0;
@@ -282,7 +282,7 @@ namespace e
 
 	int StringA::FindString(const char* p, int pos /* = 0 */) const
 	{
-		ASSERT(pos >= 0);
+		E_ASSERT(pos >= 0);
 		if (pos >= 0 && pos < Length())
 		{
 			const char* p1 = buffer + pos;
@@ -299,7 +299,7 @@ namespace e
 
 	int StringA::ReverseFindChar(char ch, int pos /* = -1 */) const
 	{
-		ASSERT(pos >= 0 || pos == -1);
+		E_ASSERT(pos >= 0 || pos == -1);
 
 		if (pos == -1)
 		{
@@ -510,13 +510,13 @@ namespace e
 
 	char StringA::operator[](int index) const
 	{
-		ASSERT(index >= 0 && index <= Length());
+		E_ASSERT(index >= 0 && index <= Length());
 		return buffer[index];
 	}
 
 	char & StringA::operator[](int index)
 	{
-		ASSERT(index >= 0 && index <= Length());
+		E_ASSERT(index >= 0 && index <= Length());
 		return buffer[index];
 	}
 
@@ -647,7 +647,7 @@ namespace e
 			if (len == (size_t)-1)
 			{
 				buffer[0] = 0;
-				TRACE(L"[library] StringA:Initialize() fail to convert from Unicode to Locale.");
+				E_TRACE(L"[library] StringA:Initialize() fail to convert from Unicode to Locale.");
 			}
 		}
 		break;
@@ -693,7 +693,7 @@ namespace e
 				}
 				else
 				{
-					TRACE(L"([library] StringA:Initialize() This char can not convert to UTF-8: ch = " + String((int)(ch)));
+					E_TRACE(L"([library] StringA:Initialize() This char can not convert to UTF-8: ch = " + String((int)(ch)));
 					charCount = -1;
 					break;
 				}
@@ -771,7 +771,7 @@ namespace e
 				}
 				else
 				{
-					ASSERT(0);
+					E_ASSERT(0);
 				}
 				p++;
 			}
@@ -781,7 +781,7 @@ namespace e
 		}
 		default:
 		{
-			TRACE(L"[library] (StringA::Initialize() Unsupported Charset.");
+			E_TRACE(L"[library] (StringA::Initialize() Unsupported Charset.");
 			bufferSize = wcslen(r) + 1;
 			buffer = (char*)malloc(bufferSize * sizeof(char));
 			char * p = buffer;
@@ -882,28 +882,28 @@ namespace e
 	StringW::StringW(int value)
 	{
 		char src[64] = { 0 };
-		sprintf_s(src, "%d", value);
+		sprintf_s(src, sizeof(src), "%d", value);
 		InitTextWFromBuffer(buffer, bufferSize, src);
 	}
 
 	StringW::StringW(uint value)
 	{
 		char src[64] = { 0 };
-		sprintf_s(src, "%u", value);
+		sprintf_s(src, sizeof(src), "%u", value);
 		InitTextWFromBuffer(buffer, bufferSize, src);
 	}
 
 	StringW::StringW(float value)
 	{
 		char src[64] = { 0 };
-		sprintf_s(src, "%f", value);
+		sprintf_s(src, sizeof(src), "%f", value);
 		InitTextWFromBuffer(buffer, bufferSize, src);
 	}
 
 	StringW::StringW(double value)
 	{
 		char src[64] = { 0 };
-		sprintf_s(src, "%lf", value);
+		sprintf_s(src, sizeof(src), "%lf", value);
 		InitTextWFromBuffer(buffer, bufferSize, src);
 	}
 
@@ -985,7 +985,7 @@ namespace e
 	{
 		if (r.IsEmpty()) return;
 		int length = Length();
-		ASSERT(index >= 0 && index <= length);
+		E_ASSERT(index >= 0 && index <= length);
 		int length1 = r.Length();
 		Reserve(length + length1);
 		wchar_t* p0 = buffer + length;
@@ -1001,7 +1001,7 @@ namespace e
 	void StringW::Insert(int index, const wchar_t ch)
 	{
 		int length = Length();
-		ASSERT(index >= 0 && index <= length);
+		E_ASSERT(index >= 0 && index <= length);
 		Reserve(length + 1);
 		for (int i = length + 1; i > index; i--)
 		{
@@ -1012,7 +1012,7 @@ namespace e
 
 	int StringW::FindChar(wchar_t ch, int from) const
 	{
-		ASSERT(from >= 0);
+		E_ASSERT(from >= 0);
 		if (from >= 0 && from <= Length())
 		{
 			wchar_t* p = wcschr(buffer + from, ch);
@@ -1027,7 +1027,7 @@ namespace e
 
 	int StringW::FindChar(const wchar_t * p, int from /* = 0 */) const
 	{
-		ASSERT(from >= 0);
+		E_ASSERT(from >= 0);
 		if (from < Length())
 		{
 			wchar_t* p1 = 0;
@@ -1048,7 +1048,7 @@ namespace e
 
 	int StringW::FindString(const wchar_t * p, int from /* = 0 */) const
 	{
-		ASSERT(from >= 0);
+		E_ASSERT(from >= 0);
 		if (from >= 0 && from < Length())
 		{
 			wchar_t* p1 = buffer + from;
@@ -1064,7 +1064,7 @@ namespace e
 
 	int StringW::ReverseFindChar(wchar_t ch, int from /* = -1 */) const
 	{
-		ASSERT(from >= 0 || from == -1);
+		E_ASSERT(from >= 0 || from == -1);
 		if (from == -1)
 		{
 			from = Length();
@@ -1315,13 +1315,13 @@ namespace e
 
 	wchar_t StringW::operator[](int index) const
 	{
-		ASSERT(index >= 0 && index < bufferSize);
+		E_ASSERT(index >= 0 && index < bufferSize);
 		return buffer[index];
 	}
 
 	wchar_t & StringW::operator[](int index)
 	{
-		ASSERT(index >= 0 && index < bufferSize);
+		E_ASSERT(index >= 0 && index < bufferSize);
 		return buffer[index];
 	}
 
@@ -1405,7 +1405,7 @@ namespace e
 			size_t len = mbstowcs_s(&i, buffer, bufferSize, p, totalBytes);
 			if (len == (size_t)-1)
 			{
-				TRACE(L"[library] Fail to convert String from Locale to Unicode.");
+				E_TRACE(L"[library] Fail to convert String from Locale to Unicode.");
 				buffer[0] = 0;
 			}
 		}
@@ -1476,7 +1476,7 @@ namespace e
 				}
 				else
 				{
-					ASSERT(0);
+					E_ASSERT(0);
 				}
 				s1++;
 			}
@@ -1485,7 +1485,7 @@ namespace e
 		break;
 		default:
 		{
-			TRACE(L"[library] (StringW) Unsupported charset.");
+			E_TRACE(L"[library] (StringW) Unsupported charset.");
 			bufferSize = strlen(p) + 1;
 			buffer = (wchar_t*)malloc(bufferSize * sizeof(wchar_t));
 			wchar_t* s = buffer;
