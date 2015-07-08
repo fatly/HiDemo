@@ -28,7 +28,8 @@ public:
 		{
 			if (msg.pSender->GetName() == _T("closebtn")) 
 			{
-				PostQuitMessage(0);
+				//PostQuitMessage(0);
+				SendMessage(WM_CLOSE);
 				return;
 			}
 		}
@@ -71,8 +72,7 @@ public:
 
 	LRESULT OnDestroy(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
 	{
-		::PostQuitMessage(0L);
-
+		//::PostQuitMessage(0L);
 		bHandled = FALSE;
 		return 0;
 	}
@@ -167,7 +167,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*l
 	pFrame->CenterWindow();
 	pFrame->ShowWindow(true);
 	CPaintManagerUI::MessageLoop();
-	delete pFrame;
+	//delete pFrame;
 
 	::CoUninitialize();
 	return 0;
