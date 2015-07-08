@@ -4,7 +4,12 @@
 #include "Gaussian.h"
 #include "libutils.h"
 
+#ifdef _DEBUG
+#pragma comment(lib, "libutilsd.lib")
+#else
 #pragma comment(lib, "libutils.lib")
+#endif
+
 #pragma warning(disable:4244)
 
 #define INT_MULT(a,b,t)  ((t) = (a) * (b) + 0x80, ((((t) >> 8) + (t)) >> 8))

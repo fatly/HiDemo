@@ -574,7 +574,7 @@ namespace e
 	{
 		StringA ret;
 #ifdef _MSC_VER
-		int totalBytes = _vscprintf(format, argptr);
+		int totalBytes = _vscprintf(format, argptr) + 1;
 		ret.Reserve(totalBytes);
 		vsprintf_s(ret.c_str(), totalBytes, format, argptr);
 #else
