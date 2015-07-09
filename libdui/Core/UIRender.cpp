@@ -433,20 +433,21 @@ TImageInfo* CRenderEngine::LoadImage(STRINGorID bitmap, LPCTSTR type, DWORD mask
         pDest[i*4 + 3] = pImage[i*4 + 3];
         if( pDest[i*4 + 3] < 255 )
         {
-            pDest[i*4] = (BYTE)(DWORD(pImage[i*4 + 2])*pImage[i*4 + 3]/255);
+            pDest[i*4 + 0] = (BYTE)(DWORD(pImage[i*4 + 2])*pImage[i*4 + 3]/255);
             pDest[i*4 + 1] = (BYTE)(DWORD(pImage[i*4 + 1])*pImage[i*4 + 3]/255);
-            pDest[i*4 + 2] = (BYTE)(DWORD(pImage[i*4])*pImage[i*4 + 3]/255); 
+            pDest[i*4 + 2] = (BYTE)(DWORD(pImage[i*4 + 0])*pImage[i*4 + 3]/255); 
             bAlphaChannel = true;
         }
         else
         {
-            pDest[i*4] = pImage[i*4 + 2];
+            pDest[i*4 + 0] = pImage[i*4 + 2];
             pDest[i*4 + 1] = pImage[i*4 + 1];
-            pDest[i*4 + 2] = pImage[i*4]; 
+            pDest[i*4 + 2] = pImage[i*4 + 0]; 
         }
 
-        if( *(DWORD*)(&pDest[i*4]) == mask ) {
-            pDest[i*4] = (BYTE)0;
+        if( *(DWORD*)(&pDest[i*4]) == mask )
+		{
+            pDest[i*4 + 0] = (BYTE)0;
             pDest[i*4 + 1] = (BYTE)0;
             pDest[i*4 + 2] = (BYTE)0; 
             pDest[i*4 + 3] = (BYTE)0;
@@ -481,9 +482,17 @@ void CRenderEngine::FreeImage(TImageInfo* bitmap, bool bDelete)
 	if (bDelete) delete bitmap ;
 }
 
-void CRenderEngine::DrawImage(HDC hDC, HBITMAP hBitmap, const RECT& rc, const RECT& rcPaint,
-							  const RECT& rcBmpPart, const RECT& rcCorners, bool bAlpha, 
-							  BYTE uFade, bool bHole, bool bTiledX, bool bTiledY)
+void CRenderEngine::DrawImage(HDC hDC
+	, HBITMAP hBitmap
+	, const RECT& rc
+	, const RECT& rcPaint
+	, const RECT& rcBmpPart
+	, const RECT& rcCorners
+	, bool bAlpha
+	, BYTE uFade
+	, bool bHole
+	, bool bTiledX
+	, bool bTiledY)
 {
 	ASSERT(::GetObjectType(hDC)==OBJ_DC || ::GetObjectType(hDC)==OBJ_MEMDC);
 

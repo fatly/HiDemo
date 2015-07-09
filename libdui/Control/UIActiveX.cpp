@@ -601,11 +601,19 @@ STDMETHODIMP CActiveXCtrl::GetWindowContext(IOleInPlaceFrame** ppFrame, IOleInPl
     if( ppFrame == NULL ) return E_POINTER;
     if( lprcPosRect == NULL ) return E_POINTER;
     if( lprcClipRect == NULL ) return E_POINTER;
+
 	if (m_pWindow)
 	{
 		::GetClientRect(m_pWindow->GetHWND(),lprcPosRect);
 		::GetClientRect(m_pWindow->GetHWND(),lprcClipRect);
 	}
+	else
+	{
+		RECT rcItem = m_pOwner->GetPos();
+		memcpy(lprcPosRect, &rcItem, sizeof(rcItem));
+		memcpy(lprcClipRect, &rcItem, sizeof(rcItem));
+	}
+
     *ppFrame = new CActiveXFrameWnd(m_pOwner);
     *ppDoc = NULL;
     ACCEL ac = { 0 };
