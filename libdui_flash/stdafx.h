@@ -36,13 +36,6 @@
 #include <shlwapi.h>
 #include <list>
 
-#include "UIlib.h"
-
-#ifndef NO_USING_DUILIB_NAMESPACE
-using namespace DuiLib;
-using namespace std;
-#endif
-
 #include <olectl.h>
 
 #define lengthof(x) (sizeof(x)/sizeof(*x))
@@ -50,19 +43,23 @@ using namespace std;
 #define MIN min
 #define CLAMP(x,a,b) (MIN(b,MAX(a,x)))
 
+#include "libutils.h"
+#include "UIlib.h"
+
+using namespace e;
+#ifndef NO_USING_DUILIB_NAMESPACE
+using namespace DuiLib;
+using namespace std;
+#endif
+
+
 
 #ifdef _DEBUG
-#   ifdef _UNICODE
-#       pragma comment(lib, "libduid.lib")
-#   else
-#       pragma comment(lib, "libduid.lib")
-#   endif
-#else
-#   ifdef _UNICODE
-#       pragma comment(lib, "libdui.lib")
-#   else
-#       pragma comment(lib, "libdui.lib")
-#   endif
+#   pragma comment(lib, "libduid.lib")
+#	pragma comment(lib, "libutilsd.lib")
+#else 
+#   pragma comment(lib, "libdui.lib")
+#	pragma comment(lib, "libutils.lib")
 #endif
 
 //{{AFX_INSERT_LOCATION}}
