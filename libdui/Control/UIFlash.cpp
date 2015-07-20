@@ -2,8 +2,8 @@
 #include "UIFlash.h"
 #include <atlcomcli.h>
 
-#define DISPID_FLASHEVENT_FLASHCALL	 ( 0x00C5 )
-#define DISPID_FLASHEVENT_FSCOMMAND	 ( 0x0096 )
+#define DISPID_FLASHEVENT_FLASHCALL		( 0x00C5 )
+#define DISPID_FLASHEVENT_FSCOMMAND		( 0x0096 )
 #define DISPID_FLASHEVENT_ONPROGRESS	( 0x07A6 )
 
 namespace DuiLib
@@ -247,11 +247,9 @@ namespace DuiLib
 		CComPtr<IConnectionPoint> pCP;
 		
 		hr=m_pFlash->QueryInterface(IID_IConnectionPointContainer,(void **)&pCPC);
-		if (FAILED(hr))
-			return hr;
-		hr=pCPC->FindConnectionPoint(__uuidof(_IShockwaveFlashEvents),&pCP);
-		if (FAILED(hr))
-			return hr;
+		if (FAILED(hr))	return hr;
+		hr=pCPC->FindConnectionPoint(__uuidof(_IShockwaveFlashEvents), &pCP);
+		if (FAILED(hr)) return hr;
 
 		if (inAdvise)
 		{
@@ -273,6 +271,8 @@ namespace DuiLib
 		{
 		}
 		else
+		{
 			CActiveXUI::SetAttribute(pstrName, pstrValue);
+		}
 	}
 };

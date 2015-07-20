@@ -378,6 +378,26 @@ namespace DuiLib
 		Assign(src.m_pstr);
 	}
 
+	CDuiString::CDuiString(const int value) : m_pstr(m_szBuffer)
+	{
+		_stprintf_s(m_szBuffer, _T("%d"), value);
+	}
+
+	CDuiString::CDuiString(const float value) : m_pstr(m_szBuffer)
+	{
+		_stprintf_s(m_szBuffer, _T("%f"), value);
+	}
+
+	CDuiString::CDuiString(const double value) : m_pstr(m_szBuffer)
+	{
+		_stprintf_s(m_szBuffer, _T("%lf"), value);
+	}
+
+	CDuiString::CDuiString(const bool value) : m_pstr(m_szBuffer)
+	{
+		_stprintf_s(m_szBuffer, _T("%s"), value?_T("true"):_T("false"));
+	}
+
 	CDuiString::~CDuiString()
 	{
 		if( m_pstr != m_szBuffer ) free(m_pstr);
