@@ -1,6 +1,7 @@
 #include "private.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <memory.h>
 #include <assert.h>
 #include <conio.h>
 #include "Decoder.h"

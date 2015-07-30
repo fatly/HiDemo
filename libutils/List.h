@@ -86,7 +86,7 @@ namespace e
 		void push_back(const T & data)
 		{
 			Node * p = (Node*)malloc(sizeof(Node));
-			ASSERT(p);
+			E_ASSERT(p);
 			new(&p->data) T(data);
 
 			p->prev = tail;

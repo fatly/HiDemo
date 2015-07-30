@@ -2,6 +2,7 @@
 #include "Encoder.h"
 #include <assert.h>
 #include <stdio.h>
+#include <memory.h>
 
 namespace e
 {
@@ -732,11 +733,14 @@ namespace e
 
 	void Encoder::DCT(double* data)
 	{
-		double z1, z2, z3, z4, z5, tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp10, tmp11, tmp12, tmp13, *data_ptr;
+		double z1, z2, z3, z4, z5;
+		double tmp0, tmp1, tmp2, tmp3, tmp4, tmp5, tmp6, tmp7, tmp10, tmp11, tmp12, tmp13;
+		double *data_ptr;
 
 		data_ptr = data;
 
-		for (int c = 0; c < 8; c++) {
+		for (int c = 0; c < 8; c++) 
+		{
 			tmp0 = data_ptr[0] + data_ptr[7];
 			tmp7 = data_ptr[0] - data_ptr[7];
 			tmp1 = data_ptr[1] + data_ptr[6];
@@ -778,7 +782,8 @@ namespace e
 
 		data_ptr = data;
 
-		for (int c = 0; c < 8; c++) {
+		for (int c = 0; c < 8; c++) 
+		{
 			tmp0 = data_ptr[8 * 0] + data_ptr[8 * 7];
 			tmp7 = data_ptr[8 * 0] - data_ptr[8 * 7];
 			tmp1 = data_ptr[8 * 1] + data_ptr[8 * 6];

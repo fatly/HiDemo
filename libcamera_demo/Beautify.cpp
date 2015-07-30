@@ -1,6 +1,7 @@
 #include "Beautify.h"
 #include <stdio.h>
 #include <math.h>
+#include <memory.h>
 #include "Gaussian.h"
 #include "libutils.h"
 

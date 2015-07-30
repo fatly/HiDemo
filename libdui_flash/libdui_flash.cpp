@@ -13,6 +13,7 @@ class MainFrame : public CWindowWnd, public INotifyUI
 {
 public:
 	MainFrame(){};
+	~MainFrame(){};
 	LPCTSTR GetWindowClassName(void) const { return _T("UIMainFrame"); };
 	UINT GetClassStyle(void) const { return UI_CLASSSTYLE_DIALOG; };
 	void OnFinalMessage(HWND /*hWnd*/) { delete this; };
@@ -149,8 +150,27 @@ public:
 		return CWindowWnd::HandleMessage(uMsg, wParam, lParam);
 	}
 
+	static DWORD WINAPI _DownloadProc(void* pParam)
+	{
+		MainFrame* pThis = static_cast<MainFrame*>(pParam);
+		return pThis->DownloadProc();
+	}
+
+	DWORD DownloadProc(void)
+	{
+		SOCKET hSocket = socket(AF_INET, SOCK_STREAM, 0);
+		if (hSocket == INVALID_SOCKET) return 0;
+
+		sockaddr_in addr = { 0 };
+		addr.sin_family = AF_INET;
+		addr.sin_addr.s_addr = 0;
+
+		return 1;
+	}
+
 private:
 	CPaintManagerUI m_pm;
+	HANDLE m_hThread;
 };
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)

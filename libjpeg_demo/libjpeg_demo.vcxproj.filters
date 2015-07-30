@@ -30,6 +30,9 @@
     <ClCompile Include="Decoder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Encoder0.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BaseClass.h">
@@ -45,6 +48,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Decoder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Encoder0.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

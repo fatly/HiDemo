@@ -26,6 +26,8 @@
 
 #define _CRT_SECURE_NO_DEPRECATE
 
+#include <Winsock2.h>
+#include <mswsock.h>
 #include <windows.h>
 #include <objbase.h>
 #include <vector>
@@ -61,6 +63,9 @@ using namespace std;
 #   pragma comment(lib, "libdui.lib")
 #	pragma comment(lib, "libutils.lib")
 #endif
+
+#pragma comment(lib, "mswsock.lib")
+#pragma comment(lib, "ws2_32.lib")
 
 //{{AFX_INSERT_LOCATION}}
 // Microsoft Visual C++ will insert additional declarations immediately before the previous line.
