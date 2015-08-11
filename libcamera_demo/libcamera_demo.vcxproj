@@ -19,13 +19,13 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -96,6 +96,7 @@
   <ItemGroup>
     <ClCompile Include="Beautify.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="ColorSpace.cpp" />
     <ClCompile Include="DShowHelp.cpp" />
     <ClCompile Include="FFScale.cpp" />
     <ClCompile Include="FilterManager.cpp" />
@@ -107,6 +108,7 @@
   <ItemGroup>
     <ClInclude Include="Beautify.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="ColorSpace.h" />
     <ClInclude Include="DShowHelp.h" />
     <ClInclude Include="FFScale.h" />
     <ClInclude Include="FilterManager.h" />

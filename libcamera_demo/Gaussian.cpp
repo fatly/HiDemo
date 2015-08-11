@@ -1,5 +1,6 @@
 #include "Gaussian.h"
 #include <math.h>
+#include <assert.h>
 
 #pragma warning(disable:4244)
 
@@ -12,7 +13,51 @@ namespace e
 		return exp(-(1.695f / sigma));
 	}
 	//simple recursive gaussian
-	void Gaussian0(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
+	void Gaussian8A(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
+	{
+		float a = CalcParam(sigma);
+		float yp = 0.0f, xc = 0.0f, yc = 0.0f;
+
+		int lineBytes0 = WIDTHBYTES(bitCount * width);
+		int lineBytes1 = WIDTHBYTES(bitCount * height);
+		int bpp = bitCount / 8;
+
+		for (int x = 0; x < width; x++)
+		{
+			uint8* p = src + x * bpp;
+			yp = *(p + 0);
+
+			for (int y = 0; y < height; y++)
+			{
+				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				uint8* p1 = dst + x * lineBytes1 + y * bpp;
+
+				xc = *(p0 + 0);
+
+				yc = xc + (yp - xc) * a;
+
+				*(p1 + 0) = yp = yc;
+			}
+
+			p = src + (height - 1) * lineBytes0 + x * bpp;
+			yp = *(p + 0);
+
+			for (int y = height - 1; y >= 0; y--)
+			{
+				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				uint8* p1 = dst + x * lineBytes1 + y * bpp;
+				xc = *(p0 + 0);
+
+				yc = xc + (yp - xc) * a;
+
+				*(p1 + 0) = (*(p1 + 0) + yc) * 0.5f;
+
+				yp = yc;
+			}
+		}
+	}
+
+	void Gaussian24A(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
 	{
 		float a = CalcParam(sigma);
 
@@ -93,7 +138,7 @@ namespace e
 		float coefn;
 	};
 	//recursive gaussian
-	void Gaussian(uint8* dst
+	void _Gaussian24B(uint8* dst
 		, uint8* src
 		, int width
 		, int height
@@ -215,6 +260,78 @@ namespace e
 		}
 	}
 
+	void _Gaussian8B(uint8* dst
+		, uint8* src
+		, int width
+		, int height
+		, int bitCount
+		, float a0
+		, float a1
+		, float a2
+		, float a3
+		, float b1
+		, float b2
+		, float coefp
+		, float coefn)
+	{
+		int lineBytes0 = WIDTHBYTES(bitCount * width);
+		int lineBytes1 = WIDTHBYTES(bitCount * height);
+		int bpp = bitCount / 8;
+
+		for (int x = 0; x < width; x++)
+		{
+			// start forward filter pass
+			float xp = 0.0f, yp = 0.0f, yb = 0.0f;
+
+			uint8* p0 = src + x * bpp;
+#ifdef CLAMP_TO_EDGE
+			xp = *p0;
+			yb = xp * coefp;
+			yp = yb;
+#endif
+			float xc = 0.0f, yc = 0.0f;
+
+			for (int y = 0; y < height; y++)
+			{
+				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				uint8* p1 = dst + x * lineBytes1 + y * bpp;
+
+				xc = *p0;
+				yc = (a0 * xc) + (a1 * xp) - (b1 * yp) - (b2 * yb);
+				*p1 = yc;
+				xp = xc;
+				yb = yp;
+				yp = yc;
+			}
+
+			// start reverse filter pass: ensures response is symmetrical
+			float xn = 0.0f, xa = 0.0f, yn = 0.0f, ya = 0.0f;
+
+#ifdef CLAMP_TO_EDGE
+			p0 = src + (height - 1) * lineBytes0 + x * bpp;
+			xn = *p0;
+			xa = xn;
+			yn = xn * coefn;
+			ya = yn;
+#endif
+
+			for (int y = height - 1; y >= 0; y--)
+			{
+				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				uint8* p1 = dst + x * lineBytes1 + y * bpp;
+
+				xc = *p0;
+				yc = (a2 * xn) + (a3 * xa) - (b1 * yn) - (b2 * ya);
+				xa = xn;
+				xn = xc;
+				ya = yn;
+				yn = yc;
+
+				*p1 += yc;
+			}
+		}
+	}
+
 	inline void CalcParam(float sigma, GaussParams & param)
 	{
 		// pre-compute filter coefficients
@@ -241,13 +358,34 @@ namespace e
 		param.coefn = (param.a2 + param.a3) / (1.0f + param.b1 + param.b2);
 	}
 
-	void Gaussian1(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
+	void Gaussian24B(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
 	{
 		GaussParams param;
 
 		CalcParam(sigma, param);
 
-		Gaussian(dst
+		_Gaussian24B(dst
+			, src
+			, width
+			, height
+			, bitCount
+			, param.a0
+			, param.a1
+			, param.a2
+			, param.a3
+			, param.b1
+			, param.b2
+			, param.coefp
+			, param.coefn);
+	}
+
+	void Gaussian8B(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
+	{
+		GaussParams param;
+
+		CalcParam(sigma, param);
+
+		_Gaussian8B(dst
 			, src
 			, width
 			, height
@@ -264,13 +402,21 @@ namespace e
 
 	void Gaussian(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma, int mode)
 	{
-		if (mode == 0)
+		if (mode == SIMPLE8)
 		{
-			Gaussian0(dst, src, width, height, bitCount, sigma);
+			Gaussian8A(dst, src, width, height, bitCount, sigma);
 		}
-		else if (mode == 1)
+		else if (mode == HIGHT8)
 		{
-			Gaussian1(dst, src, width, height, bitCount, sigma);
+			Gaussian8B(dst, src, width, height, bitCount, sigma);
+		}
+		else if (mode == SIMPLE24)
+		{
+			Gaussian24A(dst, src, width, height, bitCount, sigma);
+		}
+		else if (mode == HIGHT24)
+		{
+			Gaussian24B(dst, src, width, height, bitCount, sigma);
 		}
 	}
 }

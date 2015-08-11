@@ -67,12 +67,12 @@ namespace e
 		MAX_HUFF_CODESIZE = 32 
 	};
 
-	static inline int Round(float x)
+	inline static int Round(float x)
 	{
 		return (int)(x < 0 ? x - 0.5f : x + 0.5f);
 	}
 
-	inline void BGR2YCC(uint8 b, uint8 g, uint8 r,  int8 & Y, int8 & Cb, int8 & Cr)
+	inline static void BGR2YCC(uint8 b, uint8 g, uint8 r,  int8 & Y, int8 & Cb, int8 & Cr)
 	{
 		Y = (int8)Round((0.299f * r) + (0.587f * g) + (0.114f * b) - 128.0f);
 		Cb = (int8)Round(-(0.168736f * r) - (0.331264f * g) + (0.5f * b));

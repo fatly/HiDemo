@@ -139,6 +139,11 @@ namespace DuiLib
 		CDuiString(LPCTSTR lpsz, int nLen = -1);
 		~CDuiString();
 
+		explicit CDuiString(const int value);
+		explicit CDuiString(const float value);
+		explicit CDuiString(const double value);
+		explicit CDuiString(const bool value);
+
 		void Empty();
 		int GetLength() const;
 		bool IsEmpty() const;

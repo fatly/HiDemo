@@ -30,23 +30,36 @@ namespace e
 		}
 
 	private:
-		void Screen(uint8* dst, uint8* src, int width, int height, int bitCount);
-		void SoftLight(uint8* dst, uint8* src, int width, int height, int bitCount);
-		typedef void(Beautify::*BlendHandle)(uint8*, uint8*, int, int, int);
+		uint8 softlight(uint8 a, uint8 b);
+		uint8 overlying(uint8 a, uint8 b);
+		void Screen(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		void SoftLight(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		void Different(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		void Overlying(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		typedef void(Beautify::*BlendHandle)(uint8*, uint8*, int, int, int, int);
+		void Reset(void);
 	private:
-		float sigma;
-		int width;
-		int height;
 
+		float sigma;
 		float alpha0;
 		float alpha1;
 
-		uint8* src;
+		int width;
+		int height;
+
+		uint8* blr;
 		uint8* tmp;
+		uint8* yuv;
 
 		bool enable;
-		bool mode;
-		BlendHandle blendHandle;
+		bool useBlur;
+		bool useBlend;
+		bool useYCbCr;
+		bool swapBlend;
+		bool blurLevel;
+		int  blendIndex;
+		int  blendCount;
+		BlendHandle handles[10];
 	};
 }
 

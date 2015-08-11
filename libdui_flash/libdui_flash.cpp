@@ -2,14 +2,27 @@
 //
 
 #include "stdafx.h"
+#include <atlcomcli.h>
+#include <comutil.h>
+#include <Unknwn.h>
 
 #import "PROGID:ShockwaveFlash.ShockwaveFlash" raw_interfaces_only, named_guids, rename_namespace("e"),\
 	rename("IDispatchEx", "IMyDispatchEx"), \
 	rename("ICanHandleException", "IMyICanHandleException")
-
 using namespace e;
 
-class MainFrame : public CWindowWnd, public INotifyUI
+#define DISPID_FLASHEVENT_FLASHCALL		( 0x00C5 )
+#define DISPID_FLASHEVENT_FSCOMMAND		( 0x0096 )
+#define DISPID_FLASHEVENT_ONPROGRESS	( 0x07A6 )
+
+#define DECLMSG(method) \
+	LRESULT method(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+
+class MainFrame :
+	public CWindowWnd,
+	public INotifyUI,
+	public _IShockwaveFlashEvents
+
 {
 public:
 	MainFrame(){};
@@ -27,7 +40,7 @@ public:
 	{
 		if (msg.sType == _T("click"))
 		{
-			if (msg.pSender->GetName() == _T("closebtn")) 
+			if (msg.pSender->GetName() == _T("closebtn"))
 			{
 				//Close();
 				PostQuitMessage(0);
@@ -43,6 +56,7 @@ public:
 
 			if (pFlash != NULL)
 			{
+				pFlash->put_Loop(VARIANT_FALSE);
 				pFlash->put_WMode(_bstr_t(_T("Transparent")));//Transparent
 				pFlash->put_Movie(_bstr_t(CPaintManagerUI::GetInstancePath() + _T("\\skin\\FlashRes\\test.swf")));
 				pFlash->DisableLocalSecurity();
@@ -52,6 +66,171 @@ public:
 				pFlash->Release();
 			}
 		}
+	}
+
+	bool RegisterEventHandler(bool inAdvise)
+	{
+		IShockwaveFlash* pFlash = NULL;
+		CActiveXUI* pActiveX = static_cast<CActiveXUI*>(m_pm.FindControl(_T("flash")));
+		pActiveX->GetControl(IID_IUnknown, (void**)&pFlash);
+
+		if (pFlash)
+		{
+			CComPtr<IConnectionPointContainer> pCPC;
+			CComPtr<IConnectionPoint> pCP;
+
+			HRESULT hr = pFlash->QueryInterface(IID_IConnectionPointContainer, (void**)&pCPC);
+			if (FAILED(hr))
+			{
+				pFlash->Release();
+				return false;
+			}
+			hr = pCPC->FindConnectionPoint(__uuidof(_IShockwaveFlashEvents), &pCP);
+			if (FAILED(hr))
+			{
+				pFlash->Release();
+				return false;
+			}
+
+			if (inAdvise)
+			{
+				hr = pCP->Advise((IDispatch*)this, &m_dwCookie);
+			}
+			else
+			{
+				hr = pCP->Unadvise(m_dwCookie);
+			}
+
+			pFlash->Release();
+			return hr == S_OK;
+		}
+
+		return false;
+	}
+	HRESULT STDMETHODCALLTYPE GetTypeInfoCount(__RPC__out UINT *pctinfo)
+	{
+		return S_OK;
+	}
+	HRESULT STDMETHODCALLTYPE GetTypeInfo(UINT iTInfo, LCID lcid, __RPC__deref_out_opt ITypeInfo **ppTInfo)
+	{
+		return S_OK;
+	}
+	HRESULT STDMETHODCALLTYPE GetIDsOfNames(__RPC__in REFIID riid, __RPC__in_ecount_full(cNames) LPOLESTR *rgszNames, UINT cNames, LCID lcid, __RPC__out_ecount_full(cNames) DISPID *rgDispId)
+	{
+		return S_OK;
+	}
+	HRESULT STDMETHODCALLTYPE Invoke(DISPID dispIdMember, REFIID riid, LCID lcid, WORD wFlags, DISPPARAMS *pDispParams, VARIANT *pVarResult, EXCEPINFO *pExcepInfo, UINT *puArgErr)
+	{
+		switch (dispIdMember)
+		{
+		case DISPID_FLASHEVENT_FLASHCALL:
+		{
+			if (pDispParams->cArgs != 1 || pDispParams->rgvarg[0].vt != VT_BSTR)
+				return E_INVALIDARG;
+			return this->FlashCall(pDispParams->rgvarg[0].bstrVal);
+		}
+		case DISPID_FLASHEVENT_FSCOMMAND:
+		{
+			if (pDispParams && pDispParams->cArgs == 2)
+			{
+				if (pDispParams->rgvarg[0].vt == VT_BSTR &&
+					pDispParams->rgvarg[1].vt == VT_BSTR)
+				{
+					return OnFSCommand(pDispParams->rgvarg[1].bstrVal, pDispParams->rgvarg[0].bstrVal);
+				}
+				else
+				{
+					return DISP_E_TYPEMISMATCH;
+				}
+			}
+			else
+			{
+				return DISP_E_BADPARAMCOUNT;
+			}
+		}
+		case DISPID_FLASHEVENT_ONPROGRESS:
+		{
+			return OnProgress(*pDispParams->rgvarg[0].plVal);
+		}
+		case DISPID_READYSTATECHANGE:
+		{
+			return this->OnReadyStateChange(pDispParams->rgvarg[0].lVal);
+		}
+		default:
+			break;
+		}
+
+		return S_OK;
+	}
+
+	HRESULT STDMETHODCALLTYPE QueryInterface(REFIID riid, void **ppvObject)
+	{
+		*ppvObject = NULL;
+
+		if (riid == IID_IUnknown)
+			*ppvObject = static_cast<LPUNKNOWN>(this);
+		else if (riid == IID_IDispatch)
+			*ppvObject = static_cast<IDispatch*>(this);
+		else if (riid == __uuidof(_IShockwaveFlashEvents))
+			*ppvObject = static_cast<_IShockwaveFlashEvents*>(this);
+
+		if (*ppvObject != NULL)	AddRef();
+
+		return *ppvObject == NULL ? E_NOINTERFACE : S_OK;
+	}
+	ULONG STDMETHODCALLTYPE AddRef(void)
+	{
+		::InterlockedIncrement(&m_dwRefCount);
+		return m_dwRefCount;
+	}
+	ULONG STDMETHODCALLTYPE Release(void)
+	{
+		::InterlockedDecrement(&m_dwRefCount);
+		return m_dwRefCount;
+	}
+	HRESULT OnReadyStateChange(long lNewState)
+	{
+		return S_OK;
+	}
+
+	HRESULT OnProgress(int nPercent)
+	{
+		TCHAR szText[256] = { 0 };
+		_stprintf_s(szText, _T("progress = %d\n"), nPercent);
+		OutputDebugString(szText);
+		return S_OK;
+	}
+
+	HRESULT OnFSCommand(_bstr_t command, _bstr_t args)
+	{
+
+		return S_OK;
+	}
+
+	HRESULT FlashCall(_bstr_t request)
+	{
+
+		return S_OK;
+	}
+
+	DECLMSG(OnKeyDown)
+	{
+		CDuiString str = CDuiString(_T("key = ")) + CDuiString((int)wParam) + CDuiString(_T("\n"));
+		OutputDebugString(str.GetData());
+
+		IShockwaveFlash* pFlash = NULL;
+		CActiveXUI* pActiveX = static_cast<CActiveXUI*>(m_pm.FindControl(_T("flash")));
+		pActiveX->GetControl(IID_IUnknown, (void**)&pFlash);
+
+		if (pFlash)
+		{
+			pFlash->put_Loop(VARIANT_FALSE);
+			HRESULT hr = pFlash->Stop();
+			pFlash->Release();
+		}
+
+		bHandled = TRUE;
+		return 0;
 	}
 
 	LRESULT OnCreate(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled)
@@ -142,6 +321,7 @@ public:
 		case WM_NCPAINT:       lRes = OnNcPaint(uMsg, wParam, lParam, bHandled); break;
 		case WM_NCHITTEST:     lRes = OnNcHitTest(uMsg, wParam, lParam, bHandled); break;
 		case WM_SIZE:          lRes = OnSize(uMsg, wParam, lParam, bHandled); break;
+		case WM_KEYDOWN:	   lRes = OnKeyDown(uMsg, wParam, lParam, bHandled); break;
 		default:
 			bHandled = FALSE;
 		}
@@ -170,7 +350,12 @@ public:
 
 private:
 	CPaintManagerUI m_pm;
+<<<<<<< HEAD
 	HANDLE m_hThread;
+=======
+	DWORD m_dwCookie;
+	DWORD m_dwRefCount;
+>>>>>>> origin/master
 };
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int nCmdShow)

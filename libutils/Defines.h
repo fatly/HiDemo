@@ -94,9 +94,7 @@ namespace e
 
 	template<class T> inline void swap(T & l, T & r)
 	{
-		T temp = l;
-		l = r;
-		r = temp;
+		T temp = l; l = r; r = temp;
 	}
 
 	template<class T> inline void limit(T & value

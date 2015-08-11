@@ -359,8 +359,7 @@ HRESULT CTxtWinHost::QueryInterface(REFIID riid, void **ppvObject)
     HRESULT hr = E_NOINTERFACE;
     *ppvObject = NULL;
 
-    if (IsEqualIID(riid, IID_IUnknown) 
-        || IsEqualIID(riid, IID_ITextHost)) 
+    if (IsEqualIID(riid, IID_IUnknown) || IsEqualIID(riid, IID_ITextHost)) 
     {
         AddRef();
         *ppvObject = (ITextHost *) this;
