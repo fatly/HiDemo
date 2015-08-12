@@ -2,6 +2,7 @@
 #include <assert.h>
 #include "Camera.h"
 #include "Beautify.h"
+#include "libutils.h"
 
 #define WIN_CLASS_NAME (TEXT("BeautifyClass"))
 
@@ -75,7 +76,7 @@ namespace e
 			return false;
 		}
 
-		int x = 100, y = 100, w = 600, h = 500;
+		int x = 100, y = 100, w = 700, h = 500;
 		DWORD ws = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
 		hWnd = ::CreateWindowEx(WS_EX_APPWINDOW
 			, WIN_CLASS_NAME
@@ -182,6 +183,21 @@ namespace e
 		::DeleteDC(hMemDC);
 	}
 
+	void MainWin::DrawText(HDC hDC, TCHAR* text, int len)
+	{
+		int x = 500, y = 10, w = 200, h = 500 - y;
+		RECT rc = { 0, 0, w, h};
+		HDC hMemDC = CreateCompatibleDC(hDC);
+		HBITMAP hBitmap = CreateCompatibleBitmap(hDC, w, h);
+		HBRUSH hBrush = (HBRUSH)GetStockObject(WHITE_BRUSH);
+		::SelectObject(hMemDC, hBitmap);
+		::FillRect(hMemDC, &rc, hBrush);
+		::DrawText(hMemDC, text, len, &rc, DT_LEFT|DT_TOP);
+		::BitBlt(hDC, x, y, w, h, hMemDC, 0, 0, SRCCOPY);
+		::DeleteObject(hBitmap);
+		::DeleteDC(hMemDC);
+	}
+
 	void MainWin::UpdateView(void)
 	{
 		if (hBitmap != 0 && hWnd != 0)
@@ -193,6 +209,8 @@ namespace e
 			::FillRect(hDC, &rect, (HBRUSH)::GetStockObject(WHITE_BRUSH));
 
 			DrawBitmap(hDC, hBitmap, 480, 360);
+			e::String text = beautify->GetParamText();
+			DrawText(hDC, text.c_str(), text.Length());
 			::ReleaseDC(hWnd, hDC);
 		}
 	}
@@ -296,7 +314,11 @@ namespace e
 
 		assert(hWnd);
 		HDC hDC = ::GetDC(hWnd);
+
 		DrawBitmap(hDC, hBitmap, width, height);
+		e::String text = beautify->GetParamText();
+		DrawText(hDC, text.c_str(), text.Length());
+
 		::ReleaseDC(hWnd, hDC);
 	}
 }

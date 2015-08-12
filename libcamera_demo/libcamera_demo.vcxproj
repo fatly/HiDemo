@@ -97,9 +97,11 @@
     <ClCompile Include="Beautify.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColorSpace.cpp" />
+    <ClCompile Include="Curve.cpp" />
     <ClCompile Include="DShowHelp.cpp" />
     <ClCompile Include="FFScale.cpp" />
     <ClCompile Include="FilterManager.cpp" />
+    <ClCompile Include="FrameCtrl.cpp" />
     <ClCompile Include="Gaussian.cpp" />
     <ClCompile Include="libcamera_demo.cpp" />
     <ClCompile Include="MainWin.cpp" />
@@ -109,9 +111,11 @@
     <ClInclude Include="Beautify.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorSpace.h" />
+    <ClInclude Include="Curve.h" />
     <ClInclude Include="DShowHelp.h" />
     <ClInclude Include="FFScale.h" />
     <ClInclude Include="FilterManager.h" />
+    <ClInclude Include="FrameCtrl.h" />
     <ClInclude Include="Gaussian.h" />
     <ClInclude Include="HandleDefs.h" />
     <ClInclude Include="MainWin.h" />

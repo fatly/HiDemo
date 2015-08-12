@@ -25,6 +25,7 @@ namespace e
 
 	enum DataType{ RGB24, IYUV, RGB32, YV12, IMC1, IMC2, IMC3, IMC4, UYVY, YUY2, YVYU, I420, UNKNOWN };
 
+	class CFrameCtrl;
 	class RenderFilter : public CBaseRenderer
 	{
 	public:
@@ -65,6 +66,8 @@ namespace e
 
 		SampleHanlde fnSampleHandle;
 		void* fnSampleParam;
+
+		CFrameCtrl* fps;
 	};
 }
 

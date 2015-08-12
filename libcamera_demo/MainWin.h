@@ -22,6 +22,7 @@ namespace e
 		HBITMAP CreateBitmap(int width, int height, int bitCount);
 		void SetBitmap(uint8* bits, int width, int height, int bitCount);
 		void DrawBitmap(HDC hDC, HBITMAP hBitmap, int width, int height);
+		void DrawText(HDC hDC, TCHAR* text, int len);
 		void UpdateView(void);
 
 		virtual void SampleHandle(uchar* buffer, int width, int height, int bitCount);

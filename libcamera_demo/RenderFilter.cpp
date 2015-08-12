@@ -1,4 +1,5 @@
 #include "RenderFilter.h"
+#include "FrameCtrl.h"
 
 #define DEFINE_GUID1(name, l, w1, w2, b1, b2, b3, b4, b5, b6, b7, b8) \
         EXTERN_C const GUID DECLSPEC_SELECTANY name \
@@ -27,6 +28,9 @@ namespace e
 
 		fnSampleHandle = 0;
 		fnSampleParam = 0;
+
+		fps = new CFrameCtrl();
+		fps->SetFramePerSecond(15);
 	}
 
 	RenderFilter::~RenderFilter()
@@ -41,6 +45,12 @@ namespace e
 		{
 			delete[] tmpBuffer;
 			tmpBuffer = 0;
+		}
+
+		if (fps)
+		{
+			delete fps;
+			fps = NULL;
 		}
 	}
 
@@ -104,6 +114,11 @@ namespace e
 
 	HRESULT RenderFilter::DoRenderSample(IMediaSample* sample)
 	{
+		if (fps->Step() != CFrameCtrl::STATE_RENDER)
+		{
+			return S_OK;
+		}
+
 		BYTE* buffer = 0;
 		sample->GetPointer(&buffer);
 		sample->GetMediaTime(&startTime, &endTime);
