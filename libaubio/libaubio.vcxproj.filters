@@ -1,0 +1,306 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="源文件">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="头文件">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="io\audio_unit.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink_apple_audio.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink_sndfile.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\sink_wavwrite.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_apple_audio.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_avcodec.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_sndfile.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\source_wavread.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="io\utils_apple_audio.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="onset\onset.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="onset\peakpicker.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitch.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchfcomb.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchmcomb.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchschmitt.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchspecacf.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchyin.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="pitch\pitchyinfft.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\fft.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\filterbank.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\filterbank_mel.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\mfcc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\ooura_fft8g.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\phasevoc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\specdesc.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\statistics.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="spectral\tss.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="synth\sampler.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="synth\wavetable.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tempo\beattracking.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="tempo\tempo.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\a_weighting.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\biquad.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\c_weighting.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="temporal\filter.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\hist.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\parameter.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\scale.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="cvec.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="fmat.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="fvec.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="lvec.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mathutils.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="vecutils.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="io\audio_unit.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink_apple_audio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink_sndfile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\sink_wavwrite.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_apple_audio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_avcodec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_sndfile.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="io\source_wavread.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="onset\onset.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="onset\peakpicker.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchfcomb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchmcomb.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchschmitt.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchspecacf.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchyin.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="pitch\pitchyinfft.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\fft.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\filterbank.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\filterbank_mel.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\mfcc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\phasevoc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\specdesc.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="spectral\tss.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="synth\sampler.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="synth\wavetable.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tempo\beattracking.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="tempo\tempo.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\a_weighting.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\biquad.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\c_weighting.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="temporal\filter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\hist.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\parameter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\scale.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="aubio.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="aubio_priv.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="cvec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="fmat.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="fvec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="lvec.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="mathutils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="musicutils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="types.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="vecutils.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

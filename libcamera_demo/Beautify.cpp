@@ -3,9 +3,13 @@
 #include <math.h>
 #include <tchar.h>
 #include <memory.h>
+#include "FastBlur.h"
 #include "Gaussian.h"
+#include "Eclosion.h"
 #include "libutils.h"
 #include "ColorSpace.h"
+#include "Bilateral.h"
+#include <windows.h>
 
 #ifdef _DEBUG
 #pragma comment(lib, "libutilsd.lib")
@@ -22,7 +26,7 @@ namespace e
 	//1.0 - (1.0 - a) * (1.0 - b);	
 	inline uint8 Beautify::screen(uint8 a, uint8 b)
 	{
-		return 255 - (255 - a) * (255 - b) / 255;
+		return clamp0255(255 - (255 - a) * (255 - b) / 255);
 	}
 
 	void Beautify::Screen(uint8* dst, uint8* src, int width, int height, int bitCount, int mode)
@@ -39,19 +43,13 @@ namespace e
 			{
 				for (int x = 0; x < width; x++)
 				{
-// 					*(p1 + 0) = screen(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
-// 					*(p1 + 1) = screen(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
-// 					*(p1 + 2) = screen(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
+					*(p1 + 0) = screen(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+					*(p1 + 1) = screen(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+					*(p1 + 2) = screen(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
 
-					*(p1 + 0) = softlight(*(p1 + 0), screen(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0));
-					*(p1 + 1) = softlight(*(p1 + 1), screen(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0));
-					*(p1 + 2) = softlight(*(p1 + 2), screen(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0));
-
- 					#define BLEND(a, b) blend[(a<<8 | b) & 0xffff]
-// 
-// 					*(p1 + 0) = BLEND(*(p1 + 0), *(p0 + 0));
-// 					*(p1 + 1) = BLEND(*(p1 + 1), *(p0 + 1));
-// 					*(p1 + 2) = BLEND(*(p1 + 2), *(p0 + 1));
+// 					*(p1 + 0) = softlight(*(p1 + 0), screen(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0));
+// 					*(p1 + 1) = softlight(*(p1 + 1), screen(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0));
+// 					*(p1 + 2) = softlight(*(p1 + 2), screen(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0));
 
 					p0 += bpp;
 					p1 += bpp;
@@ -62,8 +60,7 @@ namespace e
 				for (int x = 0; x < width; x++)
 				{
 					//screen op
-					//*p1 = softlight(*p1, screen(*p1 * alpha1, *p0 * alpha0));
-					*p1 = BLEND(*p1, *p0);
+					*p1 = screen(*p1, *p0);
 
 					p0 += bpp;
 					p1 += bpp;
@@ -72,17 +69,40 @@ namespace e
 		}
 	}
 
-	inline uint8 Beautify::softlight(uint8 a, uint8 b)
+	inline float g(float a)
 	{
-		if (this->swapBlend) swap(a, b);
-
-		if (b <= 128)
+		if (a < 0.25f)
 		{
-			return (a * b) / 128 + (a / 255) * (a / 255) * (255 - 2 * b);
+			return ((16 * a - 12) * a + 4) * a;
 		}
 		else
 		{
-			return a * (255 - b) / 128 + sqrt((float)a / 255.0f) * (2 * b - 255);
+			return sqrt(a);
+		}
+	}
+
+	inline uint8 Beautify::softlight(uint8 _a, uint8 _b)
+	{
+//		if (this->swapBlend) swap(_a, _b);
+
+// 		if (b <= 128)
+// 		{
+// 			return clamp0255((a * b) / 128 + (a / 255) * (a / 255) * (255 - 2 * b));
+// 		}
+// 		else
+// 		{
+// 			return clamp0255(a * (255 - b) / 128 + sqrt((float)a / 255.0f) * (2 * b - 255));
+// 		}		
+
+		float a = (float)_a / 255.0f, b = (float)_b / 255.0f;
+
+		if (b < 0.5f)
+		{
+			return (a - (1 - 2 * b) * a * (1 - a)) * 255;
+		}
+		else
+		{
+			return (a + (2 * b - 1) * (g(a) - a)) * 255;
 		}
 	}
 
@@ -100,13 +120,18 @@ namespace e
 			{
 				for (int x = 0; x < width; x++)
 				{
-					*(p1 + 0) = softlight(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
-					*(p1 + 1) = softlight(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
-					*(p1 + 2) = softlight(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
+// 					*(p1 + 0) = softlight(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+// 					*(p1 + 1) = softlight(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+// 					*(p1 + 2) = softlight(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
 
-// 					*(p1 + 0) = overlying(*(p1 + 0), softlight(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0));
-// 					*(p1 + 1) = overlying(*(p1 + 1), softlight(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0));
-// 					*(p1 + 2) = overlying(*(p1 + 2), softlight(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0));
+#define BLEND(a, b) blend[(int(a)<<8 | int(b)) & 0xffff]
+					*(p1 + 0) = BLEND(*(p1 + 0), *(p0 + 0));
+					*(p1 + 1) = BLEND(*(p1 + 1), *(p0 + 1));
+					*(p1 + 2) = BLEND(*(p1 + 2), *(p0 + 2));
+
+// 					*(p1 + 0) = BLEND(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+// 					*(p1 + 1) = BLEND(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+// 					*(p1 + 2) = BLEND(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
 
 					p0 += bpp;
 					p1 += bpp;
@@ -125,7 +150,48 @@ namespace e
 		}
 	}
 
-//#define _swap(a, b) a ^= b; b ^= a; a ^= b;
+	inline uint8 Beautify::hardlight(uint8 a, uint8 b)
+	{
+		if (b <= 128)
+			return clamp0255((a * b) / 128);
+		else
+			return clamp0255(255 - (255 - a)*(255 - b) / 128);
+	}
+
+	void Beautify::HardLight(uint8* dst, uint8* src, int width, int height, int bitCount, int mode)
+	{
+		int lineBytes = WIDTHBYTES(bitCount * width);
+		int bpp = bitCount / 8;
+
+		for (int y = 0; y < height; y++)
+		{
+			uint8* p0 = src + y * lineBytes;
+			uint8* p1 = dst + y * lineBytes;
+
+			if (mode == SIMPLE24 || mode == HIGHT24)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*(p1 + 0) = hardlight(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+					*(p1 + 1) = hardlight(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+					*(p1 + 2) = hardlight(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+			else
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*p1 = hardlight(*p1 * alpha1, *p0 * alpha0);
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+		}
+	}
 
 	inline uint8 Beautify::overlay(uint8 a, uint8 b)
 	{
@@ -155,12 +221,12 @@ namespace e
 			{
 				for (int x = 0; x < width; x++)
 				{
-// 					*(p1 + 0) = overlay(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
-// 					*(p1 + 1) = overlay(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
-// 					*(p1 + 2) = overlay(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
-					*(p1 + 0) = softlight(*(p1 + 0), overlay(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0));
-					*(p1 + 1) = softlight(*(p1 + 1), overlay(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0));
-					*(p1 + 2) = softlight(*(p1 + 2), overlay(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0));
+					*(p1 + 0) = overlay(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+					*(p1 + 1) = overlay(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+					*(p1 + 2) = overlay(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
+// 					*(p1 + 0) = softlight(*(p1 + 0), overlay(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0));
+// 					*(p1 + 1) = softlight(*(p1 + 1), overlay(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0));
+// 					*(p1 + 2) = softlight(*(p1 + 2), overlay(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0));
 
 					p0 += bpp;
 					p1 += bpp;
@@ -171,6 +237,141 @@ namespace e
 				for (int x = 0; x < width; x++)
 				{
 					*p1 = overlay(*p1 * alpha1, *p0 * alpha0);
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+		}
+	}
+
+	int R = 11;
+	inline uint8 Beautify::highpass(uint8 a, uint8 b)
+	{
+		uint8 v = a - b;
+		return 128 + abs(v) * v / (2 * R);
+	}
+
+	void Beautify::HighPass(uint8* dst, uint8* src, int width, int height, int bitCount, int mode)
+	{
+		int lineBytes = WIDTHBYTES(bitCount * width);
+		int bpp = bitCount / 8;
+
+		for (int y = 0; y < height; y++)
+		{
+			uint8* p0 = src + y * lineBytes;
+			uint8* p1 = dst + y * lineBytes;
+
+			if (mode == SIMPLE24 || mode == HIGHT24)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*(p1 + 0) = highpass(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+					*(p1 + 1) = highpass(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+					*(p1 + 2) = highpass(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+			else
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*p1 = highpass(*p1 * alpha1, *p0 * alpha0);
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+		}
+	}
+
+	inline uint8 Beautify::multiply(uint8 a, uint8 b)
+	{
+		return a * b / 255;
+	}
+
+	void Beautify::Multiply(uint8* dst, uint8* src, int width, int height, int bitCount, int mode)
+	{
+		int lineBytes = WIDTHBYTES(bitCount * width);
+		int bpp = bitCount / 8;
+
+		for (int y = 0; y < height; y++)
+		{
+			uint8* p0 = src + y * lineBytes;
+			uint8* p1 = dst + y * lineBytes;
+
+			if (mode == SIMPLE24 || mode == HIGHT24)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*(p1 + 0) = multiply(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+					*(p1 + 1) = multiply(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+					*(p1 + 2) = multiply(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
+
+// 					*(p1 + 0) = multiply(*(p1 + 0), screen(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0));
+// 					*(p1 + 1) = multiply(*(p1 + 1), screen(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0));
+// 					*(p1 + 2) = multiply(*(p1 + 2), screen(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0));
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+			else
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*p1 = multiply(*p1 * alpha1, *p0 * alpha0);
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+		}
+	}
+
+	inline uint8 Beautify::vividlight(uint8 a, uint8 b)
+	{
+		if (b <= 128)
+			return clamp0255(a - (255 - a) * (255 - 2 * b) / (2 * b));
+		else
+			return clamp0255(a + a *(2 * b - 255) / (2 * (255 - b)));
+
+//		return clamp0255(a - (255 - a)*(255 - b) / b);
+
+//		return clamp0255(a + (a * b) / (255 - b));
+		
+//		return clamp0255(a + b - (a * b) / 128);
+	}
+
+	void Beautify::VividLight(uint8* dst, uint8* src, int width, int height, int bitCount, int mode)
+	{
+		int lineBytes = WIDTHBYTES(bitCount * width);
+		int bpp = bitCount / 8;
+
+		for (int y = 0; y < height; y++)
+		{
+			uint8* p0 = src + y * lineBytes;
+			uint8* p1 = dst + y * lineBytes;
+
+			if (mode == SIMPLE24 || mode == HIGHT24)
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*(p1 + 0) = vividlight(*(p1 + 0) * alpha1, *(p0 + 0) * alpha0);
+					*(p1 + 1) = vividlight(*(p1 + 1) * alpha1, *(p0 + 1) * alpha0);
+					*(p1 + 2) = vividlight(*(p1 + 2) * alpha1, *(p0 + 2) * alpha0);
+
+					p0 += bpp;
+					p1 += bpp;
+				}
+			}
+			else
+			{
+				for (int x = 0; x < width; x++)
+				{
+					*p1 = vividlight(*p1 * alpha1, *p0 * alpha0);
 
 					p0 += bpp;
 					p1 += bpp;
@@ -190,6 +391,7 @@ namespace e
 		this->useYCbCr = false;
 		this->swapBlend = false;
 		this->blurLevel = true;
+		this->blurIndex = 0;
 		this->blr = new uint8[width * height * 4];
 		this->tmp = new uint8[width * height * 4];
 		this->yuv = new uint8[width * height * 4];
@@ -197,10 +399,17 @@ namespace e
 		this->alpha0 = 1.0f;
 		this->alpha1 = 1.0f;
 		this->blendIndex = 0;
-		this->blendCount = 3;
-		this->handles[0] = &Beautify::Overlay;
-		this->handles[1] = &Beautify::SoftLight;
-		this->handles[2] = &Beautify::Screen;
+		this->blendCount = 6;
+		int i = 0;
+		this->handles[i++] = &Beautify::Overlay;
+		this->handles[i++] = &Beautify::SoftLight;
+		this->handles[i++] = &Beautify::HardLight;
+		this->handles[i++] = &Beautify::Screen;
+		this->handles[i++] = &Beautify::Multiply;
+		this->handles[i++] = &Beautify::VividLight;
+		this->handles[i++] = &Beautify::HighPass;
+
+		this->filter = new Bilateral();
 
 		Preset();
 	}
@@ -226,6 +435,11 @@ namespace e
 		{
 			delete[] blend;
 		}
+
+		if (filter)
+		{
+			delete filter;
+		}
 	}
 
 	void Beautify::Reset(void)
@@ -237,6 +451,7 @@ namespace e
 		this->useYCbCr = false;
 		this->swapBlend = false;
 		this->blurLevel = true;
+		this->blurIndex = 0;
 		this->alpha0 = 1.0f;
 		this->alpha1 = 1.0f;
 		this->blendIndex = 0;
@@ -248,9 +463,8 @@ namespace e
 		{
 			for (int j = 0; j < 256; j++)
 			{
-				uint8 value = softlight(i, screen(i, j));
 				int index = ((i << 8) | j) & 0xffff;
-				blend[index] = value;
+				blend[index] = softlight(i, j);
 			}
 		}
 	}
@@ -267,9 +481,28 @@ namespace e
 
 			if (useBlur)
 			{
-				Gaussian(tmp, blr, width, height, bitCount, sigma, blurLevel ? HIGHT24 : SIMPLE24);
-				Gaussian(blr, tmp, height, width, bitCount, sigma, blurLevel ? HIGHT24 : SIMPLE24);
+				DWORD s = GetTickCount();
+
+				if (blurIndex == 0)
+				{
+					Gaussian(tmp, blr, width, height, bitCount, sigma, blurLevel ? HIGHT24 : SIMPLE24);
+					Gaussian(blr, tmp, height, width, bitCount, sigma, blurLevel ? HIGHT24 : SIMPLE24);
+				}
+				else
+				{
+					FastBlur(tmp, blr, width, height, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
+					FastBlur(blr, tmp, height, width, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
+				}
+
+				DWORD t = GetTickCount() - s;
+				TCHAR buf[32] = { 0 };
+				_stprintf_s(buf, _T("dt = %u\n"), t);
+				OutputDebugString(buf);
 			}
+// 			else
+// 			{
+// 				Eclosion(blr, buffer, width, height, bitCount);
+// 			}
 
 			if (useBlend)
 			{
@@ -288,8 +521,16 @@ namespace e
 
 			if (useBlur)
 			{
-				Gaussian(tmp, blr, width, height, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
-				Gaussian(blr, tmp, height, width, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
+				if (blurIndex == 0)
+				{
+					Gaussian(tmp, blr, width, height, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
+					Gaussian(blr, tmp, height, width, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
+				}
+				else
+				{
+					FastBlur(tmp, blr, width, height, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
+					FastBlur(blr, tmp, height, width, bitCount, sigma, blurLevel ? HIGHT8 : SIMPLE8);
+				}
 			}
 
 			if (useBlend)
@@ -319,7 +560,9 @@ namespace e
 		else if (key == 76) blurLevel = !blurLevel;	//	'l'
 		else if (key == 69)	enable = !enable;		//	'e'
 		else if (key == 88) swapBlend = !swapBlend;	//	'x'
+		else if (key == 73) blurIndex = (blurIndex + 1) % 2;	// 'i'
 		else if (key == 87) blendIndex = (blendIndex + 1) % blendCount;	// 'w'
+		else if (key == 81) blendIndex = (blendIndex - 1) % blendCount; // 'q'
 		else if (key == 82) Reset();
 
 		if (sigma < 0.1f) sigma = 0.1f;
@@ -327,12 +570,25 @@ namespace e
 		if (alpha0 < 0.0f) alpha0 = 0.0f;
 		if (alpha1 > 1.0f) alpha1 = 1.0f;
 		if (alpha1 < 0.0f) alpha1 = 0.0f;
+		if (blendIndex < 0) blendIndex = 0;
+
+		filter->KeyDown(key);
 	}
 
 	String Beautify::GetParamText()
 	{
 		String result, line;
-		TCHAR szBlend[3][256] = { TEXT("overlay"), TEXT("softlight"), TEXT("screen") };
+
+		TCHAR szBlend[10][256] = { 
+			TEXT("overlay"), 
+			TEXT("softlight"), 
+			TEXT("hardlight"),
+			TEXT("screen"), 
+			TEXT("multiply"), 
+			TEXT("vividlight"), 
+			TEXT("highpass") 
+		};
+
 		line = String::Format(TEXT("sigma = %f\n"), sigma);
 		result.Append(line);
 		line = String::Format(TEXT("alpha0 = %f\n"), alpha0);
@@ -346,6 +602,8 @@ namespace e
 		line = String::Format(TEXT("useYCbCr = %s\n"), useYCbCr ? TEXT("true") : TEXT("false"));
 		result.Append(line);
 		line = String::Format(TEXT("blurLevel = %s\n"), blurLevel ? TEXT("hight") : TEXT("simple"));
+		result.Append(line);
+		line = String::Format(TEXT("blurIndex = %s\n"), blurIndex ? TEXT("SSE-Blur") : TEXT("CPU-Blur"));
 		result.Append(line);
 		line = String::Format(TEXT("swapBlend = %s\n"), swapBlend ? TEXT("true") : TEXT("false"));
 		result.Append(line);

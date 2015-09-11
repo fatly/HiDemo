@@ -5,6 +5,7 @@
 
 namespace e
 {
+	class Bilateral;
 	class Beautify
 	{
 	public:
@@ -21,9 +22,17 @@ namespace e
 		uint8 softlight(uint8 a, uint8 b);
 		uint8 overlay(uint8 a, uint8 b);
 		uint8 screen(uint8 a, uint8 b);
+		uint8 highpass(uint8 a, uint8 b);
+		uint8 multiply(uint8 a, uint8 b);
+		uint8 vividlight(uint8 a, uint8 b);
+		uint8 hardlight(uint8 a, uint8 b);
 		void Screen(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
 		void SoftLight(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
 		void Overlay(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		void HighPass(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		void Multiply(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		void VividLight(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
+		void HardLight(uint8* dst, uint8* src, int width, int height, int bitCount, int mode);
 		void Reset(void);
 		void Preset(void);
 	private:
@@ -46,11 +55,14 @@ namespace e
 		bool useYCbCr;
 		bool swapBlend;
 		bool blurLevel;
+		int  blurIndex;
 		int  blendIndex;
 		int  blendCount;
 
 		typedef void(Beautify::*BlendHandle)(uint8*, uint8*, int, int, int, int);
-		BlendHandle handles[10];
+		BlendHandle handles[20];
+
+		Bilateral* filter;
 	};
 }
 

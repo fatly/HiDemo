@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.40629.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmp4v2_demo", "libmp4v2_demo\libmp4v2_demo.vcxproj", "{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -49,6 +49,17 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libdui_flash", "libdui_flas
 	ProjectSection(ProjectDependencies) = postProject
 		{4491953A-DD9B-4932-9319-A8C3456D8940} = {4491953A-DD9B-4932-9319-A8C3456D8940}
 		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE} = {F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng_demo", "libpng_demo\libpng_demo.vcxproj", "{D6F420F1-309F-493E-8327-C5D40F20EE7A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtouch_demo", "libtouch_demo\libtouch_demo.vcxproj", "{9B08DB8B-68F8-481E-8EF9-21AEE35FB6CF}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libaubio", "libaubio\libaubio.vcxproj", "{88E13694-D9FA-447D-A107-11D516185B35}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libaubio_demo", "libaubio_demo\libaubio_demo.vcxproj", "{DDACC85D-8E9A-48C9-9276-D53E97B7E821}"
+	ProjectSection(ProjectDependencies) = postProject
+		{88E13694-D9FA-447D-A107-11D516185B35} = {88E13694-D9FA-447D-A107-11D516185B35}
 	EndProjectSection
 EndProject
 Global
@@ -109,14 +120,31 @@ Global
 		{45891041-3127-4A97-8C7E-B345C0F68098}.Debug|Win32.Build.0 = Debug|Win32
 		{45891041-3127-4A97-8C7E-B345C0F68098}.Release|Win32.ActiveCfg = Release|Win32
 		{45891041-3127-4A97-8C7E-B345C0F68098}.Release|Win32.Build.0 = Release|Win32
+		{D6F420F1-309F-493E-8327-C5D40F20EE7A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D6F420F1-309F-493E-8327-C5D40F20EE7A}.Debug|Win32.Build.0 = Debug|Win32
+		{D6F420F1-309F-493E-8327-C5D40F20EE7A}.Release|Win32.ActiveCfg = Release|Win32
+		{D6F420F1-309F-493E-8327-C5D40F20EE7A}.Release|Win32.Build.0 = Release|Win32
+		{9B08DB8B-68F8-481E-8EF9-21AEE35FB6CF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9B08DB8B-68F8-481E-8EF9-21AEE35FB6CF}.Debug|Win32.Build.0 = Debug|Win32
+		{9B08DB8B-68F8-481E-8EF9-21AEE35FB6CF}.Release|Win32.ActiveCfg = Release|Win32
+		{9B08DB8B-68F8-481E-8EF9-21AEE35FB6CF}.Release|Win32.Build.0 = Release|Win32
+		{88E13694-D9FA-447D-A107-11D516185B35}.Debug|Win32.ActiveCfg = Debug|Win32
+		{88E13694-D9FA-447D-A107-11D516185B35}.Debug|Win32.Build.0 = Debug|Win32
+		{88E13694-D9FA-447D-A107-11D516185B35}.Release|Win32.ActiveCfg = Release|Win32
+		{88E13694-D9FA-447D-A107-11D516185B35}.Release|Win32.Build.0 = Release|Win32
+		{DDACC85D-8E9A-48C9-9276-D53E97B7E821}.Debug|Win32.ActiveCfg = Debug|Win32
+		{DDACC85D-8E9A-48C9-9276-D53E97B7E821}.Debug|Win32.Build.0 = Debug|Win32
+		{DDACC85D-8E9A-48C9-9276-D53E97B7E821}.Release|Win32.ActiveCfg = Release|Win32
+		{DDACC85D-8E9A-48C9-9276-D53E97B7E821}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
+		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{4491953A-DD9B-4932-9319-A8C3456D8940} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{1570CC15-B45E-4770-8A4B-E09F1D613BC4} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
+		{88E13694-D9FA-447D-A107-11D516185B35} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 	EndGlobalSection
 EndGlobal

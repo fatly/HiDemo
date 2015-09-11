@@ -51,6 +51,18 @@
     <ClCompile Include="FrameCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="FastBlur.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Eclosion.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Bilateral.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BoxFilter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h">
@@ -87,6 +99,18 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FrameCtrl.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FastBlur.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Eclosion.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Bilateral.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BoxFilter.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

@@ -8,7 +8,8 @@ namespace e
 	//////////////////////////////////////////////////////////////////////////
 	//const TCHAR* deviceName = _T("@device:pnp:\\\\?\\usb#vid_045e&pid_0772&mi_00#6&368b747d&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global");
 	const TCHAR* deviceName = _T("@device:pnp:\\\\?\\usb#vid_045e&pid_0772&mi_00#6&331dbc65&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global");
-
+	//const TCHAR* deviceName = _T("@device:pnp:\\\\?\\usb#vid_18ec&pid_3299&mi_00#7&8c3acf3&0&0000#{65e8773d-8f56-11d0-a3b9-00a0c9223196}\\global");
+	
 	Camera::Camera(void)
 	{
 		filterManager = new FilterManager();
