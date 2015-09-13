@@ -86,13 +86,17 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="Define.h" />
     <ClInclude Include="FIRFilter.h" />
+    <ClInclude Include="RateTransposer.h" />
     <ClInclude Include="SampleBuffer.h" />
     <ClInclude Include="SamplePipe.h" />
+    <ClInclude Include="TDStretch.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FIRFilter.cpp" />
+    <ClCompile Include="RateTransposer.cpp" />
     <ClCompile Include="SampleBuffer.cpp" />
     <ClCompile Include="SamplePipe.cpp" />
+    <ClCompile Include="TDStretch.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

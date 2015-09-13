@@ -11,12 +11,12 @@ namespace e
 		virtual ~FIRFilter();
 	public:
 		uint GetLength(void) const;
-		static FIRFilter* Instance(void);
-		virtual uint Process(sample_t* dst, const sample_t* src, int samples, int channels);
+		static FIRFilter* GetInstance(void);
+		virtual uint Process(sample_t* dst, const sample_t* src, uint samples, uint channels);
 		virtual void SetCoeffs(sample_t* coeffs, uint length, uint resultDivFactor);
 	protected:
-		virtual uint ProcessMono(sample_t* dst, const sample_t* src, int samples);
-		virtual uint ProcessStereo(sample_t* dst, const sample_t* src, int samples);
+		virtual uint ProcessMono(sample_t* dst, const sample_t* src, uint samples);
+		virtual uint ProcessStereo(sample_t* dst, const sample_t* src, uint samples);
 	protected:
 		uint length;
 		uint lengthDiv8;

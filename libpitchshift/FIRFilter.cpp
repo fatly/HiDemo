@@ -43,12 +43,12 @@ namespace e
 		memcpy(this->filterCoeffs, coeffs, sizeof(sample_t) * length);
 	}
 
-	FIRFilter* FIRFilter::Instance(void)
+	FIRFilter* FIRFilter::GetInstance(void)
 	{
 		return new FIRFilter();
 	}
 
-	uint FIRFilter::Process(sample_t* dst, const sample_t* src, int samples, int channels)
+	uint FIRFilter::Process(sample_t* dst, const sample_t* src, uint samples, uint channels)
 	{
 		assert(length > 0);
 		assert(lengthDiv8 * 8 == length);
@@ -66,10 +66,11 @@ namespace e
 		else
 		{
 			assert(0);
+			return 0;
 		}
 	}
 
-	uint FIRFilter::ProcessMono(sample_t* dst, const sample_t* src, int samples)
+	uint FIRFilter::ProcessMono(sample_t* dst, const sample_t* src, uint samples)
 	{
 #ifdef FLOAT_SAMPLES
 		double scaler = 1.0 / (double)resultDivider;
@@ -104,7 +105,7 @@ namespace e
 		return end;
 	}
 
-	uint FIRFilter::ProcessStereo(sample_t* dst, const sample_t* src, int samples)
+	uint FIRFilter::ProcessStereo(sample_t* dst, const sample_t* src, uint samples)
 	{
 #ifdef FLOAT_SAMPLES
 		double scaler = 1.0 / (double)resultDivider;
@@ -155,8 +156,9 @@ namespace e
 	//////////////////////////////////////////////////////////////////////////
 	AAFilter::AAFilter(uint length)
 	{
+		filter = GetInstance();
 		cut_off_frequency = 0.5;
-		filter = Instance();
+		SetLength(length);
 	}
 
 	AAFilter::~AAFilter(void)
@@ -258,12 +260,6 @@ namespace e
 		src->GetSamples(count);
 		dst->PutSamples(count);
 		return count;
-	}
-
-	uint AAFilter::GetLength(void) const
-	{
-		assert(filter);
-		return filter->GetLength();
 	}
 }
 

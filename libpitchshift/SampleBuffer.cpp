@@ -3,7 +3,7 @@
 
 namespace e
 {
-	SampleBuffer::SampleBuffer(int channels /* = 2 */)
+	SampleBuffer::SampleBuffer(uint channels /* = 2 */)
 	{
 		assert(channels > 0);
 		this->buffer[0] = 0;
@@ -24,7 +24,7 @@ namespace e
 		buffer[0] = buffer[1] = 0;
 	}
 
-	void SampleBuffer::SetChannels(int channels)
+	void SampleBuffer::SetChannels(uint channels)
 	{
 		assert(channels > 0);
 		this->channels = channels;
@@ -37,13 +37,13 @@ namespace e
 		sampleInBuffer += samples;
 	}
 
-	void SampleBuffer::PutSamples(sample_t* samples, int count)
+	void SampleBuffer::PutSamples(const sample_t* samples, uint count)
 	{
 		memcpy(End(count), samples, sizeof(sample_t) * channels * count);
 		sampleInBuffer += count;
 	}
 
-	void SampleBuffer::Capacity(int capacity)
+	void SampleBuffer::Capacity(uint capacity)
 	{
 		assert(capacity > 0);
 
@@ -51,10 +51,10 @@ namespace e
 		{
 			sizeInBytes = (capacity * channels * sizeof(sample_t) + 4095) & ((uint)-4096);
 			assert(sizeInBytes % 2 == 0);
-			buffer[1] = (sample_t*)realloc(buffer[1], (sizeInBytes / sizeof(sample_t) + 16 / sizeof(sample_t)));
+			int totalBytes = (sizeInBytes / sizeof(sample_t)+16 / sizeof(sample_t)) * sizeof(sample_t);
+			buffer[1] = (sample_t*)realloc(buffer[1], totalBytes);
 			assert(buffer[1] != 0);
 			if (buffer[1] == 0) E_THROW("SampleBuffer realloc failed!!!");
-
 			buffer[0] = (sample_t*)ALIGN_POINTER_16(buffer[1]);
 			offset = 0;
 		}
@@ -97,7 +97,7 @@ namespace e
 	{
 		uint n = min(count, sampleInBuffer);
 		memcpy(samples, Begin(), sizeof(sample_t)*channels*n);
-		GetSamples(n);
+		return GetSamples(n);
 	}
 
 	uint SampleBuffer::AdjustSampleCount(uint count)

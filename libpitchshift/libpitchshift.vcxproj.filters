@@ -33,6 +33,12 @@
     <ClInclude Include="SamplePipe.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TDStretch.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RateTransposer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="FIRFilter.cpp">
@@ -42,6 +48,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SamplePipe.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TDStretch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RateTransposer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -8,12 +8,12 @@ namespace e
 	class SampleBuffer : public SamplePipe
 	{
 	public:
-		SampleBuffer(int channels = 2);
+		SampleBuffer(uint channels = 2);
 		virtual ~SampleBuffer();
-		void SetChannels(int channels);
+		void SetChannels(uint channels);
 		uint GetChannels(void) const;
 		virtual void PutSamples(uint samples);
-		virtual void PutSamples(sample_t* samples, int count);
+		virtual void PutSamples(const sample_t* samples, uint count);
 		virtual uint GetSampleCount(void) const;
 		virtual uint GetSamples(uint count);
 		virtual uint GetSamples(sample_t* samples, uint count);
@@ -24,7 +24,7 @@ namespace e
 		virtual void Clear(void);
 	private:
 		void Rewind(void);
-		void Capacity(int capacity);
+		void Capacity(uint capacity);
 		uint GetCapacity(void) const;
 	private:
 		sample_t* buffer[2];
