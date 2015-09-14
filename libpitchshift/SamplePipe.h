@@ -1,5 +1,5 @@
 #ifndef __LIBPITCH_SHIFT_SAMPLEPIPE_H__
-#define __LIBPITCH_SHIFT_SAMPLEPILE_H__
+#define __LIBPITCH_SHIFT_SAMPLEPIPE_H__
 #include "Define.h"
 #include <assert.h>
 
@@ -19,11 +19,12 @@ namespace e
 		virtual bool IsEmpty(void) const = 0;
 		virtual void Clear(void) = 0;
 		virtual uint AdjustSampleCount(uint count) = 0;
-		virtual void MoveSamples(SamplePipe &other)
+		virtual void MoveSamples(SamplePipe* other)
 		{
-			uint n = other.GetSampleCount();
-			PutSamples(other.Begin(), n);
-			other.GetSamples(n);
+			assert(other);
+			uint n = other->GetSampleCount();
+			PutSamples(other->Begin(), n);
+			other->GetSamples(n);
 		}
 	};
 
@@ -97,6 +98,5 @@ namespace e
 		SamplePipe* output;
 	};
 }
-
 
 #endif

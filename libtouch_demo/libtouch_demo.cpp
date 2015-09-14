@@ -2,17 +2,20 @@
 #include <stdlib.h>
 #include "Wave.h"
 #include "WavePlayer.h"
+
+//#define USE_SOUNDTOUCH
+
+#ifdef USE_SOUNDTOUCH
 #include "SoundTouch.h"
-
-#ifdef _DEBUG
-#pragma comment(lib, "SoundTouchD.lib")
+using namespace soundtouch;
+#pragma comment(lib, "libsoundtouch.lib")
 #else
-#pragma comment(lib, "SoundTouch.lib")
+#include "libpitchshift.h"
+#pragma comment(lib, "libpitchshift.lib")
+using namespace e;
 #endif
-
 #pragma comment(lib, "Winmm.lib.")
 
-using namespace soundtouch;
 
 int main(int argc, char* argv[])
 {
@@ -26,6 +29,7 @@ int main(int argc, char* argv[])
 
 	int count = pcm.size / (pcm.header.bitsPerSample / 8);
 	int samples = count / pcm.header.channels;
+#ifdef USE_SOUNDTOUCH
 	SoundTouch *p = new SoundTouch();
 	p->setChannels(pcm.header.channels);
 	p->setSampleRate(pcm.header.sampleRate);
@@ -42,8 +46,25 @@ int main(int argc, char* argv[])
 		offset += n;
 		src += n * pcm.header.channels;
 	} while (n != 0);
-
-	if (!Wave::Save("f:\\test.wav", pcm))
+#else
+	SoundPitch* p = new SoundPitch();
+	p->SetChannels(pcm.header.channels);
+	p->SetSampleRate(pcm.header.sampleRate);
+	p->SetPitch(1.3f);
+	
+	p->PutSamples((sample_t*)pcm.data, samples);
+	int done = p->GetSampleCount();
+	int undo = p->UnProcessSamples();
+	int n = 0, offset = 0;
+	sample_t* src = (sample_t*)pcm.data;
+	do 
+	{
+		n = p->GetSamples(src, samples - offset);
+		offset += n;
+		src += n * pcm.header.channels;
+	} while (n != 0);
+#endif
+	if (!Wave::Save("f:\\test0.wav", pcm))
 	{
 		printf("save file failed!\n");
 	}

@@ -24,16 +24,16 @@ typedef unsigned char byte;
 	typedef unsigned int uintx;
 #endif
 
-#define WINDOW_SIZE			8192
-#define OVERLAP_COUNT		4
-#define POST_WINDOW_POWER	2
-
-#define HALF_WINDOW			(WINDOW_SIZE / 2)
-#define OVERLAP_SIZE		(WINDOW_SIZE / OVERLAP_COUNT) //2048
-
-#define TWOPI				6.283185307179586476925286766559
-#define INVSQRT2			0.70710678118654752440084436210485
-#define NODIVBYZERO			0.000000000000001
+// #define WINDOW_SIZE			8192
+// #define OVERLAP_COUNT		4
+// #define POST_WINDOW_POWER	2
+// 
+// #define HALF_WINDOW			(WINDOW_SIZE / 2)
+// #define OVERLAP_SIZE		(WINDOW_SIZE / OVERLAP_COUNT) //2048
+// 
+// #define TWOPI				6.283185307179586476925286766559
+// #define INVSQRT2			0.70710678118654752440084436210485
+// #define NODIVBYZERO			0.000000000000001
 
 #ifndef min
 #define min(a, b) ((a)<(b)?(a):(b))

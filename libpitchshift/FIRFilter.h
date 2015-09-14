@@ -25,7 +25,7 @@ namespace e
 		sample_t* filterCoeffs;
 	};
 
-	class AAFilter : public FIRFilter
+	class AAFilter
 	{
 	public:
 		AAFilter(uint length);

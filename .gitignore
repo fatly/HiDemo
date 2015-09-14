@@ -18,6 +18,8 @@
 /lib/libutilsd.lib
 /lib/libstrmbase.lib
 /lib/libstrmbased.lib
+/lib/libpitchshift.lib
+/lib/libsoundtouch.lib
 *.suo
 *.sdf
 *.opensdf

@@ -17,8 +17,8 @@ namespace e
 	public:
 		TDStretch(void);
 		virtual ~TDStretch(void);
-	public:
 		static TDStretch* GetInstance(void);
+	public:
 		SamplePipe* GetInput(void) { return inputBuffer; }
 		SamplePipe* GetOutput(void) { return outputBuffer; }
 		void AcceptOverlapLength(int overlapLength);

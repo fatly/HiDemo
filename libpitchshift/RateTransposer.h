@@ -7,32 +7,14 @@
 
 namespace e
 {
-	class TransposerBase
-	{
-	public:
-		enum ALGORITHM { LINEAR = 0, CUBIC, SHANNON };
-		TransposerBase(void);
-		virtual ~TransposerBase(void);
-		virtual void SetRate(float rate);
-		virtual void SetChannels(int channels);
-		virtual int Process(SampleBuffer* dst, SampleBuffer* src);
-		static TransposerBase* GetInstance(void);
-		static void SetAlgorithm(ALGORITHM type);
-	protected:
-		virtual void Reset(void) = 0;
-		virtual int ProcessMono(sample_t* dst, const sample_t* src, int &samples) = 0;
-		virtual int ProcessStereo(sample_t* dst, const sample_t* src, int &samples) = 0;
-		static ALGORITHM algorithm;
-	public:
-		int channels;
-		float rate;
-	};
-
+	class Interpolate;
 	class RateTransposer : public FIFOAdapter
 	{
 	public:
 		RateTransposer(void);
 		virtual ~RateTransposer(void);
+		static RateTransposer* GetInstance(void);
+	public:
 		AAFilter* GetAAFilter(void) const;
 		SamplePipe* GetOutput(void) const;
 		void EnableAAFilter(bool enable);
@@ -46,7 +28,7 @@ namespace e
 		void ProcessSamples(const sample_t* src, uint count);
 	protected:
 		AAFilter* filter;
-		TransposerBase* transpser;
+		Interpolate* transpser;
 		SampleBuffer* inputBuffer;
 		SampleBuffer* tempBuffer;
 		SampleBuffer* outputBuffer;

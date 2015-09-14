@@ -8,6 +8,7 @@ namespace e
 		assert(channels > 0);
 		this->buffer[0] = 0;
 		this->buffer[1] = 0;
+		this->offset = 0;
 		this->sizeInBytes = 0;
 		this->sampleInBuffer = 0;
 		this->channels = channels;
@@ -45,13 +46,13 @@ namespace e
 
 	void SampleBuffer::Capacity(uint capacity)
 	{
-		assert(capacity > 0);
+		assert(capacity >= 0);
 
 		if (capacity > GetCapacity())
 		{
 			sizeInBytes = (capacity * channels * sizeof(sample_t) + 4095) & ((uint)-4096);
 			assert(sizeInBytes % 2 == 0);
-			int totalBytes = (sizeInBytes / sizeof(sample_t)+16 / sizeof(sample_t)) * sizeof(sample_t);
+			int totalBytes = (sizeInBytes/sizeof(sample_t) + 16/sizeof(sample_t)) * sizeof(sample_t);
 			buffer[1] = (sample_t*)realloc(buffer[1], totalBytes);
 			assert(buffer[1] != 0);
 			if (buffer[1] == 0) E_THROW("SampleBuffer realloc failed!!!");

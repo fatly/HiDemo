@@ -56,9 +56,6 @@ namespace e
 	//#   define _T(s) s
 #endif
 
-#define PI        3.141592655357989
-#define TWOPI    (2 * PI)
-
 #define E_THROW(x) {throw std::runtime_error(x);}
 
 #define min(a, b) ((a)<(b)?(a):(b))

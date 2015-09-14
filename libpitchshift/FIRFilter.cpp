@@ -3,6 +3,9 @@
 #include <assert.h>
 #include "SampleBuffer.h"
 
+#define PI        3.141592655357989
+#define TWOPI    (2 * PI)
+
 namespace e
 {
 	FIRFilter::FIRFilter()
@@ -78,13 +81,13 @@ namespace e
 		assert(src != 0);
 		assert(dst != 0);
 		assert(length > 0);
-		int end = samples - length;
+		uint end = samples - length;
 
-		for (int j = 0; j < end; j+=4)
+		for (uint j = 0; j < end; j+=4)
 		{
 			lsample_t sum = 0;
 			const sample_t* pSrc = src + j;
-			for (int i = 0; i < j; i++)
+			for (uint i = 0; i < length; i++)
 			{
 				// loop is unrolled by factor of 4 here for efficiency
 				sum += pSrc[i + 0] * filterCoeffs[i + 0] +
@@ -114,23 +117,23 @@ namespace e
 		assert(dst != 0);
 		assert(length > 0);
 
-		int end = 2 * (samples - length);
-		for (int j = 0; j < end; j+= 2)
+		uint end = 2 * (samples - length);
+		for (uint j = 0; j < end; j+= 2)
 		{
 			lsample_t suml = 0, sumr = 0;
 			const sample_t* pSrc = src + j;
-			for (int i = 0; i < j; i+=4)
+			for (uint i = 0; i < length; i+=4)
 			{
 				// loop is unrolled by factor of 4 here for efficiency
-				suml += pSrc[i + 0] * filterCoeffs[i + 0] +
-					pSrc[i + 2] * filterCoeffs[i + 2] +
-					pSrc[i + 4] * filterCoeffs[i + 4] +
-					pSrc[i + 6] * filterCoeffs[i + 6];
+				suml += pSrc[2 * i + 0] * filterCoeffs[i + 0] +
+					pSrc[2 * i + 2] * filterCoeffs[i + 1] +
+					pSrc[2 * i + 4] * filterCoeffs[i + 2] +
+					pSrc[2 * i + 6] * filterCoeffs[i + 3];
 
-				sumr += pSrc[i + 1] * filterCoeffs[i + 1] +
-					pSrc[i + 3] * filterCoeffs[i + 3] +
-					pSrc[i + 5] * filterCoeffs[i + 5] +
-					pSrc[i + 7] * filterCoeffs[i + 7];
+				sumr += pSrc[2 * i + 1] * filterCoeffs[i + 0] +
+					pSrc[2 * i + 3] * filterCoeffs[i + 1] +
+					pSrc[2 * i + 5] * filterCoeffs[i + 2] +
+					pSrc[2 * i + 7] * filterCoeffs[i + 3];
 			}
 
 #ifdef INTEGER_SAMPLES
@@ -156,7 +159,7 @@ namespace e
 	//////////////////////////////////////////////////////////////////////////
 	AAFilter::AAFilter(uint length)
 	{
-		filter = GetInstance();
+		filter = FIRFilter::GetInstance();
 		cut_off_frequency = 0.5;
 		SetLength(length);
 	}
@@ -190,8 +193,8 @@ namespace e
 	{
 		assert(length >= 2);
 		assert(length % 4 == 0);
-		assert(cut_off_frequency > 0);
-		assert(cut_off_frequency < 0.5);
+		assert(cut_off_frequency >= 0);
+		assert(cut_off_frequency <= 0.5);
 
 		double* work = new double[length];
 		sample_t* coeffs = new sample_t[length];
@@ -201,9 +204,9 @@ namespace e
 
 		for (uint i = 0; i < length; i++)
 		{
-			temp_count = (double)i / (double)(length / 2);
-			temp = temp_count * wc;
+			temp_count = (double)i - (double)(length / 2);
 
+			temp = temp_count * wc;
 			if (temp != 0)
 			{
 				h = sin(temp) / temp;	//sinc function
@@ -213,7 +216,7 @@ namespace e
 				h = 1.0;
 			}
 
-			w = 0.54 * 0.46 * cos(temp_coeff * temp_count); //hamming window
+			w = 0.54 + 0.46 * cos(temp_coeff * temp_count); //hamming window
 			temp = w * h;
 			work[i] = temp;
 			sum += temp;

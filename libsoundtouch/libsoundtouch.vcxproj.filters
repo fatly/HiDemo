@@ -18,57 +18,90 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Define.h">
+    <ClInclude Include="AAFilter.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
+    <ClInclude Include="cpu_detect.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FIRFilter.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SampleBuffer.h">
+    <ClInclude Include="InterpolateCubic.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SamplePipe.h">
+    <ClInclude Include="InterpolateLinear.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TDStretch.h">
+    <ClInclude Include="InterpolateShannon.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="PeakFinder.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="RateTransposer.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Interpolate.h">
+    <ClInclude Include="TDStretch.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SoundPitch.h">
+    <ClInclude Include="BPMDetect.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="libpitchshift.h">
+    <ClInclude Include="STTypes.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FIFOSampleBuffer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FIFOSamplePipe.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundTouch.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AAFilter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="BPMDetect.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="cpu_detect_x86.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FIFOSampleBuffer.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="FIRFilter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SampleBuffer.cpp">
+    <ClCompile Include="InterpolateCubic.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SamplePipe.cpp">
+    <ClCompile Include="InterpolateLinear.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="TDStretch.cpp">
+    <ClCompile Include="InterpolateShannon.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mmx_optimized.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="PeakFinder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="RateTransposer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Interpolate.cpp">
+    <ClCompile Include="SoundTouch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SoundPitch.cpp">
+    <ClCompile Include="sse_optimized.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TDStretch.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -81,12 +81,12 @@ namespace e
 		}
 		else if (seekWindowMS == 0)
 		{
-			isAutoSeekSetting = false;
+			isAutoSeekSetting = true;
 		}
 
 		CalcSeqParamters();
-		CalcOverlapLength(overlapMS);
-		SetTempo(tempo);
+		CalcOverlapLength(this->overlapMS);
+		SetTempo(this->tempo);
 	}
 
 	void TDStretch::GetParamters(int *sampleRate, int *sequenceMS, int *seekWindowMS, int *overlapMS) const
@@ -270,14 +270,14 @@ namespace e
 		if (isAutoSeqSetting)
 		{
 			sequence = AUTOSEQ_C + AUTOSEQ_K * tempo;
-			sequence = CHECK_LIMITS(sequence, AUTOSEQ_AT_MIN, AUTOSEQ_AT_MAX);
+			sequence = CHECK_LIMITS(sequence, AUTOSEQ_AT_MAX, AUTOSEQ_AT_MIN);
 			sequenceMS = (int)(sequence + 0.5);
 		}
 
 		if (isAutoSeekSetting)
 		{
 			seek = AUTOSEEK_C + AUTOSEEK_K * tempo;
-			seek = CHECK_LIMITS(seek, AUTOSEEK_AT_MIN, AUTOSEEK_AT_MAX);
+			seek = CHECK_LIMITS(seek, AUTOSEEK_AT_MAX, AUTOSEEK_AT_MIN);
 			seekWindowMS = (int)(seek + 0.5);
 		}
 
@@ -317,6 +317,9 @@ namespace e
 	void TDStretch::ProcessSamples(void)
 	{
 		int skip = 0, offset = 0, temp = 0;
+#ifdef _DEBUG
+		int loops = 0;
+#endif
 
 		while ((int)inputBuffer->GetSampleCount() >= requestSamples)
 		{
@@ -339,6 +342,9 @@ namespace e
 			skip = (int)skipFract;
 			skipFract -= skip;
 			inputBuffer->GetSamples((uint)skip);
+#ifdef _DEBUG
+			loops++;
+#endif
 		}
 	}
 
@@ -359,7 +365,6 @@ namespace e
 		{
 			int totalBytes = (overlapLength * channels + 16 / sizeof(sample_t)) * sizeof(sample_t);
 			tempBuffer[1] = (sample_t*)realloc(tempBuffer[0], totalBytes);
-			assert(tempBuffer[1]);
 			if (tempBuffer[1] == 0) E_THROW("TDStretch realloc failed!!!");
 			tempBuffer[0] = (sample_t*)ALIGN_POINTER_16(tempBuffer[1]);
 			ClearTempBuffer();
@@ -379,8 +384,8 @@ namespace e
 		{
 			j = 2 * i;
 			short temp = (short)(overlapLength - i);
-			dst[j + 0] = (src[j+0] * i + tempBuffer[0][j+0] * temp) / overlapLength;
-			dst[j + 1] = (src[j+1] * i + tempBuffer[0][j+1] * temp) / overlapLength;
+			dst[j+0] = (src[j+0] * i + tempBuffer[0][j+0] * temp) / overlapLength;
+			dst[j+1] = (src[j+1] * i + tempBuffer[0][j+1] * temp) / overlapLength;
 		}
 	}
 
@@ -391,7 +396,7 @@ namespace e
 
 	void TDStretch::CalcOverlapLength(int overlapMS)
 	{
-		assert(overlapMS > 0);
+		assert(overlapMS >= 0);
 		overlapDividerBits = closest_2_power((sampleRate * overlapMS) / 1000.0) - 1;
 		if (overlapDividerBits > 9) overlapDividerBits = 9;
 		if (overlapDividerBits < 3) overlapDividerBits = 3;
@@ -405,7 +410,7 @@ namespace e
 	double TDStretch::CalcCrossCorr(const sample_t* mixingPos, const sample_t* compare, double &norm) const
 	{
 		long corr = 0, lnorm = 0;
-		for (int i=0; i<overlapLength; i+=4)
+		for (int i=0; i<channels * overlapLength; i+=4)
 		{
 			corr += (mixingPos[i + 0] * compare[i + 0] + mixingPos[i + 1] * compare[i + 1]) >> overlapDividerBits;
 			corr += (mixingPos[i + 2] * compare[i + 2] + mixingPos[i + 3] * compare[i + 3]) >> overlapDividerBits;
@@ -438,7 +443,7 @@ namespace e
 			lnorm += (mixingPos[i] * mixingPos[i]) >> overlapDividerBits;
 		}
 
-		norm = (double)lnorm;
+		norm += (double)lnorm;
 		return (double)corr / sqrt((norm < 1e-9) ? 1.0 : norm);
 	}
 #else //FLOAT_SAMPLES

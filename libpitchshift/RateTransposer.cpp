@@ -1,87 +1,8 @@
 #include "RateTransposer.h"
+#include "Interpolate.h"
 
 namespace e
-{
-	//////////////////////////////////////////////////////////////////////////
-	//
-	//TransposerBase implements
-	//
-	//////////////////////////////////////////////////////////////////////////
-	TransposerBase::ALGORITHM TransposerBase::algorithm = TransposerBase::CUBIC;
-	TransposerBase::TransposerBase(void)
-	{
-		rate = 1.0f;
-		channels = 0;
-	}
-
-	TransposerBase::~TransposerBase(void)
-	{
-
-	}
-
-	int TransposerBase::Process(SampleBuffer* dst, SampleBuffer* src)
-	{
-		int samples = src->GetSampleCount();
-		int todo = (int)((float)samples / rate) + 8;
-		sample_t* s = src->Begin();
-		sample_t* e = dst->End(todo);
-
-		int count = 0;
-		if (channels == 1)
-		{
-			count = ProcessMono(e, s, samples);
-		}
-		else if (channels == 2)
-		{
-			count = ProcessStereo(e, s, samples);
-		}
-
-		dst->PutSamples(count);
-		src->GetSamples(count);
-		return count;
-	}
-
-	void TransposerBase::SetRate(float rate)
-	{
-		this->rate = rate;
-	}
-
-	void TransposerBase::SetChannels(int channels)
-	{
-		this->channels = channels;
-		Reset();
-	}
-
-	void TransposerBase::SetAlgorithm(ALGORITHM type)
-	{
-		algorithm = type;
-	}
-	
-	TransposerBase* TransposerBase::GetInstance(void)
-	{
-		// TODO : 
-#ifdef INTEGER_SAMPLES
-		assert(0);
-#else
-		assert(0);
-		switch (algorithm)
-		{
-		case LINEAR:
-
-			break;
-		case CUBIC:
-
-			break;
-		case SHANNON:
-
-			break;
-		default:
-			assert(0);
-			return 0;
-		}
-#endif
-	}
-
+{	
 	//////////////////////////////////////////////////////////////////////////
 	//
 	//RateTransposer
@@ -92,7 +13,7 @@ namespace e
 		isUseAAFilter = true;
 		filter = new AAFilter(64);
 		assert(filter);
-		transpser = TransposerBase::GetInstance();
+		transpser = new Interpolate();
 		assert(transpser);
 
 		inputBuffer = new SampleBuffer();
@@ -110,8 +31,13 @@ namespace e
 		if (inputBuffer) delete inputBuffer;
 		if (tempBuffer) delete tempBuffer;
 		if (outputBuffer) delete outputBuffer;
-		if (filter) delete filter;
 		if (transpser) delete transpser;
+		if (filter) delete filter;
+	}
+
+	RateTransposer* RateTransposer::GetInstance(void)
+	{
+		return new RateTransposer();
 	}
 
 	void RateTransposer::EnableAAFilter(bool enable)
@@ -128,6 +54,11 @@ namespace e
 	{
 		assert(filter);
 		return filter;
+	}
+
+	SamplePipe* RateTransposer::GetOutput(void) const
+	{
+		return outputBuffer;
 	}
 
 	void RateTransposer::SetRate(float rate)
@@ -152,7 +83,7 @@ namespace e
 	void RateTransposer::SetChannels(int channels)
 	{
 		assert(channels > 0);
-		if (transpser->channels == channels) return;
+		if (transpser->GetChannels() == channels) return;
 		transpser->SetChannels(channels);
 		inputBuffer->SetChannels(channels);
 		tempBuffer->SetChannels(channels);
@@ -161,8 +92,13 @@ namespace e
 
 	void RateTransposer::PutSamples(const sample_t* samples, uint count)
 	{
+		ProcessSamples(samples, count);
+	}
+
+	void RateTransposer::ProcessSamples(const sample_t* src, uint count)
+	{
 		if (count == 0) return;
-		inputBuffer->PutSamples(samples, count);
+		inputBuffer->PutSamples(src, count);
 
 		int ret = 0;
 		if (!isUseAAFilter)
@@ -172,7 +108,7 @@ namespace e
 		}
 
 		assert(filter);
-		if (transpser->rate < 1.0f)
+		if (transpser->GetRate() < 1.0f)
 		{
 			transpser->Process(tempBuffer, inputBuffer);
 			filter->Process(outputBuffer, tempBuffer);

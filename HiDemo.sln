@@ -54,6 +54,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpng_demo", "libpng_demo\libpng_demo.vcxproj", "{D6F420F1-309F-493E-8327-C5D40F20EE7A}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libtouch_demo", "libtouch_demo\libtouch_demo.vcxproj", "{9B08DB8B-68F8-481E-8EF9-21AEE35FB6CF}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6} = {4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6}
+		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7} = {98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libaubio", "libaubio\libaubio.vcxproj", "{88E13694-D9FA-447D-A107-11D516185B35}"
 EndProject
@@ -63,6 +67,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libaubio_demo", "libaubio_d
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpitchshift", "libpitchshift\libpitchshift.vcxproj", "{4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsoundtouch", "libsoundtouch\libsoundtouch.vcxproj", "{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -142,6 +148,10 @@ Global
 		{4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6}.Debug|Win32.Build.0 = Debug|Win32
 		{4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6}.Release|Win32.ActiveCfg = Release|Win32
 		{4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6}.Release|Win32.Build.0 = Release|Win32
+		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}.Debug|Win32.Build.0 = Debug|Win32
+		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}.Release|Win32.ActiveCfg = Release|Win32
+		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -153,5 +163,6 @@ Global
 		{1570CC15-B45E-4770-8A4B-E09F1D613BC4} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{88E13694-D9FA-447D-A107-11D516185B35} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
+		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 	EndGlobalSection
 EndGlobal
