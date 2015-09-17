@@ -10,6 +10,8 @@
 using namespace soundtouch;
 #pragma comment(lib, "libsoundtouch.lib")
 #else
+#include "Config.h"
+#include "Define.h"
 #include "libpitchshift.h"
 #pragma comment(lib, "libpitchshift.lib")
 using namespace e;
@@ -27,42 +29,46 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	int count = pcm.size / (pcm.header.bitsPerSample / 8);
-	int samples = count / pcm.header.channels;
+	uint count = pcm.size / (pcm.header.bitsPerSample / 8);
+	uint samples = count / pcm.header.channels;
+	uint channels = pcm.header.channels;
+	uint sampleRate = pcm.header.sampleRate;
 #ifdef USE_SOUNDTOUCH
 	SoundTouch *p = new SoundTouch();
-	p->setChannels(pcm.header.channels);
-	p->setSampleRate(pcm.header.sampleRate);
+	p->setChannels(channels);
+	p->setSampleRate(sampleRate);
 	p->setPitch(1.3f);
+	p->setSetting(SETTING_SEQUENCE_MS, 40);
+	p->setSetting(SETTING_SEEKWINDOW_MS, 15);
+	p->setSetting(SETTING_OVERLAP_MS, 8);
 	//p->setPitchSemiTones(5);
-	p->putSamples((SAMPLETYPE*)pcm.data, samples);
+	SAMPLETYPE* src = (SAMPLETYPE*)pcm.data;
+	p->putSamples(src, samples);
 	int done = p->numSamples();
 	int undo = p->numUnprocessedSamples();
-
-	int n = 0, offset = 0;
-	short* src = (short*)pcm.data;
-	do{
-		n = p->receiveSamples(src, samples - offset);
-		offset += n;
-		src += n * pcm.header.channels;
-	} while (n != 0);
+	int n = p->receiveSamples(src, done);
+	src += done * channels;
+	p->flush();
+	done = p->numSamples();
 #else
 	SoundPitch* p = new SoundPitch();
-	p->SetChannels(pcm.header.channels);
-	p->SetSampleRate(pcm.header.sampleRate);
-	p->SetPitch(1.3f);
-	
-	p->PutSamples((sample_t*)pcm.data, samples);
-	int done = p->GetSampleCount();
-	int undo = p->UnProcessSamples();
-	int n = 0, offset = 0;
+	p->SetChannels(channels);
+	p->SetSampleRate(sampleRate);
+	p->SetPitch(1.2f);
+	p->SetSetting(SETTING_SEQUENCE_MS, 40);
+	p->SetSetting(SETTING_SEEKWINDOW_MS, 15);
+	p->SetSetting(SETTING_OVERLAP_MS, 8);
+	//add samples to buffer and process
 	sample_t* src = (sample_t*)pcm.data;
-	do 
-	{
-		n = p->GetSamples(src, samples - offset);
-		offset += n;
-		src += n * pcm.header.channels;
-	} while (n != 0);
+	p->PutSamples(src, samples);
+	uint done = p->GetSampleCount();
+	p->FetchSamples(src, done);
+	src += done * channels;
+
+	p->Flush();
+	uint remain = samples - done;
+	done = p->GetSampleCount();
+	p->FetchSamples(src, min(remain, done));
 #endif
 	if (!Wave::Save("f:\\test0.wav", pcm))
 	{

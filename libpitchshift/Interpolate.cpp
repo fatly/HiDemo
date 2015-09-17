@@ -1,6 +1,8 @@
 #include "Interpolate.h"
 #include <assert.h>
-#include "RateTransposer.h"
+#include "RateScale.h"
+
+#define SCALE 65536
 
 namespace e
 {
@@ -9,7 +11,6 @@ namespace e
 	//implements of interpolateimpl
 	//
 	//////////////////////////////////////////////////////////////////////////
-#define SCALE 65536
 	class InterpolateImpl
 	{
 	public:
@@ -18,7 +19,7 @@ namespace e
 	public:
 		void SetRate(float rate);
 		void SetChannels(int channels);
-		int Process(SampleBuffer* dst, SampleBuffer* src);
+		int ProcessSamples(SampleBuffer* dst, SampleBuffer* src);
 		int GetChannels(void) const { return channels; }
 		float GetRate(void) const {	return fRate; }
 	protected:
@@ -61,7 +62,7 @@ namespace e
 		fRate = rate;
 	}
 
-	int InterpolateImpl::Process(SampleBuffer* dst, SampleBuffer* src)
+	int InterpolateImpl::ProcessSamples(SampleBuffer* dst, SampleBuffer* src)
 	{
 		int samples = src->GetSampleCount();
 		int todo = (int)((float)samples / fRate) + 8;
@@ -79,7 +80,7 @@ namespace e
 		}
 
 		dst->PutSamples(count);
-		src->GetSamples(count);
+		src->FetchSamples(samples);
 		return count;
 	}
 
@@ -132,7 +133,7 @@ namespace e
 		samples = j;
 		return i;
 	}
-#else	//FLOAT_SAMPLES
+#elif defined(FLOAT_SAMPLES)	//FLOAT_SAMPLES
 	static const float g_coeffs[] = {
 		-0.5f, 1.0f, -0.5f, 0.0f, 1.5f, -2.5f, 0.0f, 1.0f,
 		-1.5f, 2.0f, 0.5f, 0.0f, 0.5f, -0.5f, 0.0f, 0.0f
@@ -278,10 +279,10 @@ namespace e
 		impl->SetChannels(channels);
 	}
 
-	int Interpolate::Process(SampleBuffer* dst, SampleBuffer* src)
+	int Interpolate::ProcessSamples(SampleBuffer* dst, SampleBuffer* src)
 	{
 		assert(impl);
-		return impl->Process(dst, src);
+		return impl->ProcessSamples(dst, src);
 	}
 
 	int Interpolate::GetChannels(void) const

@@ -55,7 +55,8 @@ TransposerBase::ALGORITHM TransposerBase::algorithm = TransposerBase::CUBIC;
 
 
 // Constructor
-RateTransposer::RateTransposer() : FIFOProcessor(&outputBuffer)
+RateTransposer::RateTransposer() 
+	: FIFOProcessor(&outputBuffer)
 {
     bUseAAFilter = true;
 

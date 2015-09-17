@@ -8,22 +8,24 @@
 namespace e
 {
 	class Interpolate;
-	class RateTransposer : public FIFOAdapter
+	class RateScale : public FIFOAdapter
 	{
 	public:
-		RateTransposer(void);
-		virtual ~RateTransposer(void);
-		static RateTransposer* GetInstance(void);
+		RateScale(void);
+		virtual ~RateScale(void);
+		static RateScale* GetInstance(void);
 	public:
 		AAFilter* GetAAFilter(void) const;
 		SamplePipe* GetOutput(void) const;
 		void EnableAAFilter(bool enable);
 		bool IsAAFilterEnable(void) const;
-		virtual void SetRate(float rate);
+		void SetRate(float rate);
 		void SetChannels(int channels);
-		void PutSamples(const sample_t* samples, uint count);
-		bool IsEmpty(void) const;
-		void Clear(void);
+		void ClearTempBuffer(void);
+		void ClearInputBuffer(void);
+		virtual void PutSamples(const sample_t* samples, uint count) override;
+		virtual bool IsEmpty(void) const override;
+		virtual void Clear(void) override;
 	protected:
 		void ProcessSamples(const sample_t* src, uint count);
 	protected:

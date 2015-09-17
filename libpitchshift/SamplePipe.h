@@ -11,21 +11,20 @@ namespace e
 		virtual ~SamplePipe() {};
 	public:
 		virtual sample_t* Begin(void) = 0;
-		//virtual void PutSamples(uint count) = 0;
 		virtual void PutSamples(const sample_t* samples, uint count) = 0;
-		virtual uint GetSamples(uint count) = 0;
-		virtual uint GetSamples(sample_t* output, uint count) = 0;
+		virtual uint FetchSamples(uint count) = 0;
+		virtual uint FetchSamples(sample_t* output, uint count) = 0;
 		virtual uint GetSampleCount(void) const = 0;
-		virtual bool IsEmpty(void) const = 0;
-		virtual void Clear(void) = 0;
 		virtual uint AdjustSampleCount(uint count) = 0;
 		virtual void MoveSamples(SamplePipe* other)
 		{
 			assert(other);
-			uint n = other->GetSampleCount();
-			PutSamples(other->Begin(), n);
-			other->GetSamples(n);
+			uint count = other->GetSampleCount();
+			PutSamples(other->Begin(), count);
+			other->FetchSamples(count);
 		}
+		virtual bool IsEmpty(void) const = 0;
+		virtual void Clear(void) = 0;
 	};
 
 	class FIFOAdapter : public SamplePipe
@@ -46,10 +45,9 @@ namespace e
 
 		}
 
-		virtual void SetOutput(SamplePipe* output)
+		void SetOutput(SamplePipe* output)
 		{
-			assert(output != 0);
-			assert(this->output == 0);
+			assert(output!=0 && this->output==0);
 			this->output = output;
 		}
 
@@ -59,16 +57,16 @@ namespace e
 // 			output->PutSamples(samples, count);
 // 		}
 
-		virtual uint GetSamples(sample_t* samples, uint count)
+		virtual uint FetchSamples(sample_t* samples, uint count)
 		{
 			assert(output);
-			return output->GetSamples(samples, count);
+			return output->FetchSamples(samples, count);
 		}
 
-		virtual uint GetSamples(uint count)
+		virtual uint FetchSamples(uint count)
 		{
 			assert(output);
-			return output->GetSamples(count);
+			return output->FetchSamples(count);
 		}
 
 		virtual uint GetSampleCount(void) const

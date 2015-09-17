@@ -19,7 +19,7 @@ namespace e
 	{
 		if (buffer[1])
 		{
-			free(buffer[1]);
+			delete[] buffer[1];
 		}
 
 		buffer[0] = buffer[1] = 0;
@@ -52,11 +52,16 @@ namespace e
 		{
 			sizeInBytes = (capacity * channels * sizeof(sample_t) + 4095) & ((uint)-4096);
 			assert(sizeInBytes % 2 == 0);
-			int totalBytes = (sizeInBytes/sizeof(sample_t) + 16/sizeof(sample_t)) * sizeof(sample_t);
-			buffer[1] = (sample_t*)realloc(buffer[1], totalBytes);
-			assert(buffer[1] != 0);
-			if (buffer[1] == 0) E_THROW("SampleBuffer realloc failed!!!");
-			buffer[0] = (sample_t*)ALIGN_POINTER_16(buffer[1]);
+			sample_t* ptr = new sample_t[sizeInBytes / sizeof(sample_t) + 16 / sizeof(sample_t)];
+			if (ptr == 0) E_THROW("SampleBuffer realloc failed!!!");
+			sample_t* aptr = (sample_t*)ALIGN_POINTER_16(ptr);
+			if (sampleInBuffer)
+			{
+				memcpy(aptr, Begin(), sampleInBuffer * channels * sizeof(sample_t));
+			}
+			if (buffer[1]) delete[] buffer[1];
+			buffer[0] = aptr;
+			buffer[1] = ptr;
 			offset = 0;
 		}
 		else
@@ -80,7 +85,7 @@ namespace e
 		return sampleInBuffer;
 	}
 
-	uint SampleBuffer::GetSamples(uint n)
+	uint SampleBuffer::FetchSamples(uint n)
 	{
 		if (n >= sampleInBuffer)
 		{
@@ -94,11 +99,11 @@ namespace e
 		return n;
 	}
 
-	uint SampleBuffer::GetSamples(sample_t* samples, uint count)
+	uint SampleBuffer::FetchSamples(sample_t* samples, uint count)
 	{
 		uint n = min(count, sampleInBuffer);
 		memcpy(samples, Begin(), sizeof(sample_t)*channels*n);
-		return GetSamples(n);
+		return FetchSamples(n);
 	}
 
 	uint SampleBuffer::AdjustSampleCount(uint count)
@@ -121,7 +126,7 @@ namespace e
 
 	sample_t* SampleBuffer::Begin(void)
 	{
-		assert(buffer);
+		assert(buffer[0]);
 		return buffer[0] + offset * channels;
 	}
 

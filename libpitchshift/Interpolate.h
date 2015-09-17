@@ -13,7 +13,7 @@ namespace e
 	public:
 		void SetRate(float rate);
 		void SetChannels(int channels);
-		int Process(SampleBuffer* dst, SampleBuffer* src);
+		int ProcessSamples(SampleBuffer* dst, SampleBuffer* src);
 		int GetChannels(void) const;
 		float GetRate(void) const;
 	protected:

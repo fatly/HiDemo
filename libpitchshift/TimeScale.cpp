@@ -1,4 +1,4 @@
-#include "TDStretch.h"
+#include "TimeScale.h"
 #include "SampleBuffer.h"
 #include <assert.h>
 
@@ -12,7 +12,7 @@ namespace e
 		{ 121, 114, 97, 114, 98, 105, 108, 32, 104, 99, 117, 111, 116, 100, 110, 117, 111, 115, 0, 0, 0, 0, 0, 0 }
 	};
 
-	TDStretch::TDStretch()
+	TimeScale::TimeScale()
 	{
 		isQuickSeek = false;
 		channels = 2;
@@ -31,14 +31,13 @@ namespace e
 		//set output buffer of base class
 		FIFOAdapter::SetOutput(outputBuffer);
 
-		SetParamters(44100, DEFAULT_SEQUENCE_MS, DEFAULT_SEEKWINDOW_MS, DEFAULT_OVERLAP_MS);
+		SetParameters(44100, DEFAULT_SEQUENCE_MS, DEFAULT_SEEKWINDOW_MS, DEFAULT_OVERLAP_MS);
 		SetTempo(1.0f);
-
 		Clear();
 	}
 
 
-	TDStretch::~TDStretch()
+	TimeScale::~TimeScale()
 	{
 		if (tempBuffer[1])
 		{
@@ -59,7 +58,7 @@ namespace e
 		}
 	}
 
-	void TDStretch::SetParamters(int sampleRate, int sequenceMS, int seekWindowMS, int overlapMS)
+	void TimeScale::SetParameters(int sampleRate, int sequenceMS, int seekWindowMS, int overlapMS)
 	{
 		if (sampleRate > 0) this->sampleRate = sampleRate;
 		if (overlapMS > 0) this->overlapMS = overlapMS;
@@ -84,12 +83,12 @@ namespace e
 			isAutoSeekSetting = true;
 		}
 
-		CalcSeqParamters();
+		CalcSequenceParamters();
 		CalcOverlapLength(this->overlapMS);
 		SetTempo(this->tempo);
 	}
 
-	void TDStretch::GetParamters(int *sampleRate, int *sequenceMS, int *seekWindowMS, int *overlapMS) const
+	void TimeScale::GetParameters(int *sampleRate, int *sequenceMS, int *seekWindowMS, int *overlapMS) const
 	{
 		if (sampleRate)
 		{
@@ -112,7 +111,7 @@ namespace e
 		}
 	}
 
-	void TDStretch::OverlapMono(sample_t* dst, const sample_t* src) const
+	void TimeScale::OverlapMono(sample_t* dst, const sample_t* src) const
 	{
 		sample_t a = (sample_t)0;
 		sample_t b = (sample_t)overlapLength;
@@ -125,36 +124,36 @@ namespace e
 		}
 	}
 
-	void TDStretch::ClearTempBuffer(void)
+	void TimeScale::ClearTempBuffer(void)
 	{
-		memset(tempBuffer[0], 0, sizeof(sample_t)* overlapLength * channels);
+		memset(tempBuffer[0], 0, sizeof(sample_t) * overlapLength * channels);
 	}
 
-	void TDStretch::ClearInputBuffer(void)
+	void TimeScale::ClearInputBuffer(void)
 	{
 		assert(inputBuffer);
 		inputBuffer->Clear();
 		ClearTempBuffer();
 	}
 
-	void TDStretch::Clear(void)
+	void TimeScale::Clear(void)
 	{
 		assert(outputBuffer);
 		outputBuffer->Clear();
 		ClearInputBuffer();
 	}
 
-	void TDStretch::EnableQuickSeek(bool enable)
+	void TimeScale::EnableQuickSeek(bool enable)
 	{
 		isQuickSeek = enable;
 	}
 
-	bool TDStretch::IsQuickSeekEnable(void) const
+	bool TimeScale::IsQuickSeekEnable(void) const
 	{
 		return isQuickSeek;
 	}
 
-	int TDStretch::SeekBestOverlapPosition(const sample_t* refPos)
+	int TimeScale::SeekBestOverlapPosition(const sample_t* refPos)
 	{
 		if (isQuickSeek)
 		{
@@ -166,7 +165,7 @@ namespace e
 		}
 	}
 
-	inline void TDStretch::Overlap(sample_t* dst, const sample_t* src, uint pos) const
+	inline void TimeScale::Overlap(sample_t* dst, const sample_t* src, uint pos) const
 	{
 		if (channels == 1)
 		{
@@ -174,7 +173,7 @@ namespace e
 		}
 		else if (channels == 2)
 		{
-			OverlapStereo(dst, src + pos);
+			OverlapStereo(dst, src + 2 * pos);
 		}
 		else
 		{
@@ -182,13 +181,12 @@ namespace e
 		}
 	}
 
-	int TDStretch::SeekBestOverlapPositionFull(const sample_t* refPos)
+	int TimeScale::SeekBestOverlapPositionFull(const sample_t* refPos)
 	{
 		int bestOffset = 0;
-		double bestCorr = FLT_MIN, corr = 0;
-		double norm = 0;
+		double  corr = 0, norm = 0;
 
-		bestCorr = CalcCrossCorr(refPos, tempBuffer[0], norm);
+		double bestCorr = CalcCrossCorr(refPos, tempBuffer[0], norm);
 
 		for (int i = 1; i < seekLength; i++)
 		{
@@ -208,7 +206,7 @@ namespace e
 		return bestOffset;
 	}
 
-	int TDStretch::SeekBestOverlapPositionQuick(const sample_t* refPos)
+	int TimeScale::SeekBestOverlapPositionQuick(const sample_t* refPos)
 	{
 		int bestOffset = 0, corrOffset = 0, tempOffset = 0;
 		double corr = 0, bestCorr = FLT_MIN, norm = 0;
@@ -240,12 +238,12 @@ namespace e
 		return bestOffset;
 	}
 
-	void TDStretch::ClearCrossCorrState(void)
+	void TimeScale::ClearCrossCorrState(void)
 	{
 		// TODO : 
 	}
 
-	void TDStretch::CalcSeqParamters(void)
+	void TimeScale::CalcSequenceParamters(void)
 	{
 		// Adjust tempo param according to tempo, so that variating processing sequence length is used
 		// at varius tempo settings, between the given low...top limits
@@ -290,16 +288,16 @@ namespace e
 		seekLength = (sampleRate * seekWindowMS) / 1000;
 	}
 
-	void TDStretch::SetTempo(float tempo)
+	void TimeScale::SetTempo(float tempo)
 	{
 		this->tempo = tempo;
-		CalcSeqParamters();
+		CalcSequenceParamters();
 		nominalSkip = tempo * (seekWindowLength - overlapLength);
 		int intskip = (int)(nominalSkip + 0.5);
 		requestSamples = max(intskip + overlapLength, seekWindowLength) + seekLength;
 	}
 
-	void TDStretch::SetChannels(int channels)
+	void TimeScale::SetChannels(int channels)
 	{
 		assert(channels > 0);
 		if (this->channels == channels) return;
@@ -311,16 +309,12 @@ namespace e
 		outputBuffer->SetChannels(channels);
 
 		overlapLength = 0;
-		SetParamters(sampleRate);
+		SetParameters(sampleRate);
 	}
 
-	void TDStretch::ProcessSamples(void)
+	void TimeScale::ProcessSamples(void)
 	{
 		int skip = 0, offset = 0, temp = 0;
-#ifdef _DEBUG
-		int loops = 0;
-#endif
-
 		while ((int)inputBuffer->GetSampleCount() >= requestSamples)
 		{
 			offset = SeekBestOverlapPosition(inputBuffer->Begin());
@@ -341,21 +335,18 @@ namespace e
 			skipFract += nominalSkip;
 			skip = (int)skipFract;
 			skipFract -= skip;
-			inputBuffer->GetSamples((uint)skip);
-#ifdef _DEBUG
-			loops++;
-#endif
+			inputBuffer->FetchSamples((uint)skip);
 		}
 	}
 
-	void TDStretch::PutSamples(const sample_t* samples, uint count)
+	void TimeScale::PutSamples(const sample_t* samples, uint count)
 	{
 		assert(inputBuffer);
 		inputBuffer->PutSamples(samples, count);
 		ProcessSamples();
 	}
 
-	void TDStretch::AcceptOverlapLength(int overlapLength)
+	void TimeScale::AcceptOverlapLength(int overlapLength)
 	{
 		assert(overlapLength > 0);
 		int length = this->overlapLength;
@@ -365,19 +356,19 @@ namespace e
 		{
 			int totalBytes = (overlapLength * channels + 16 / sizeof(sample_t)) * sizeof(sample_t);
 			tempBuffer[1] = (sample_t*)realloc(tempBuffer[0], totalBytes);
-			if (tempBuffer[1] == 0) E_THROW("TDStretch realloc failed!!!");
+			if (tempBuffer[1] == 0) E_THROW("TimeScale realloc failed!!!");
 			tempBuffer[0] = (sample_t*)ALIGN_POINTER_16(tempBuffer[1]);
 			ClearTempBuffer();
 		}
 	}
 
-	TDStretch* TDStretch::GetInstance(void)
+	TimeScale* TimeScale::GetInstance(void)
 	{
-		return new TDStretch();
+		return new TimeScale();
 	}
 //INTEGER_SAMPLES
 #ifdef INTEGER_SAMPLES
-	void TDStretch::OverlapStereo(sample_t* dst, const sample_t* src) const
+	void TimeScale::OverlapStereo(sample_t* dst, const sample_t* src) const
 	{
 		int j = 0;
 		for (int i = 0; i < overlapLength; i++)
@@ -394,7 +385,7 @@ namespace e
 		return (int)(log(value) / log(2.0) + 0.5);
 	}
 
-	void TDStretch::CalcOverlapLength(int overlapMS)
+	void TimeScale::CalcOverlapLength(int overlapMS)
 	{
 		assert(overlapMS >= 0);
 		overlapDividerBits = closest_2_power((sampleRate * overlapMS) / 1000.0) - 1;
@@ -407,47 +398,47 @@ namespace e
 		slopingDivider = (overlap * overlap - 1) / 3;
 	}
 
-	double TDStretch::CalcCrossCorr(const sample_t* mixingPos, const sample_t* compare, double &norm) const
+	double TimeScale::CalcCrossCorr(const sample_t* mixing, const sample_t* compare, double &norm) const
 	{
 		long corr = 0, lnorm = 0;
 		for (int i=0; i<channels * overlapLength; i+=4)
 		{
-			corr += (mixingPos[i + 0] * compare[i + 0] + mixingPos[i + 1] * compare[i + 1]) >> overlapDividerBits;
-			corr += (mixingPos[i + 2] * compare[i + 2] + mixingPos[i + 3] * compare[i + 3]) >> overlapDividerBits;
-			lnorm += (mixingPos[i + 0] * mixingPos[i + 0] + mixingPos[i + 1] * mixingPos[i + 1]) >> overlapDividerBits;
-			lnorm += (mixingPos[i + 2] * mixingPos[i + 2] + mixingPos[i + 3] * mixingPos[i + 3]) >>overlapDividerBits;
+			corr += (mixing[i + 0] * compare[i + 0] + mixing[i + 1] * compare[i + 1]) >> overlapDividerBits;
+			corr += (mixing[i + 2] * compare[i + 2] + mixing[i + 3] * compare[i + 3]) >> overlapDividerBits;
+			lnorm += (square(mixing[i + 0]) + square(mixing[i + 1])) >> overlapDividerBits;
+			lnorm += (square(mixing[i + 2]) + square(mixing[i + 3])) >>overlapDividerBits;
 		}
 
 		norm = (double)lnorm;
 		return (double)corr / sqrt((norm < 1e-9) ? 1.0 : norm);
 	}
 
-	double TDStretch::CalcCrossCorrAccumulate(const sample_t* mixingPos, const sample_t* compare, double &norm) const
+	double TimeScale::CalcCrossCorrAccumulate(const sample_t* mixing, const sample_t* compare, double &norm) const
 	{
 		int i = 0, j = 0;
 		long corr = 0, lnorm = 0;
 		for (i = 1; i <= channels; i++)
 		{
-			lnorm -= (mixingPos[-i] * mixingPos[-i]) >> overlapDividerBits;
+			lnorm -= square(mixing[-i]) >> overlapDividerBits;
 		}
 
 		for (i=0; i<channels * overlapLength; i+=4)
 		{
-			corr += (mixingPos[i + 0] * compare[i + 0] + mixingPos[i + 1] * compare[i + 1]) >> overlapDividerBits;
-			corr += (mixingPos[i + 2] * compare[i + 2] + mixingPos[i + 3] * compare[i + 3]) >> overlapDividerBits;
+			corr += (mixing[i + 0] * compare[i + 0] + mixing[i + 1] * compare[i + 1]) >> overlapDividerBits;
+			corr += (mixing[i + 2] * compare[i + 2] + mixing[i + 3] * compare[i + 3]) >> overlapDividerBits;
 		}
 
 		for (j = 0; j < channels; j++)
 		{
 			i--;
-			lnorm += (mixingPos[i] * mixingPos[i]) >> overlapDividerBits;
+			lnorm += square(mixing[i]) >> overlapDividerBits;
 		}
 
 		norm += (double)lnorm;
 		return (double)corr / sqrt((norm < 1e-9) ? 1.0 : norm);
 	}
-#else //FLOAT_SAMPLES
-	void TDStretch::OverlapStereo(sample_t* dst, const sample_t* src) const
+#elif defined(FLOAT_SAMPLES) //FLOAT_SAMPLES
+	void TimeScale::OverlapStereo(sample_t* dst, const sample_t* src) const
 	{
 		float f1 = 0.0f, f2 = 1.0f;
 		float scale = 1.0f / (float)overlapLength;
@@ -462,7 +453,7 @@ namespace e
 		}
 	}
 
-	void TDStretch::CalcOverlapLength(int overlapMS)
+	void TimeScale::CalcOverlapLength(int overlapMS)
 	{
 		assert(overlapMS > 0);
 		int overlap = (sampleRate * overlapMS) / 1000;
@@ -471,47 +462,47 @@ namespace e
 		AcceptOverlapLength(overlap);
 	}
 
-	double TDStretch::CalcCrossCorr(const sample_t* mixingPos, const sample_t* compare, double &norm) const
+	double TimeScale::CalcCrossCorr(const sample_t* mixing, const sample_t* compare, double &norm) const
 	{
 		norm = 0;
 		double corr = 0; 
 		for (int i=0; i<overlapLength * channels; i+=4)
 		{
-			corr += (mixingPos[i+0] * compare[i+0] + mixingPos[i+1] * compare[i+1]);
-			norm += (mixingPos[i+0] * mixingPos[i+0] + mixingPos[i+1] * mixingPos[i+1]);
+			corr += (mixing[i+0] * compare[i+0] + mixing[i+1] * compare[i+1]);
+			norm += (square(mixing[i+0]) + square(mixing[i+1]));
 
-			corr += (mixingPos[i+2] * compare[i+2] + mixingPos[i+3] * compare[i+3]);
-			norm += (mixingPos[i+2] * mixingPos[i+2] + mixingPos[i+3] * mixingPos[i+3]);
+			corr += (mixing[i+2] * compare[i+2] + mixing[i+3] * compare[i+3]);
+			norm += (square(mixing[i+2]) + square(mixing[i+3]));
 		}
 
 		return corr / sqrt((norm<1e-9)?1.0:norm);
 	}
 
-	double TDStretch::CalcCrossCorrAccumulate(const sample_t* mixingPos, const sample_t* compare, double &norm) const 
+	double TimeScale::CalcCrossCorrAccumulate(const sample_t* mixing, const sample_t* compare, double &norm) const 
 	{
 		int i = 0;
 		double corr = 0;
 		// cancel first normalizer tap from previous round
 		for (i = 1; i <= channels; i++)
 		{
-			norm -= mixingPos[-i] * mixingPos[-i];
+			norm -= square(mixing[-i]);
 		}
 
 		// Same routine for stereo and mono. For Stereo, unroll by factor of 2.
 		// For mono it's same routine yet unrollsd by factor of 4.
 		for (i = 0; i < channels * overlapLength; i += 4)
 		{
-			corr += mixingPos[i + 0] * compare[i + 0]
-				+ mixingPos[i + 1] * compare[i + 1]
-				+ mixingPos[i + 2] * compare[i + 2]
-				+ mixingPos[i + 3] * compare[i + 3];
+			corr += mixing[i + 0] * compare[i + 0]
+				+ mixing[i + 1] * compare[i + 1]
+				+ mixing[i + 2] * compare[i + 2]
+				+ mixing[i + 3] * compare[i + 3];
 		}
 
 		// update normalizer with last samples of this round
 		for (int j = 0; j < channels; j++)
 		{
 			i--;
-			norm += mixingPos[i] * mixingPos[i];
+			norm += square(mixing[i]);
 		}
 
 		return corr / sqrt((norm < 1e-9 ? 1.0 : norm));

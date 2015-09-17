@@ -51,7 +51,7 @@ namespace e
 		return new FIRFilter();
 	}
 
-	uint FIRFilter::Process(sample_t* dst, const sample_t* src, uint samples, uint channels)
+	uint FIRFilter::ProcessSamples(sample_t* dst, const sample_t* src, uint samples, uint channels)
 	{
 		assert(length > 0);
 		assert(lengthDiv8 * 8 == length);
@@ -246,21 +246,21 @@ namespace e
 		delete[] coeffs;
 	}
 
-	uint AAFilter::Process(sample_t* dst, const sample_t* src, uint samples, uint channels) const
+	uint AAFilter::ProcessSamples(sample_t* dst, const sample_t* src, uint samples, uint channels) const
 	{
 		assert(filter);
-		return filter->Process(dst, src, samples, channels);
+		return filter->ProcessSamples(dst, src, samples, channels);
 	}
 
-	uint AAFilter::Process(SampleBuffer* dst, SampleBuffer* src) const
+	uint AAFilter::ProcessSamples(SampleBuffer* dst, SampleBuffer* src) const
 	{
 		assert(filter);
 		assert(src && dst);
 		uint channels = src->GetChannels();
 		uint samples = src->GetSampleCount();
 		assert(channels == dst->GetChannels());
-		uint count = filter->Process(dst->End(samples), src->Begin(), samples, channels);
-		src->GetSamples(count);
+		uint count = filter->ProcessSamples(dst->End(samples), src->Begin(), samples, channels);
+		src->FetchSamples(count);
 		dst->PutSamples(count);
 		return count;
 	}

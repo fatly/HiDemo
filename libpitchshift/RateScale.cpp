@@ -1,14 +1,14 @@
-#include "RateTransposer.h"
+#include "RateScale.h"
 #include "Interpolate.h"
 
 namespace e
 {	
 	//////////////////////////////////////////////////////////////////////////
 	//
-	//RateTransposer
+	//RateScale
 	//
 	//////////////////////////////////////////////////////////////////////////
-	RateTransposer::RateTransposer(void)
+	RateScale::RateScale(void)
 	{
 		isUseAAFilter = true;
 		filter = new AAFilter(64);
@@ -26,7 +26,7 @@ namespace e
 		FIFOAdapter::SetOutput(outputBuffer);
 	}
 
-	RateTransposer::~RateTransposer()
+	RateScale::~RateScale()
 	{
 		if (inputBuffer) delete inputBuffer;
 		if (tempBuffer) delete tempBuffer;
@@ -35,33 +35,33 @@ namespace e
 		if (filter) delete filter;
 	}
 
-	RateTransposer* RateTransposer::GetInstance(void)
+	RateScale* RateScale::GetInstance(void)
 	{
-		return new RateTransposer();
+		return new RateScale();
 	}
 
-	void RateTransposer::EnableAAFilter(bool enable)
+	void RateScale::EnableAAFilter(bool enable)
 	{
 		isUseAAFilter = enable;
 	}
 
-	bool RateTransposer::IsAAFilterEnable(void) const
+	bool RateScale::IsAAFilterEnable(void) const
 	{
 		return isUseAAFilter;
 	}
 
-	AAFilter* RateTransposer::GetAAFilter(void) const
+	AAFilter* RateScale::GetAAFilter(void) const
 	{
 		assert(filter);
 		return filter;
 	}
 
-	SamplePipe* RateTransposer::GetOutput(void) const
+	SamplePipe* RateScale::GetOutput(void) const
 	{
 		return outputBuffer;
 	}
 
-	void RateTransposer::SetRate(float rate)
+	void RateScale::SetRate(float rate)
 	{
 		assert(transpser);
 		double frequence = 0;
@@ -69,18 +69,18 @@ namespace e
 
 		if (rate > 1.0)
 		{
-			frequence = 0.5 / rate;
+			frequence = 0.5f / rate;
 		}
 		else
 		{
-			frequence = 0.5 * rate;
+			frequence = 0.5f * rate;
 		}
 
 		assert(filter);
 		filter->SetCutoffFrequency(frequence);
 	}
 
-	void RateTransposer::SetChannels(int channels)
+	void RateScale::SetChannels(int channels)
 	{
 		assert(channels > 0);
 		if (transpser->GetChannels() == channels) return;
@@ -90,12 +90,12 @@ namespace e
 		outputBuffer->SetChannels(channels);
 	}
 
-	void RateTransposer::PutSamples(const sample_t* samples, uint count)
+	void RateScale::PutSamples(const sample_t* samples, uint count)
 	{
 		ProcessSamples(samples, count);
 	}
 
-	void RateTransposer::ProcessSamples(const sample_t* src, uint count)
+	void RateScale::ProcessSamples(const sample_t* src, uint count)
 	{
 		if (count == 0) return;
 		inputBuffer->PutSamples(src, count);
@@ -103,24 +103,24 @@ namespace e
 		int ret = 0;
 		if (!isUseAAFilter)
 		{
-			ret = transpser->Process(outputBuffer, inputBuffer);
+			ret = transpser->ProcessSamples(outputBuffer, inputBuffer);
 			return;
 		}
 
 		assert(filter);
 		if (transpser->GetRate() < 1.0f)
 		{
-			transpser->Process(tempBuffer, inputBuffer);
-			filter->Process(outputBuffer, tempBuffer);
+			transpser->ProcessSamples(tempBuffer, inputBuffer);
+			filter->ProcessSamples(outputBuffer, tempBuffer);
 		}
 		else
 		{
-			filter->Process(tempBuffer, inputBuffer);
-			transpser->Process(outputBuffer, tempBuffer);
+			filter->ProcessSamples(tempBuffer, inputBuffer);
+			transpser->ProcessSamples(outputBuffer, tempBuffer);
 		}
 	}
 
-	bool RateTransposer::IsEmpty(void) const 
+	bool RateScale::IsEmpty(void) const 
 	{
 		if (FIFOAdapter::IsEmpty())
 			return true;
@@ -128,10 +128,22 @@ namespace e
 			return inputBuffer->IsEmpty();
 	}
 
-	void RateTransposer::Clear(void)
+	void RateScale::ClearTempBuffer(void)
 	{
-		outputBuffer->Clear();
+		tempBuffer->Clear();
+	}
+
+	void RateScale::ClearInputBuffer(void)
+	{
+		assert(inputBuffer);
+		inputBuffer->Clear();
+		ClearTempBuffer();
+	}
+
+	void RateScale::Clear(void)
+	{
 		tempBuffer->Clear();
 		inputBuffer->Clear();
+		outputBuffer->Clear();
 	}
 }

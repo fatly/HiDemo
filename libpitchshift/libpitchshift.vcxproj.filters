@@ -33,12 +33,6 @@
     <ClInclude Include="SamplePipe.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="TDStretch.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RateTransposer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Interpolate.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -46,6 +40,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="libpitchshift.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeScale.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="RateScale.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -56,19 +56,16 @@
     <ClCompile Include="SampleBuffer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="SamplePipe.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="TDStretch.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RateTransposer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Interpolate.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="SoundPitch.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeScale.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RateScale.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1,8 +1,8 @@
 #include "SoundPitch.h"
-#include "TDStretch.h"
-#include "RateTransposer.h"
+#include "TimeScale.h"
+#include "RateScale.h"
 
-#define FE(a,b) ((a)-(b)<(1e-10))
+#define FE(a,b) (fabs((a)-(b))<(1e-10))
 
 namespace e
 {
@@ -14,14 +14,14 @@ namespace e
 		vRate = 1.0f;
 		vTempo = 1.0f;
 		vPitch = 1.0f;
-		isSrateSet = false;
+		inited_sample_rate = false;
 
-		stretch = TDStretch::GetInstance();
-		assert(stretch);
-		transpose = RateTransposer::GetInstance();
-		assert(transpose);
+		timeScaler = TimeScale::GetInstance();
+		assert(timeScaler);
+		rateScaler = RateScale::GetInstance();
+		assert(rateScaler);
 
-		SetOutput(stretch);
+		FIFOAdapter::SetOutput(timeScaler);
 
 		Calculate();
 	}
@@ -29,8 +29,8 @@ namespace e
 
 	SoundPitch::~SoundPitch()
 	{
-		if (stretch) delete stretch;
-		if (transpose) delete transpose;
+		if (timeScaler) delete timeScaler;
+		if (rateScaler) delete rateScaler;
 	}
 
 	void SoundPitch::SetRate(float rate)
@@ -54,14 +54,14 @@ namespace e
 	void SoundPitch::SetChannels(uint channels)
 	{
 		this->channels = channels;
-		stretch->SetChannels(channels);
-		transpose->SetChannels(channels);
+		timeScaler->SetChannels(channels);
+		rateScaler->SetChannels(channels);
 	}
 
 	void SoundPitch::SetSampleRate(uint rate)
 	{
-		isSrateSet = true;
-		stretch->SetParamters(rate);
+		inited_sample_rate = true;
+		timeScaler->SetParameters(rate);
 	}
 
 	void SoundPitch::Calculate(void)
@@ -71,46 +71,48 @@ namespace e
 		rate = vPitch * vRate;
 		tempo = vTempo / vPitch;
 
-		if (!FE(_rate, rate)) transpose->SetRate(rate);
-		if (!FE(_tempo, tempo)) stretch->SetTempo(tempo);
+		if (!FE(_rate, rate)) rateScaler->SetRate(rate);
+		if (!FE(_tempo, tempo)) timeScaler->SetTempo(tempo);
 
 		if (rate <= 1.0f)
 		{
-			if (output != stretch)
+			if (output != timeScaler)
 			{
-				assert(output == transpose);
-				SamplePipe* temp = stretch->GetOutput();
+				assert(output == rateScaler);
+				SamplePipe* temp = timeScaler->GetOutput();
 				temp->MoveSamples(output);
-				output = stretch;
+				output = timeScaler;
 			}
 		}
 		else
 		{
-			if (output != transpose)
+			if (output != rateScaler)
 			{
-				assert(output == stretch);
-				SamplePipe* temp = transpose->GetOutput();
+				assert(output == timeScaler);
+				SamplePipe* temp = rateScaler->GetOutput();
 				temp->MoveSamples(output);
-				transpose->MoveSamples(stretch->GetInput());
-				output = transpose;
+				rateScaler->MoveSamples(timeScaler->GetInput());
+				output = rateScaler;
 			}
 		}
 	}
 
 	void SoundPitch::PutSamples(const sample_t* samples, uint count)
 	{
-		if (!isSrateSet){
+		if (!inited_sample_rate){
 			E_THROW("never set sample rate!!!");
 		}else if (channels == 0){
 			E_THROW("never set number of channel!!!");
 		}else if (rate <= 1.0f){
-			assert(output == stretch);
-			transpose->PutSamples(samples, count);
-			stretch->MoveSamples(transpose);
+			// transpose the rate down, output the transposed sound to tempo changer buffer
+			assert(output == timeScaler);
+			rateScaler->PutSamples(samples, count);
+			timeScaler->MoveSamples(rateScaler);
 		}else {
-			assert(output == transpose);
-			stretch->PutSamples(samples, count);
-			transpose->MoveSamples(stretch);
+			// evaluate the tempo changer, then transpose the rate up,
+			assert(output == rateScaler);
+			timeScaler->PutSamples(samples, count);
+			rateScaler->MoveSamples(timeScaler);
 		}
 	}
 
@@ -120,31 +122,75 @@ namespace e
 		assert(buffer);
 		memset(buffer, 0, channels * 64 * sizeof(sample_t));
 
-		int count = UnProcessSamples();
-		count = (int)((double)count / (tempo * rate) + 0.5);
-		int samples = GetSampleCount();
-		samples += count;
+		uint remain = RemainSamplesCount();
+		remain = (uint)((double)remain / (tempo * rate) + 0.5);
+		uint count = GetSampleCount();
+		count += remain;
 
 		for (int i = 0; i < 128; i++)
 		{
 			PutSamples(buffer, 64);
-			if ((int)GetSampleCount() >= samples)
+			if (GetSampleCount() >= count)
 			{
-				AdjustSampleCount(samples);
+				AdjustSampleCount(count);
 				break;
 			}
 		}
 
 		free(buffer);
-		transpose->Clear();
-		stretch->ClearInputBuffer();
+		rateScaler->Clear();
+		timeScaler->ClearInputBuffer();
 	}
 
-	int SoundPitch::UnProcessSamples(void) const
+	bool SoundPitch::SetSetting(uint id, int value)
 	{
-		if (stretch)
+		int sampleRate, sequenceMs, seekWindowMs, overlapMs;
+
+		// read current tdstretch routine parameters
+		timeScaler->GetParameters(&sampleRate, &sequenceMs, &seekWindowMs, &overlapMs);
+
+		switch (id)
 		{
-			SamplePipe* p = stretch->GetInput();
+		case SETTING_USE_AA_FILTER:
+			// enables / disabless anti-alias filter
+			rateScaler->EnableAAFilter((value != 0) ? true : false);
+			return true;
+
+		case SETTING_AA_FILTER_LENGTH:
+			// sets anti-alias filter length
+			rateScaler->GetAAFilter()->SetLength(value);
+			return true;
+
+		case SETTING_USE_QUICKSEEK:
+			// enables / disables tempo routine quick seeking algorithm
+			timeScaler->EnableQuickSeek((value != 0) ? true : false);
+			return true;
+
+		case SETTING_SEQUENCE_MS:
+			// change time-stretch sequence duration parameter
+			timeScaler->SetParameters(sampleRate, value, seekWindowMs, overlapMs);
+			return true;
+
+		case SETTING_SEEKWINDOW_MS:
+			// change time-stretch seek window length parameter
+			timeScaler->SetParameters(sampleRate, sequenceMs, value, overlapMs);
+			return true;
+
+		case SETTING_OVERLAP_MS:
+			// change time-stretch overlap length parameter
+			timeScaler->SetParameters(sampleRate, sequenceMs, seekWindowMs, value);
+			return true;
+
+		default:
+			return false;
+		}
+	}
+
+	uint SoundPitch::RemainSamplesCount(void) const
+	{
+		if (timeScaler)
+		{
+			SamplePipe* p = timeScaler->GetInput();
 
 			if (p)
 			{
@@ -157,7 +203,7 @@ namespace e
 
 	void SoundPitch::Clear(void)
 	{
-		stretch->Clear();
-		transpose->Clear();
+		timeScaler->Clear();
+		rateScaler->Clear();
 	}
 }
