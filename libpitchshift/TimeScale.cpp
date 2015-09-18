@@ -355,7 +355,7 @@ namespace e
 		if (overlapLength > length)
 		{
 			int totalBytes = (overlapLength * channels + 16 / sizeof(sample_t)) * sizeof(sample_t);
-			tempBuffer[1] = (sample_t*)realloc(tempBuffer[0], totalBytes);
+			tempBuffer[1] = (sample_t*)realloc(tempBuffer[1], totalBytes);
 			if (tempBuffer[1] == 0) E_THROW("TimeScale realloc failed!!!");
 			tempBuffer[0] = (sample_t*)ALIGN_POINTER_16(tempBuffer[1]);
 			ClearTempBuffer();
