@@ -14,7 +14,7 @@ namespace e
 	{
 	public:
 		Bitmap(void);
-		Bitmap(const Bitmap & r);
+		Bitmap(const Bitmap &r);
 		Bitmap(const char* fileName, bool reverse = true);
 		Bitmap(int width, int height, int bitCount, const uint8* bits = 0, bool init = true);
 		virtual ~Bitmap(void);
@@ -40,6 +40,7 @@ namespace e
 		void Clear(void);
 		Bitmap* Clone(void) const;
 		Bitmap* Clone(uint x0, uint y0, uint x1, uint y1) const;
+		Bitmap* Clone(int channel) const;
 		bool Save(const char* fileName, bool reverse = true) const;
 	private:
 		void Initialize(void);

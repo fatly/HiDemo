@@ -762,6 +762,28 @@ _error:
 		return bitmap;
 	}
 
+	Bitmap* Bitmap::Clone(int channel) const
+	{
+		assert(channel >= 0 && channel <= 2);
+		int width = Width();
+		int height = Height();
+		int bpp = biBitCount / 8;
+		Bitmap* dst = new Bitmap(width, height, 8);
+
+		for (int y = 0; y < height; y++)
+		{
+			uint8* p0 = Get(0, y) + channel;
+			uint8* p1 = dst->Get(0, y);
+			for (int x = 0; x < width; x++)
+			{
+				*p1++ = *p0;
+				p0 += bpp;
+			}
+		}
+
+		return dst;
+	}
+
 	void Bitmap::Cleanup(void)
 	{
 		if (bits != 0)

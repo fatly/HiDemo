@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.40629.0
+VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmp4v2_demo", "libmp4v2_demo\libmp4v2_demo.vcxproj", "{A996CCE1-A63C-4BD1-BF9E-B0DA2E22317C}"
 	ProjectSection(ProjectDependencies) = postProject
@@ -69,6 +69,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpitchshift", "libpitchshift\libpitchshift.vcxproj", "{4E3CB45D-70B6-456F-AFD7-031FDB3A7DC6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libsoundtouch", "libsoundtouch\libsoundtouch.vcxproj", "{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libim_demo", "libim_demo\libim_demo.vcxproj", "{BDEFFC4E-556A-44D0-BADB-4932C0A9506E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4491953A-DD9B-4932-9319-A8C3456D8940} = {4491953A-DD9B-4932-9319-A8C3456D8940}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -152,13 +157,17 @@ Global
 		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}.Debug|Win32.Build.0 = Debug|Win32
 		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}.Release|Win32.ActiveCfg = Release|Win32
 		{98CF42D1-024F-4C2D-BE0E-C4C6C38DF6D7}.Release|Win32.Build.0 = Release|Win32
+		{BDEFFC4E-556A-44D0-BADB-4932C0A9506E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BDEFFC4E-556A-44D0-BADB-4932C0A9506E}.Debug|Win32.Build.0 = Debug|Win32
+		{BDEFFC4E-556A-44D0-BADB-4932C0A9506E}.Release|Win32.ActiveCfg = Release|Win32
+		{BDEFFC4E-556A-44D0-BADB-4932C0A9506E}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{F9DDEA9A-1325-4CA7-9532-6A09ADB0B0CE} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
+		{A13F9A3D-6B2A-4D43-AEA5-E261C58FF6FB} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{4491953A-DD9B-4932-9319-A8C3456D8940} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{1570CC15-B45E-4770-8A4B-E09F1D613BC4} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
 		{88E13694-D9FA-447D-A107-11D516185B35} = {DE6719FD-6A88-474B-8249-4EEA13ACE252}
