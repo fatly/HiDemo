@@ -16,7 +16,8 @@ namespace e
 		, const uint8* src
 		, const int width
 		, const int height
-		, const int lineBytes)
+		, const int lineBytes
+		, const int channels)
 	{
 
 	}
@@ -25,8 +26,8 @@ namespace e
 		, const uint8* src
 		, const int width
 		, const int height
-		, const int channels
-		, const int lineBytes)
+		, const int lineBytes
+		, const int channels)
 	{
 
 	}

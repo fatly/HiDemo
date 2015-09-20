@@ -18,31 +18,5 @@
     <ClCompile Include="libim_demo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Beautify.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Blender.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Gaussian.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="Filter.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Beautify.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Blender.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Gaussian.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Filter.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

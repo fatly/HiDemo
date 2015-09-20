@@ -15,7 +15,8 @@ namespace e
 			, const uint8* src
 			, const int width
 			, const int height
-			, const int lineBytes) = 0;
+			, const int lineBytes
+			, const int channels) = 0;
 	};
 
 
@@ -29,14 +30,15 @@ namespace e
 			, const uint8* src
 			, const int width
 			, const int height
-			, const int lineBytes) override;
+			, const int lineBytes
+			, const int channels) override;
 	protected:
 		void Gaussian(uint8* dst
 			, const uint8* src
 			, const int width
 			, const int height
-			, const int channels
-			, const int lineBytes);
+			, const int lineBytes
+			, const int channels);
 	protected:
 		uint8* tmp;
 	};
