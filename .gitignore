@@ -20,6 +20,8 @@
 /lib/libstrmbased.lib
 /lib/libpitchshift.lib
 /lib/libsoundtouch.lib
+/lib/libimd.lib
+/lib/libim.lib
 *.suo
 *.sdf
 *.opensdf
