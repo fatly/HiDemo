@@ -186,7 +186,7 @@ namespace e
 		return buffer;
 	}
 
-	char* StringA::GetData(void)
+	char* StringA::GetData(void) const
 	{
 		return buffer;
 	}

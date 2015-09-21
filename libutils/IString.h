@@ -47,7 +47,7 @@ namespace e
 		int CompareNoCase(const StringA & r) const;
 		void Reserve(int capacity);
 		char* c_str(void) const;
-		char* GetData(void);
+		char* GetData(void) const;
 		void Append(char ch);
 		void Append(const StringA & r);
 		void Insert(int index, char ch);

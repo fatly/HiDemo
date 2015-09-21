@@ -30,13 +30,13 @@ namespace e
 	typedef unsigned long long uint64;
 	typedef int intx;
 	typedef unsigned int uintx;
-#endif
 
+#endif
 	// ×Ö·û
 #ifdef UNICODE
 	typedef wchar_t Char;
 	typedef wchar_t tchar;
-	//#   define _T(s) L##s
+	//#   define _T(s) L##ss
 #else
 	typedef char Char;
 	typedef char tchar;
@@ -115,7 +115,7 @@ namespace e
 	}
 
 #define VIDEO_WIDTH		640
-#define VIDEO_HEIGHT	480
+#define VIDEO_HEIGHT		480
 
 }
 
