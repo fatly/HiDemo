@@ -15,31 +15,28 @@ namespace e
 			, const uint8* src
 			, const int width
 			, const int height
-			, const int lineBytes
-			, const int channels) = 0;
+			, const int bitCount) = 0;
 	};
 
-
-	class BlurFilter : public FilterBase
+	class Gaussian;
+	class BlurFilter
 	{
 	public:
 		BlurFilter(void);
+		BlurFilter(float sigma);
 		virtual ~BlurFilter(void);
 	public:
-		virtual void Process(uint8* dst
+		void SetSize(int width, int height);
+		void SetSigma(float sigma);
+		void Process(uint8* dst
 			, const uint8* src
 			, const int width
 			, const int height
-			, const int lineBytes
-			, const int channels) override;
+			, const int bitCount);
 	protected:
-		void Gaussian(uint8* dst
-			, const uint8* src
-			, const int width
-			, const int height
-			, const int lineBytes
-			, const int channels);
-	protected:
+		int width;
+		int height;
 		uint8* tmp;
+		Gaussian* filter;
 	};
 }

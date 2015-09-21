@@ -3,7 +3,6 @@
 #include <assert.h>
 
 #pragma warning(disable:4244)
-
 #define CLAMP_TO_EDGE
 
 namespace e
@@ -12,8 +11,57 @@ namespace e
 	{
 		return exp(-(1.695f / sigma));
 	}
+
+	Gaussian::Gaussian(void)
+	{
+		mode = GM_HIGH;
+		sigma = 0.1f;
+		a0 = a1 = a2 = a3 = 0.0f;
+		b1 = b2 = 0.0f;
+		coefp = coefn = 0.0f;
+
+		CalcParameters(sigma); 
+	}
+
+	Gaussian::~Gaussian(void)
+	{
+
+	}
+
+	void Gaussian::SetMode(int mode)
+	{
+		this->mode = mode;
+	}
+
+	void Gaussian::SetSigma(float sigma)
+	{
+		this->sigma = sigma;
+		CalcParameters(sigma);
+	}
+
+	void Gaussian::CalcParameters(float sigma)
+	{
+		assert(sigma >= 0.1f);
+		float alpha = 1.695f / sigma;
+		float ema = exp(-alpha);
+		float ema2 = exp(-2.0f * alpha);
+		// pre-compute filter coefficients
+		this->sigma = sigma; // note: fSigma is range-checked and clamped >= 0.1f upstream
+		this->b1 = -2.0f * ema;
+		this->b2 = ema2;
+
+		float k = (1.0f - ema)*(1.0f - ema) / (1.0f + (2.0f * alpha * ema) - ema2);
+		this->a0 = k;
+		this->a1 = k * (alpha - 1.0f) * ema;
+		this->a2 = k * (alpha + 1.0f) * ema;
+		this->a3 = -k * ema2;
+
+		this->coefp = (this->a0 + this->a1) / (1.0f + this->b1 + this->b2);
+		this->coefn = (this->a2 + this->a3) / (1.0f + this->b1 + this->b2);
+	}
+
 	//simple recursive gaussian
-	void Gaussian8A(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
+	void Gaussian::SimpleGaussian8(uint8* dst, const uint8* src, const int width, const int height, const int bitCount)
 	{
 		float a = CalcParam(sigma);
 		float yp = 0.0f, xc = 0.0f, yc = 0.0f;
@@ -24,12 +72,12 @@ namespace e
 
 		for (int x = 0; x < width; x++)
 		{
-			uint8* p = src + x * bpp;
+			const uint8* p = src + x * bpp;
 			yp = *(p + 0);
 
 			for (int y = 0; y < height; y++)
 			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
 				uint8* p1 = dst + x * lineBytes1 + y * bpp;
 
 				xc = *(p0 + 0);
@@ -44,7 +92,7 @@ namespace e
 
 			for (int y = height - 1; y >= 0; y--)
 			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
 				uint8* p1 = dst + x * lineBytes1 + y * bpp;
 				xc = *(p0 + 0);
 
@@ -57,7 +105,7 @@ namespace e
 		}
 	}
 
-	void Gaussian24A(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
+	void Gaussian::SimpleGaussian24(uint8* dst, const uint8* src, const int width, const int height, const int bitCount)
 	{
 		float a = CalcParam(sigma);
 
@@ -71,14 +119,14 @@ namespace e
 
 		for (int x = 0; x < width; x++)
 		{
-			uint8* p = src + x * bpp;
+			const uint8* p = src + x * bpp;
 			yp[0] = *(p + 0);
 			yp[1] = *(p + 1);
 			yp[2] = *(p + 2);
 
 			for (int y = 0; y < height; y++)
 			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
 				uint8* p1 = dst + x * lineBytes1 + y * bpp;
 
 				xc[0] = *(p0 + 0);
@@ -101,7 +149,7 @@ namespace e
 
 			for (int y = height - 1; y >= 0; y--)
 			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
 				uint8* p1 = dst + x * lineBytes1 + y * bpp;
 				xc[0] = *(p0 + 0);
 				xc[1] = *(p0 + 1);
@@ -122,35 +170,76 @@ namespace e
 		}
 	}
 
-	struct GaussParams
-	{
-		float sigma;
-		float alpha;
-		float ema;
-		float ema2;
-		float a0;
-		float a1;
-		float a2;
-		float a3;
-		float b1;
-		float b2;
-		float coefp;
-		float coefn;
-	};
 	//recursive gaussian
-	void _Gaussian24B(uint8* dst
-		, uint8* src
-		, int width
-		, int height
-		, int bitCount
-		, float a0
-		, float a1
-		, float a2
-		, float a3
-		, float b1
-		, float b2
-		, float coefp
-		, float coefn)
+	void Gaussian::RecursiveGaussian8(uint8* dst
+		, const uint8* src
+		, const int width
+		, const int height
+		, const int bitCount)
+	{
+		int lineBytes0 = WIDTHBYTES(bitCount * width);
+		int lineBytes1 = WIDTHBYTES(bitCount * height);
+		int bpp = bitCount / 8;
+
+		for (int x = 0; x < width; x++)
+		{
+			// start forward filter pass
+			float xp = 0.0f, yp = 0.0f, yb = 0.0f;
+
+			const uint8* p0 = src + x * bpp;
+#ifdef CLAMP_TO_EDGE
+			xp = *p0;
+			yb = xp * coefp;
+			yp = yb;
+#endif
+			float xc = 0.0f, yc = 0.0f;
+
+			for (int y = 0; y < height; y++)
+			{
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
+				uint8* p1 = dst + x * lineBytes1 + y * bpp;
+
+				xc = *p0;
+				yc = (a0 * xc) + (a1 * xp) - (b1 * yp) - (b2 * yb);
+				*p1 = yc;
+				xp = xc;
+				yb = yp;
+				yp = yc;
+			}
+
+			// start reverse filter pass: ensures response is symmetrical
+			float xn = 0.0f, xa = 0.0f, yn = 0.0f, ya = 0.0f;
+
+#ifdef CLAMP_TO_EDGE
+			p0 = src + (height - 1) * lineBytes0 + x * bpp;
+			xn = *p0;
+			xa = xn;
+			yn = xn * coefn;
+			ya = yn;
+#endif
+
+			for (int y = height - 1; y >= 0; y--)
+			{
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
+				uint8* p1 = dst + x * lineBytes1 + y * bpp;
+
+				xc = *p0;
+				yc = (a2 * xn) + (a3 * xa) - (b1 * yn) - (b2 * ya);
+				xa = xn;
+				xn = xc;
+				ya = yn;
+				yn = yc;
+
+				*p1 += yc;
+			}
+		}
+	}
+
+	void Gaussian::RecursiveGaussian24(uint8* dst
+		, const uint8* src
+		, const int width
+		, const int height
+		, const int bitCount)
 	{
 		int lineBytes0 = WIDTHBYTES(bitCount * width);
 		int lineBytes1 = WIDTHBYTES(bitCount * height);
@@ -163,7 +252,7 @@ namespace e
 			float yp[4] = { 0.0f, 0.0f, 0.0f, 0.0f };  // previous output
 			float yb[4] = { 0.0f, 0.0f, 0.0f, 0.0f };  // previous output by 2
 
-			uint8* p0 = src + x * bpp;
+			const uint8* p0 = src + x * bpp;
 #ifdef CLAMP_TO_EDGE
 			xp[0] = *(p0 + 0);
 			xp[1] = *(p0 + 1);
@@ -182,7 +271,7 @@ namespace e
 
 			for (int y = 0; y < height; y++)
 			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
 				uint8* p1 = dst + x * lineBytes1 + y * bpp;
 				
 				xc[0] = *(p0 + 0);
@@ -231,7 +320,7 @@ namespace e
 
 			for (int y = height - 1; y >= 0; y--)
 			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
+				const uint8* p0 = src + y * lineBytes0 + x * bpp;
 				uint8* p1 = dst + x * lineBytes1 + y * bpp;
 
 				xc[0] = *(p0 + 0);
@@ -260,163 +349,25 @@ namespace e
 		}
 	}
 
-	void _Gaussian8B(uint8* dst
-		, uint8* src
-		, int width
-		, int height
-		, int bitCount
-		, float a0
-		, float a1
-		, float a2
-		, float a3
-		, float b1
-		, float b2
-		, float coefp
-		, float coefn)
+	void Gaussian::Process(uint8* dst
+		, const uint8* src
+		, const int width
+		, const int height
+		, const int bitCount)
 	{
-		int lineBytes0 = WIDTHBYTES(bitCount * width);
-		int lineBytes1 = WIDTHBYTES(bitCount * height);
-		int bpp = bitCount / 8;
-
-		for (int x = 0; x < width; x++)
+		if (mode == GM_SIMPLE)
 		{
-			// start forward filter pass
-			float xp = 0.0f, yp = 0.0f, yb = 0.0f;
-
-			uint8* p0 = src + x * bpp;
-#ifdef CLAMP_TO_EDGE
-			xp = *p0;
-			yb = xp * coefp;
-			yp = yb;
-#endif
-			float xc = 0.0f, yc = 0.0f;
-
-			for (int y = 0; y < height; y++)
-			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
-				uint8* p1 = dst + x * lineBytes1 + y * bpp;
-
-				xc = *p0;
-				yc = (a0 * xc) + (a1 * xp) - (b1 * yp) - (b2 * yb);
-				*p1 = yc;
-				xp = xc;
-				yb = yp;
-				yp = yc;
-			}
-
-			// start reverse filter pass: ensures response is symmetrical
-			float xn = 0.0f, xa = 0.0f, yn = 0.0f, ya = 0.0f;
-
-#ifdef CLAMP_TO_EDGE
-			p0 = src + (height - 1) * lineBytes0 + x * bpp;
-			xn = *p0;
-			xa = xn;
-			yn = xn * coefn;
-			ya = yn;
-#endif
-
-			for (int y = height - 1; y >= 0; y--)
-			{
-				uint8* p0 = src + y * lineBytes0 + x * bpp;
-				uint8* p1 = dst + x * lineBytes1 + y * bpp;
-
-				xc = *p0;
-				yc = (a2 * xn) + (a3 * xa) - (b1 * yn) - (b2 * ya);
-				xa = xn;
-				xn = xc;
-				ya = yn;
-				yn = yc;
-
-				*p1 += yc;
-			}
+			if (bitCount == 8)
+				SimpleGaussian8(dst, src, width, height, bitCount);
+			else
+				SimpleGaussian24(dst, src, width, height, bitCount);
 		}
-	}
-
-	inline void CalcParam(float sigma, GaussParams & param)
-	{
-		// pre-compute filter coefficients
-		param.sigma = sigma; // note: fSigma is range-checked and clamped >= 0.1f upstream
-		param.alpha = 1.695f / param.sigma;
-		param.ema = exp(-param.alpha);
-		param.ema2 = exp(-2.0f * param.alpha);
-		param.b1 = -2.0f * param.ema;
-		param.b2 = param.ema2;
-		param.a0 = 0.0f;
-		param.a1 = 0.0f;
-		param.a2 = 0.0f;
-		param.a3 = 0.0f;
-		param.coefp = 0.0f;
-		param.coefn = 0.0f;
-
-		float k = (1.0f - param.ema)*(1.0f - param.ema) / (1.0f + (2.0f * param.alpha * param.ema) - param.ema2);
-		param.a0 = k;
-		param.a1 = k * (param.alpha - 1.0f) * param.ema;
-		param.a2 = k * (param.alpha + 1.0f) * param.ema;
-		param.a3 = -k * param.ema2;
-
-		param.coefp = (param.a0 + param.a1) / (1.0f + param.b1 + param.b2);
-		param.coefn = (param.a2 + param.a3) / (1.0f + param.b1 + param.b2);
-	}
-
-	void Gaussian24B(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
-	{
-		GaussParams param;
-
-		CalcParam(sigma, param);
-
-		_Gaussian24B(dst
-			, src
-			, width
-			, height
-			, bitCount
-			, param.a0
-			, param.a1
-			, param.a2
-			, param.a3
-			, param.b1
-			, param.b2
-			, param.coefp
-			, param.coefn);
-	}
-
-	void Gaussian8B(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma)
-	{
-		GaussParams param;
-
-		CalcParam(sigma, param);
-
-		_Gaussian8B(dst
-			, src
-			, width
-			, height
-			, bitCount
-			, param.a0
-			, param.a1
-			, param.a2
-			, param.a3
-			, param.b1
-			, param.b2
-			, param.coefp
-			, param.coefn);
-	}
-
-	void Gaussian(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma, int mode)
-	{
-		if (mode == SIMPLE8)
+		else
 		{
-			Gaussian8A(dst, src, width, height, bitCount, sigma);
-		}
-		else if (mode == HIGHT8)
-		{
-			Gaussian8B(dst, src, width, height, bitCount, sigma);
-		}
-		else if (mode == SIMPLE24)
-		{
-			Gaussian24A(dst, src, width, height, bitCount, sigma);
-		}
-		else if (mode == HIGHT24)
-		{
-			Gaussian24B(dst, src, width, height, bitCount, sigma);
+			if (bitCount == 8)
+				RecursiveGaussian8(dst, src, width, height, bitCount);
+			else
+				RecursiveGaussian24(dst, src, width, height, bitCount);
 		}
 	}
 }

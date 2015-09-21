@@ -25,6 +25,9 @@ int main(int argc, char* argv[])
 		, src->Height()
 		, src->biBitCount);
 
+	AutoPtr<Bitmap> gc = dst->Clone(CHANNEL_G);
+	gc->Save("f:\\tmp.bmp");
+
 //	system("pause");
 	return 0;
 }
