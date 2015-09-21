@@ -11,7 +11,7 @@ namespace e
 	typedef unsigned short uint16;
 	typedef unsigned short ushort;
 	typedef unsigned char uchar;
-//	typedef unsigned char byte;
+	typedef unsigned char byte;
 
 	// 定长整型
 #if defined(_WIN64) || defined(__x86_64__)

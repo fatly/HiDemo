@@ -7,12 +7,12 @@
 
 namespace e
 {
-	typedef enum {
-		CHANNEL_B=0,
-		CHANNEL_G=1,
-		CHANNEL_B=2,
-		CHANNEL_A=3
-	}ChannelType;
+// 	typedef enum {
+// 		CHANNEL_B=0,
+// 		CHANNEL_G=1,
+// 		CHANNEL_B=2,
+// 		CHANNEL_A=3
+// 	}ChannelType;
 	//-------------------------------------------------------------------------------
 	//----------------------device-iddependent-bitmap-------------------------
 	//-------------------------------------------------------------------------------

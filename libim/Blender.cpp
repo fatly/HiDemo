@@ -19,7 +19,10 @@ namespace e
 
 	static inline uint8 hardlight(int &a, int &b)
 	{
-		return 0;
+		if (b <= 128)
+			return a * b / 128;
+		else
+			return 255 - (255 - a)*(255 - b) / 128;
 	}
 
 	static inline uint8 screen(int &a, int &b)
@@ -150,7 +153,7 @@ namespace e
 	{
 		int bpp = bitCount / 8;
 		int lineBytes = WIDTHBYTES(bitCount * width);
-		int index = 0;
+		int channels = bpp > 1 ? 3 : bpp;
 
 		for (int y = 0; y < height; y++)
 		{
@@ -158,14 +161,10 @@ namespace e
 			uint8* d = dst + y * lineBytes;
 			for (int x = 0; x < width; x++)
 			{
-				index = MakeIndex(s[0], d[0]);
-				d[0] = values[index];
-
-				index = MakeIndex(s[1], d[1]);
-				d[1] = values[index];
-
-				index = MakeIndex(s[2], d[2]);
-				d[2] = values[index];
+				for (int c = 0; c < channels; c++)
+				{
+					d[c] = values[MakeIndex(s[c], d[c])];
+				}
 
 				s += bpp;
 				d += bpp;
