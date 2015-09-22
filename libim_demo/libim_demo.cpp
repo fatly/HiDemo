@@ -38,11 +38,11 @@ int main(int argc, char* argv[])
 	bfy->Smooth(dst->bits, src->bits, gc->bits, src->Width(), src->Height(), src->biBitCount);
 	dst->Save("f:\\temp\\05.bmp");
 
-	Image<float> im;
+	XImage<float> im;
 	B2I(im, *src);
 	Normalize(im);
 	printf("w=%d,h=%d\n", im.Width(), im.Height());
-	Image<float>* p = im.Clone(10, 10, 50, 50);
+	XImage<float>* p = im.Clone(10, 10, 50, 50);
 	printf("w=%d,h=%d\n", p->Width(), p->Height());
 
 	for (int i = 0; i < p->Width(); i++)

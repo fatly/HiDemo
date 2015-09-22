@@ -63,8 +63,7 @@ namespace e
 		BITMAPHEADER header;
 		bool result = false;
 
-		do
-		{
+		do{
 			//read bitmap file header
 			if (!read(&header.bfType, sizeof(header.bfType), fp)) break;
 			if (header.bfType != 0x4D42) break;
@@ -97,17 +96,22 @@ namespace e
 			//assert(header.biHeader.biSizeImage == lineBytes * header.biHeader.biHeight);
 
 			size = lineBytes * header.biHeight;
-			bits = (char*)malloc(size);
+			bits = (char*)realloc(bits, size);
 			assert(bits != 0);
 			if (bits == 0) break;
 			if (!skip(header.bfOffBits, fp))break;
 			if (!read(bits, size, fp))
 			{
 				free(bits);
-				return false;
+				bits = 0;
+				size = 0;
+				break;
 			}
 			//需要将文件中的数据上下倒转过来
 
+			width = header.biWidth;
+			height = header.biHeight;
+			channels = header.biBitCount / 8;
 			result = true;
 		} while (0);
 

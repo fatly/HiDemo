@@ -29,6 +29,9 @@
     <ClCompile Include="Curve.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="FileIO.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Blender.h">
@@ -52,7 +55,10 @@
     <ClInclude Include="Convert.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="xbitmap.h">
+    <ClInclude Include="FileIO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="XBitmap.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

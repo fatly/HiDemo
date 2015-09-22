@@ -1,19 +1,24 @@
-#ifndef __CORE_IMAGE_H__
-#define __CORE_IMAGE_H__
+#ifndef __CORE_XImage_H__
+#define __CORE_XImage_H__
 #include <assert.h>
 
 namespace e
 {
 	//////////////////////////////////////////////////////////////////////////
-	//defined of image<T>
+	//defined of XImage<T>
 	//////////////////////////////////////////////////////////////////////////
-	template<class T>class Image
+	template<class T>class XImage
 	{
 	public:
-		Image(void);
-		Image(int width, int height, int channels, bool init=false);
-		Image(const Image<T>& other);
-		virtual ~Image(void);
+		XImage(void);
+		XImage(int width
+			, int height
+			, int channels
+			, const T* src = 0
+			, bool init = false
+			, bool alloc = true);
+		XImage(const XImage<T>& other);
+		virtual ~XImage(void);
 	public:
 		int Width(void) const;
 		int Height(void) const;
@@ -25,15 +30,20 @@ namespace e
 		virtual T* Ptr(int index) const;
 		virtual T* Ptr(int x, int y) const;
 		virtual bool Resize(int width, int height, int channels);
-		Image<T>* Clone(void) const;
-		Image<T>* Clone(int channel) const;
-		Image<T>* Clone(int x0, int y0, int x1, int y1) const;
-		void Swap(const Image<T>& other);
+		XImage<T>* Clone(void) const;
+		XImage<T>* Clone(int channel) const;
+		XImage<T>* Clone(int x0, int y0, int x1, int y1) const;
+		void Swap(const XImage<T>& other);
 		void Clear(void);
 	protected:
 		bool IsValid(void) const;
-		bool Alloc(int size, const T* src, bool init = false);
-		virtual bool Alloc(int width, int height, int channels, const T* src=0, bool init=false);
+		bool Create(int size, const T* src, bool init = false, bool alloc = true);
+		virtual bool Create(int width
+			, int height
+			, int channels
+			, const T* src = 0
+			, bool init = false
+			, bool alloc = true);
 	protected:
 		T *data;
 		int size;
@@ -47,13 +57,13 @@ namespace e
 
 
 //////////////////////////////////////////////////////////////////////////
-//implements of image<T>
+//implements of XImage<T>
 //////////////////////////////////////////////////////////////////////////
 
 namespace e
 {
 	template<class T>
-	Image<T>::Image(void)
+	XImage<T>::XImage(void)
 	{
 		data = 0;
 		size = 0;
@@ -65,11 +75,16 @@ namespace e
 	}
 
 	template<class T>
-	Image<T>::Image(int width, int height, int channels, bool init/* =false */)
+	XImage<T>::XImage(int width
+		, int height
+		, int channels
+		, const T* src/* = 0 */
+		, bool init/* =false */
+		, bool alloc/* =true */)
 	{
 		data = 0;
 		size = 0;
-		if (Alloc(width, height, channels))
+		if (Create(width, height, channels, src, init, alloc))
 		{
 			this->width = width;
 			this->height = height;
@@ -85,12 +100,12 @@ namespace e
 	}
 
 	template<class T>
-	Image<T>::Image(const Image<T>& other)
+	XImage<T>::XImage(const XImage<T>& other)
 	{
 		data = 0;
 		size = 0;
 
-		if (Alloc(other.width, other.height, other.channels, other.data))
+		if (Create(other.width, other.height, other.channels, other.data))
 		{
 			width = other.width;
 			height = other.height;
@@ -106,31 +121,31 @@ namespace e
 	}
 
 	template<class T>
-	Image<T>::~Image(void)
+	XImage<T>::~XImage(void)
 	{
-		if (data) free(data);
+		Clear();
 	}
 
 	template<class T>
-	int Image<T>::Width(void) const
+	int XImage<T>::Width(void) const
 	{
 		return width;
 	}
 
 	template<class T>
-	int Image<T>::Height(void) const
+	int XImage<T>::Height(void) const
 	{
 		return height;
 	}
 
 	template<class T>
-	int Image<T>::Channels(void) const
+	int XImage<T>::Channels(void) const
 	{
 		return channels;
 	}
 
 	template<class T>
-	void Image<T>::Set(int index, const T &value)
+	void XImage<T>::Set(int index, const T &value)
 	{
 		assert(data);
 		assert(index >= 0 && index < samples);
@@ -138,7 +153,7 @@ namespace e
 	}
 
 	template<class T>
-	void Image<T>::Set(int x, int y, const T& value)
+	void XImage<T>::Set(int x, int y, const T& value)
 	{
 		assert(data);
 		assert(x >= 0 && x < width);
@@ -147,7 +162,7 @@ namespace e
 	}
 
 	template<class T>
-	T Image<T>::Get(int index) const
+	T XImage<T>::Get(int index) const
 	{
 		assert(data);
 		assert(index >= 0 && index < samples);
@@ -155,7 +170,7 @@ namespace e
 	}
 
 	template<class T>
-	T Image<T>::Get(int x, int y) const
+	T XImage<T>::Get(int x, int y) const
 	{
 		assert(data);
 		assert(x >= 0 && x < width);
@@ -164,7 +179,7 @@ namespace e
 	}
 
 	template<class T>
-	T* Image<T>::Ptr(int index) const
+	T* XImage<T>::Ptr(int index) const
 	{
 		assert(data);
 		assert(index >= 0 && index < samples);
@@ -172,7 +187,7 @@ namespace e
 	}
 
 	template<class T>
-	T* Image<T>::Ptr(int x, int y) const
+	T* XImage<T>::Ptr(int x, int y) const
 	{
 		assert(data);
 		assert(x >= 0 && x < width);
@@ -181,17 +196,17 @@ namespace e
 	}
 
 	template<class T>
-	Image<T>* Image<T>::Clone(void) const
+	XImage<T>* XImage<T>::Clone(void) const
 	{
-		return new Image<T>(*this);
+		return new XImage<T>(*this);
 	}
 
 	template<class T>
-	Image<T>* Image<T>::Clone(int channel) const
+	XImage<T>* XImage<T>::Clone(int channel) const
 	{
 		assert(IsValid());
 		assert(channel >= 0 && channel < channels);
-		Image<T>* im = new Image<T>(width, height, 1);
+		XImage<T>* im = new XImage<T>(width, height, 1);
 		if (im)
 		{
 			for (int y = 0; y < height; y++)
@@ -210,7 +225,7 @@ namespace e
 	}
 
 	template<class T>
-	Image<T>* Image<T>::Clone(int x0, int y0, int x1, int y1) const
+	XImage<T>* XImage<T>::Clone(int x0, int y0, int x1, int y1) const
 	{
 		assert(IsValid());
 		assert(x0 >= 0 && x0 < width);
@@ -226,7 +241,7 @@ namespace e
 		if (w > width) w = width;
 		if (h > height) h = height;
 
-		Image<T>* im = new Image<T>(w, h, channels);
+		XImage<T>* im = new XImage<T>(w, h, channels);
 		if (im)
 		{
 			for (int y = y0; y <= y1; y++)
@@ -241,7 +256,7 @@ namespace e
 	}
 
 	template<class T>
-	void Image<T>::Swap(const Image<T>& other)
+	void XImage<T>::Swap(const XImage<T>& other)
 	{
 		swap(data, other.data);
 		swap(size, other.size);
@@ -253,7 +268,7 @@ namespace e
 	}
 
 	template<class T>
-	bool Image<T>::Resize(int width, int height, int channels)
+	bool XImage<T>::Resize(int width, int height, int channels)
 	{
 		assert(width > 0 && height > 0 && channels > 0);
 		if (this->width == width && this->height == height && this->channels == channels)
@@ -261,7 +276,7 @@ namespace e
 			return true;
 		}
 
-		if (Alloc(width, height, channels))
+		if (Create(width, height, channels))
 		{
 			this->width = width;
 			this->height = height;
@@ -278,8 +293,11 @@ namespace e
 	}
 
 	template<class T>
-	void Image<T>::Clear(void)
+	void XImage<T>::Clear(void)
 	{
+		if (data) free(data);
+		data = 0;
+		size = 0;
 		width = 0;
 		height = 0;
 		channels = 0;
@@ -288,35 +306,54 @@ namespace e
 	}
 
 	template<class T>
-	bool Image<T>::IsValid(void) const
+	bool XImage<T>::IsValid(void) const
 	{
 		return data != 0;
 	}
 
 	template<class T>
-	bool Image<T>::Alloc(int size, const T* src, bool init /* = false */)
+	bool XImage<T>::Create(int size, T* src, bool init /* = false */, bool alloc /*=true*/)
 	{
 		assert(size > 0);
-		data = (T*)realloc(data, size);
-		if (!data) return false;
+		if (alloc)
+		{
+			data = (T*)realloc(data, size);
+			if (!data) return false;
+		}
+		else
+		{
+			data = src;
+		}
 
-		if (src)
-			memcpy(data, src, size);
+		if (alloc)
+		{
+			if (src)
+				memcpy(data, src, size);
+			else if (init)
+				memset(data, 0, size);
+		}
 		else if (init)
+		{
 			memset(data, 0, size);
+		}
 
 		this->size = size;
 		return true;
 	}
 
 	template<class T>
-	bool Image<T>::Alloc(int width, int height, int channels, const T* src/* =0 */, bool init/* =false */)
+	bool XImage<T>::Create(int width
+		, int height
+		, int channels
+		, T* src/* =0 */
+		, bool init/* =false */
+		, bool alloc/* =true */)
 	{
 		assert(width >= 0 && height >= 0);
 		assert(channels >= 0 && channels <= 4);
 
 		int size = width * height * channels * sizeof(T);
-		return Alloc(size, src, init);
+		return Create(size, src, init, alloc);
 	}
 }
 

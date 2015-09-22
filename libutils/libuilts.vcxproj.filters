@@ -60,7 +60,7 @@
     <ClInclude Include="IString.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="Image.h">
+    <ClInclude Include="XImage.h">
       <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
