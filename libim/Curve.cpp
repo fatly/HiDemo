@@ -356,7 +356,13 @@ namespace e
 	void Curve::GetSamples(byte* result)
 	{
 		assert(result);
-		memcpy(result, tables, sizeof(byte) * 256);
+		memcpy(result, tables, sizeof(byte) * sampleCount);
+	}
+
+	void Curve::GetSamples(double* result)
+	{
+		assert(result);
+		memcpy(result, samples, sizeof(double)*sampleCount);
 	}
 
 	const Curve & Curve::operator=(const Curve & r)

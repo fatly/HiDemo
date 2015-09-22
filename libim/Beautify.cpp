@@ -32,7 +32,8 @@ namespace e
 
 	void Beautify::InitCurves(void)
 	{
-		double pts[] = {			0.000000, 0.000000,
+		double pts[] = {
+			0.000000, 0.000000,
 			0.125000, 0.150334,
 			0.250000, 0.297188,
 			0.375000, 0.437080,
@@ -40,7 +41,8 @@ namespace e
 			0.625000, 0.684769,
 			0.750000, 0.794540,
 			0.875000, 0.898678,
-			1.000000, 1.000000,		};
+			1.000000, 1.000000,
+		};
 
 		assert(curves);
 		curves->CreateSpline(CURVE_CHANNEL_C, 9, pts);

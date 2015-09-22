@@ -46,7 +46,6 @@ namespace e
 	// 其他数值类型
 	typedef float	real;
 	typedef uint32	RGBA;
-
 	// 其他定义
 #ifdef __GNUC__
 #	define override

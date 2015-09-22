@@ -104,7 +104,9 @@
     <ClInclude Include="Curve.h" />
     <ClInclude Include="Filter.h" />
     <ClInclude Include="Gaussian.h" />
+    <ClInclude Include="Convert.h" />
     <ClInclude Include="libim.h" />
+    <ClInclude Include="xbitmap.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

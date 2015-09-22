@@ -20,17 +20,17 @@ namespace e
 		uint8 reserved;
 	}RGBQUAD;
 
-	inline bool read(void * buffer, size_t size, FILE * fp)
+	static inline bool read(void * buffer, size_t size, FILE * fp)
 	{
 		return ::fread(buffer, 1, size, fp) == size;
 	}
 
-	inline bool write(void * buffer, size_t size, FILE * fp)
+	static inline bool write(void * buffer, size_t size, FILE * fp)
 	{
 		return ::fwrite(buffer, 1, size, fp) == size;
 	}
 
-	inline bool skip(size_t size, FILE * fp)
+	static inline bool skip(size_t size, FILE * fp)
 	{
 		return ::fseek(fp, size, SEEK_SET) == 0;
 	}

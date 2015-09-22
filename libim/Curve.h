@@ -23,6 +23,7 @@ namespace e
 		double GetSample(double value);
 		byte GetSample(int index);
 		void GetSamples(byte* result);
+		void GetSamples(double* result);
 		void Reset(void);
 		void Calculate(void);
 	private:

@@ -14,6 +14,6 @@
 #include "StringArray.h"
 #include "AutoPtr.h"
 #include "Bitmap.h"
-
+#include "Image.h"
 
 #endif
