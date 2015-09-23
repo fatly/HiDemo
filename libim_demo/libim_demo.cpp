@@ -24,7 +24,7 @@ void test_xbitmap(void)
 	XBitmap<pixel_t>* dst = new XBitmap<pixel_t>(*src);
 
 	bfy->HighPass(dst->Ptr(0), src->Ptr(0), src->Width(), src->Height(), src->Channels());
-	XBitmap<pixel_t>* gc = static_cast<XBitmap<pixel_t>*>(dst->Clone(0));
+	AutoPtr<XBitmap<pixel_t>> gc = static_cast<XBitmap<pixel_t>*>(dst->Clone(0));
 	gc->Save("f:\\temp\\02.bmp");
 
 	for (int i = 0; i < 3; i++)
@@ -39,14 +39,14 @@ void test_xbitmap(void)
 
 	delete src;
 	delete dst;
-	delete gc;
+	//delete gc;
 }
 
 
 
 int main(int argc, char* argv[])
 {
-	//test_xbitmap();
+	test_xbitmap();
 	
 	system("pause");
 	return 0;

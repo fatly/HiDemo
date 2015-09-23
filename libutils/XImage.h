@@ -4,13 +4,14 @@
 #include <math.h>
 #include <memory.h>
 #include "Defines.h"
+#include "Object.h"
 
 //////////////////////////////////////////////////////////////////////////
 //defined of XImage<T>
 //////////////////////////////////////////////////////////////////////////
 namespace e
 {
-	template<class T>class XImage
+	template<class T>class XImage : public RefCountObj
 	{
 	public:
 		XImage(void);
