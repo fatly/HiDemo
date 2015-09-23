@@ -165,7 +165,7 @@ namespace e
 	{
 		if (sizeof(T) == sizeof(uint8))
 		{
-			if (FileIO::LoadBitmap(fileName, (void**)&data, size, width, height, channels))
+			if (FileIO::_LoadBitmap(fileName, (void**)&data, size, width, height, channels))
 			{
 				samples = width * height * channels;
 				lineBytes = WIDTHBYTES(width*channels * sizeof(T) * 8);
@@ -179,7 +179,7 @@ namespace e
 		{
 			uint8* bits = 0;
 			bool ret = false;
-			if (FileIO::LoadBitmap(fileName, (void**)&bits, size, width, height, channels))
+			if (FileIO::_LoadBitmap(fileName, (void**)&bits, size, width, height, channels))
 			{
 				if (Create(width, height, channels, 0, false, true))
 				{
@@ -222,7 +222,7 @@ namespace e
 		assert(data && size);
 		if (sizeof(T) == sizeof(uint8))
 		{
-			return FileIO::SaveBitmap(fileName, data, size, width, height, channels);
+			return FileIO::_SaveBitmap(fileName, data, size, width, height, channels);
 		}
 		else//convert float to uint8
 		{
@@ -242,7 +242,7 @@ namespace e
 					d += channels;
 				}
 			}
-			return FileIO::SaveBitmap(fileName, tmp.Ptr(0), tmp.Size(), width, height, channels);
+			return FileIO::_SaveBitmap(fileName, tmp.Ptr(0), tmp.Size(), width, height, channels);
 		}
 	}
 }

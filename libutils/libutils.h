@@ -14,5 +14,8 @@
 #include "StringArray.h"
 #include "AutoPtr.h"
 #include "Bitmap.h"
+#include "FileIO.h"
+#include "XImage.h"
+#include "XBitmap.h"
 
 #endif

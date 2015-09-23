@@ -18,6 +18,7 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Diagnosis.h" />
+    <ClInclude Include="FileIO.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="private.h" />
@@ -26,10 +27,13 @@
     <ClInclude Include="StringArray.h" />
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Treap.h" />
+    <ClInclude Include="XBitmap.h" />
+    <ClInclude Include="XImage.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Bitmap.cpp" />
     <ClCompile Include="Diagnosis.cpp" />
+    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="private.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

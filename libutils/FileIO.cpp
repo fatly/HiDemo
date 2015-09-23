@@ -1,8 +1,10 @@
+#include "private.h"
 #include "FileIO.h"
+#include "Defines.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "Defines.h"
+
 
 namespace e
 {
@@ -20,11 +22,11 @@ namespace e
 	}RGBQUAD;
 
 	typedef struct _BitmapHeader{
-		uint16  bfType;
-		uint32  bfSize;
-		uint16  bfReserved1;
-		uint16  bfReserved2;
-		uint32  bfOffBits;
+		uint16 bfType;
+		uint32 bfSize;
+		uint16 bfReserved1;
+		uint16 bfReserved2;
+		uint32 bfOffBits;
 		uint32 biSize;
 		uint32 biWidth;
 		uint32 biHeight;
@@ -62,7 +64,7 @@ namespace e
 		}
 	}
 
-	bool FileIO::LoadBitmap(const char* fileName, void** bits, int& size, int&width, int&height, int&channels)
+	bool FileIO::_LoadBitmap(const char* fileName, void** bits, int& size, int&width, int&height, int&channels)
 	{
 		assert(fileName);
 		assert(bits != 0);
@@ -138,7 +140,7 @@ namespace e
 		return result;
 	}
 
-	bool FileIO::SaveBitmap(const char* fileName, const void* bits, int size, int width, int height, int channels)
+	bool FileIO::_SaveBitmap(const char* fileName, const void* bits, int size, int width, int height, int channels)
 	{
 		if (fileName == 0) return false;
 

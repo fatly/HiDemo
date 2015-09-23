@@ -46,8 +46,8 @@ void test_xbitmap(void)
 
 int main(int argc, char* argv[])
 {
-	test_xbitmap();
-
+	//test_xbitmap();
+	
 	system("pause");
 	return 0;
 }

@@ -5,8 +5,6 @@
 #include "Gaussian.h"
 #include "BlurFilter.h"
 #include "Blender.h"
-#include "XImage.h"
-#include "XBitmap.h"
 #include "Convert.h"
 #include "Beautify.h"
 

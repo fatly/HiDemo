@@ -60,6 +60,15 @@
     <ClInclude Include="IString.h">
       <Filter>core</Filter>
     </ClInclude>
+    <ClInclude Include="XBitmap.h">
+      <Filter>T</Filter>
+    </ClInclude>
+    <ClInclude Include="XImage.h">
+      <Filter>T</Filter>
+    </ClInclude>
+    <ClInclude Include="FileIO.h">
+      <Filter>core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private.cpp">
@@ -78,6 +87,9 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="Bitmap.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="FileIO.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

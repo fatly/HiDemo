@@ -96,7 +96,6 @@
     <ClCompile Include="Blender.cpp" />
     <ClCompile Include="BlurFilter.cpp" />
     <ClCompile Include="Curve.cpp" />
-    <ClCompile Include="FileIO.cpp" />
     <ClCompile Include="Gaussian.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -106,13 +105,10 @@
     <ClInclude Include="BlurFilter.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="Curve.h" />
-    <ClInclude Include="FileIO.h" />
     <ClInclude Include="BaseFilter.h" />
     <ClInclude Include="Gaussian.h" />
     <ClInclude Include="Convert.h" />
     <ClInclude Include="libim.h" />
-    <ClInclude Include="XBitmap.h" />
-    <ClInclude Include="XImage.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
