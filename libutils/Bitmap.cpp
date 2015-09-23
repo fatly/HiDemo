@@ -507,6 +507,11 @@ _error:
 		return (int)biHeight;
 	}
 
+	int Bitmap::Channels(void) const
+	{
+		return biBitCount / 8;
+	}
+
 	uint8* Bitmap::Get(uint x, uint y) const
 	{
 		assert(bits != 0 && size > 0);

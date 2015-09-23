@@ -1,8 +1,7 @@
-#include "Filter.h"
+#include "BlurFilter.h"
 #include <stdlib.h>
 #include <assert.h>
 #include "Gaussian.h"
-
 namespace e
 {
 	BlurFilter::BlurFilter(void)
@@ -12,6 +11,7 @@ namespace e
 		height = 0;
 
 		filter = new Gaussian();
+		assert(filter);
 		filter->SetMode(GM_HIGH);
 		filter->SetSigma(1.5f);
 	}
@@ -47,21 +47,5 @@ namespace e
 	{
 		assert(filter);
 		filter->SetSigma(sigma);
-	}
-
-	void BlurFilter::Process(uint8* dst
-		, const uint8* src
-		, const int width
-		, const int height
-		, const int bitCount)
-	{
-		if (this->width != width || this->height != height)
-		{
-			SetSize(width, height);
-		}
-
-		assert(filter);
-		filter->Process(tmp, src, width, height, bitCount);
-		filter->Process(dst, tmp, height, width, bitCount);
 	}
 }

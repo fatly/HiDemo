@@ -17,28 +17,28 @@ namespace e
 	public:
 		void Beautify::HighPass(uint8* dst
 			, const uint8* src
-			, const int width
-			, const int height
-			, const int bitCount);
+			, int width
+			, int height
+			, int channels);
 
 		void CalcMatte(uint8* dst
 			, const uint8* src
-			, const int width
-			, const int height
-			, const int bitCount);
+			, int width
+			, int height
+			, int channels);
 
 		void Smooth(uint8* dst
 			, const uint8* src
 			, const uint8* mte
-			, const int width
-			, const int height
-			, const int bitCount);
+			, int width
+			, int height
+			, int channels);
 
 		void AdjustSample(uint8* dst
 			, const uint8* src
-			, const int width
-			, const int height
-			, const int bitCount);
+			, int width
+			, int height
+			, int channels);
 
 	protected:
 		void InitCurves(void);

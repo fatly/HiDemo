@@ -38,6 +38,7 @@ namespace e
 		int WidthBytes(void) const;
 		int Width(void) const;
 		int Height(void) const;
+		int Channels(void) const;
 		uint8* Get(uint x, uint y) const;
 		bool IsValid(void) const;
 		bool ExtendAlpha(uint8 alpahValue);

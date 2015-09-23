@@ -17,9 +17,6 @@
     <ClCompile Include="Blender.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Filter.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Gaussian.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -32,12 +29,12 @@
     <ClCompile Include="FileIO.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="BlurFilter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Blender.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Filter.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Gaussian.h">
@@ -62,6 +59,15 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FileIO.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="XImage.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BlurFilter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="BaseFilter.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

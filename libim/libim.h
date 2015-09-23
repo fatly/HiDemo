@@ -1,11 +1,13 @@
 #ifndef __LIBIMAGE_EFFECT_H__
 #define __LIBIMAGE_EFFECT_H__
 
-#include "Filter.h"
+#include "BaseFilter.h"
 #include "Gaussian.h"
+#include "BlurFilter.h"
 #include "Blender.h"
+#include "XImage.h"
+#include "XBitmap.h"
 #include "Convert.h"
-#include "xbitmap.h"
 #include "Beautify.h"
 
 #endif

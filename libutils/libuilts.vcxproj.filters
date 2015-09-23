@@ -60,9 +60,6 @@
     <ClInclude Include="IString.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="XImage.h">
-      <Filter>core</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="private.cpp">

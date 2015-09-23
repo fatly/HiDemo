@@ -2,6 +2,7 @@
 #define __CORE_XImage_H__
 #include <assert.h>
 #include <math.h>
+#include <memory.h>
 #include "Defines.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -222,7 +223,7 @@ namespace e
 			for (int y = 0; y < height; y++)
 			{
 				T* s = Ptr(0, y) + channel;
-				T* d = im->Get(0, y);
+				T* d = im->Ptr(0, y);
 				for (int x = 0; x < width; x++)
 				{
 					*d++ = *s;

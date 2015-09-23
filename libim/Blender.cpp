@@ -3,8 +3,6 @@
 #include <assert.h>
 #include <memory.h>
 
-#define MakeIndex(a, b) ((((a)<<8)|(b)) & 0xffff)
-
 namespace e
 {
 	static inline uint8 normal(int &a, int &b)
@@ -145,29 +143,6 @@ namespace e
 			{
 				int index = MakeIndex(a, b);
 				values[index] = highpass(a, b);
-			}
-		}
-	}
-
-	void Blender::Process(uint8* dst, const uint8* src, int width, int height, int bitCount)
-	{
-		int bpp = bitCount / 8;
-		int lineBytes = WIDTHBYTES(bitCount * width);
-		int channels = bpp > 1 ? 3 : bpp;
-
-		for (int y = 0; y < height; y++)
-		{
-			const uint8* s = src + y * lineBytes;
-			uint8* d = dst + y * lineBytes;
-			for (int x = 0; x < width; x++)
-			{
-				for (int c = 0; c < channels; c++)
-				{
-					d[c] = values[MakeIndex(s[c], d[c])];
-				}
-
-				s += bpp;
-				d += bpp;
 			}
 		}
 	}

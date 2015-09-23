@@ -18,7 +18,6 @@
     <ClInclude Include="config.h" />
     <ClInclude Include="Defines.h" />
     <ClInclude Include="Diagnosis.h" />
-    <ClInclude Include="XImage.h" />
     <ClInclude Include="List.h" />
     <ClInclude Include="Object.h" />
     <ClInclude Include="private.h" />

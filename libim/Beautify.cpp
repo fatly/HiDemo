@@ -1,7 +1,7 @@
 #include "Beautify.h"
 #include "Bitmap.h"
 #include "AutoPtr.h"
-#include "Filter.h"
+#include "BlurFilter.h"
 #include "Blender.h"
 #include "Curve.h"
 #include <assert.h>
@@ -53,27 +53,28 @@ namespace e
 		curves->GetCurve(CURVE_CHANNEL_C)->GetSamples(samples);
 	}
 
-	void Beautify::HighPass(uint8* dst, const uint8* src, const int width, const int height, const int bitCount)
+	void Beautify::HighPass(uint8* dst, const uint8* src, int width, int height, int channels)
 	{
 		//blur filter
-		filter->Process(dst, src, width, height, bitCount);
+		filter->Process(dst, src, width, height, channels);
 		//blend op
 		blender->SetMode(BM_HIGHPASS);
-		blender->Process(dst, src, width, height, bitCount);
+		blender->Process(dst, src, width, height, channels);
 	}
 
-	void Beautify::CalcMatte(uint8* dst, const uint8* src, const int width, const int height, const int bitCount)
+	void Beautify::CalcMatte(uint8* dst, const uint8* src, int width, int height, int channels)
 	{
 		blender->SetMode(BM_HARDLIGHT);
-		blender->Process(dst, src, width, height, bitCount);
+		blender->Process(dst, src, width, height, channels);
 	}
 
-	void Beautify::Smooth(uint8* dst, const uint8* src, const uint8* mte, const int width, const int height, const int bitCount)
+	void Beautify::Smooth(uint8* dst, const uint8* src, const uint8* mte, int width, int height, int channels)
 	{
-		int bpp = bitCount / 8;
+		int bpp = channels;
+		int bitCount = channels * 8;
 		int lineBytes0 = WIDTHBYTES(bitCount * width);
 		int lineBytes1 = WIDTHBYTES(8 * width);
-		int channels = bpp > 1 ? 3 : 1;
+		channels = channels > 1 ? 3 : channels;
 
 		for (int y = 0; y < height; y++)
 		{
@@ -95,11 +96,12 @@ namespace e
 		}
 	}
 
-	void Beautify::AdjustSample(uint8* dst, const uint8* src, const int width, const int height, const int bitCount)
+	void Beautify::AdjustSample(uint8* dst, const uint8* src, int width, int height, int channels)
 	{
-		int bpp = bitCount / 8;
+		int bpp = channels;
+		int bitCount = channels * 8;
 		int lineBytes = WIDTHBYTES(bitCount * width);
-		int channels = bpp > 1 ? 3 : 1;
+		channels = bpp > 1 ? 3 : 1;
 
 		for (int y = 0; y < height; y++)
 		{
