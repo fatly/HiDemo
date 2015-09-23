@@ -93,14 +93,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Beautify.cpp" />
+    <ClCompile Include="Bilateral.cpp" />
     <ClCompile Include="Blender.cpp" />
     <ClCompile Include="BlurFilter.cpp" />
     <ClCompile Include="Curve.cpp" />
     <ClCompile Include="Gaussian.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="BaseClass.h" />
+    <ClInclude Include="BaseDefs.h" />
     <ClInclude Include="Beautify.h" />
+    <ClInclude Include="Bilateral.h" />
     <ClInclude Include="Blender.h" />
     <ClInclude Include="BlurFilter.h" />
     <ClInclude Include="Config.h" />

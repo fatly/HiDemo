@@ -13,11 +13,6 @@ namespace e
 
 	class Gaussian : public BaseFilter
 	{
-		int mode;
-		float sigma;
-		float a0, a1, a2, a3;
-		float b1, b2;
-		float coefp, coefn;
 	public:
 		Gaussian(void);
 		virtual ~Gaussian(void);
@@ -42,6 +37,12 @@ namespace e
 		void RecursiveGaussian8(float* dst, float* src, int width, int height, int channels);
 		void RecursiveGaussian24(float* dst, float* src, int width, int height, int channels);
 #endif
+	private:
+		int mode;
+		float sigma;
+		float a0, a1, a2, a3;
+		float b1, b2;
+		float coefp, coefn;
 	};
 }
 

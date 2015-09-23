@@ -29,6 +29,9 @@
     <ClCompile Include="BlurFilter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="Bilateral.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Blender.h">
@@ -49,9 +52,6 @@
     <ClInclude Include="Convert.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="FileIO.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="BlurFilter.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -61,7 +61,10 @@
     <ClInclude Include="Config.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="BaseClass.h">
+    <ClInclude Include="BaseDefs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Bilateral.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
