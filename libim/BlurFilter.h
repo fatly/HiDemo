@@ -14,18 +14,11 @@ namespace e
 	public:
 		void SetSize(int width, int height);
 		void SetSigma(float sigma);
-
-		template<class T>
-		void Process(T* dst, const T* src, int width, int height, int channels)
-		{
-			if (this->width != width || this->height != height)
-			{
-				SetSize(width, height);
-			}
-			//gaussian blur
-			filter->Process(tmp, src, width, height, channels);
-			filter->Process(dst, tmp, height, width, channels);
-		}
+#ifdef INTEGER_CHANNELS
+		void Process(uint8* dst, uint8* src, int width, int height, int channels);
+#else
+		void Process(float* dst, float* src, int width, int height, int channels);
+#endif
 	protected:
 		int width;
 		int height;

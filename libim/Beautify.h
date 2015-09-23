@@ -7,7 +7,6 @@ namespace e
 {
 	class BlurFilter;
 	class Blender;
-	class FeatherFilter;
 	class CurvesConfig;
 	class Beautify : public RefCountObj
 	{
@@ -15,31 +14,17 @@ namespace e
 		Beautify(void);
 		virtual ~Beautify(void);
 	public:
-		void Beautify::HighPass(uint8* dst
-			, const uint8* src
-			, int width
-			, int height
-			, int channels);
-
-		void CalcMatte(uint8* dst
-			, const uint8* src
-			, int width
-			, int height
-			, int channels);
-
-		void Smooth(uint8* dst
-			, const uint8* src
-			, const uint8* mte
-			, int width
-			, int height
-			, int channels);
-
-		void AdjustSample(uint8* dst
-			, const uint8* src
-			, int width
-			, int height
-			, int channels);
-
+#ifdef INTEGER_CHANNELS
+		void HighPass(uint8* dst, uint8* src, int width, int height, int channels);
+		void CalcMatte(uint8* dst, uint8* src, int width, int height, int channels);
+		void Smooth(uint8* dst, uint8* src, uint8* mte, int width, int height, int channels);
+		void AdjustSample(uint8* dst, uint8* src, int width, int height, int channels);
+#else
+		void HighPass(float* dst, float* src, int width, int height, int channels);
+		void CalcMatte(float* dst, float* src, int width, int height, int channels);
+		void Smooth(float* dst, float* src, float* mte, int width, int height, int channels);
+		void AdjustSample(float* dst, float* src, int width, int height, int channels);
+#endif
 	protected:
 		void InitCurves(void);
 	protected:

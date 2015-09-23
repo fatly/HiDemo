@@ -53,7 +53,8 @@ namespace e
 		curves->GetCurve(CURVE_CHANNEL_C)->GetSamples(samples);
 	}
 
-	void Beautify::HighPass(uint8* dst, const uint8* src, int width, int height, int channels)
+#ifdef INTEGER_CHANNELS
+	void Beautify::HighPass(uint8* dst, uint8* src, int width, int height, int channels)
 	{
 		//blur filter
 		filter->Process(dst, src, width, height, channels);
@@ -62,13 +63,13 @@ namespace e
 		blender->Process(dst, src, width, height, channels);
 	}
 
-	void Beautify::CalcMatte(uint8* dst, const uint8* src, int width, int height, int channels)
+	void Beautify::CalcMatte(uint8* dst, uint8* src, int width, int height, int channels)
 	{
 		blender->SetMode(BM_HARDLIGHT);
 		blender->Process(dst, src, width, height, channels);
 	}
 
-	void Beautify::Smooth(uint8* dst, const uint8* src, const uint8* mte, int width, int height, int channels)
+	void Beautify::Smooth(uint8* dst, uint8* src, uint8* mte, int width, int height, int channels)
 	{
 		int bpp = channels;
 		int bitCount = channels * 8;
@@ -96,7 +97,7 @@ namespace e
 		}
 	}
 
-	void Beautify::AdjustSample(uint8* dst, const uint8* src, int width, int height, int channels)
+	void Beautify::AdjustSample(uint8* dst, uint8* src, int width, int height, int channels)
 	{
 		int bpp = channels;
 		int bitCount = channels * 8;
@@ -120,4 +121,7 @@ namespace e
 			}
 		}
 	}
+#else //FLOAT_CHANNELS
+
+#endif
 }

@@ -5,6 +5,7 @@
 
 namespace e
 {
+#ifdef INTEGER_CHANNELS
 	static inline uint8 normal(int &a, int &b)
 	{
 		return a;
@@ -146,4 +147,29 @@ namespace e
 			}
 		}
 	}
+	void Blender::Process(uint8* dst, uint8* src, int width, int height, int channels)
+	{
+		int bitCount = channels * 8;
+		int lineBytes = WIDTHBYTES(bitCount * width);
+		channels = channels > 1 ? 3 : channels;
+
+		for (int y = 0; y < height; y++)
+		{
+			uint8* s = src + y * lineBytes;
+			uint8* d = dst + y * lineBytes;
+			for (int x = 0; x < width; x++)
+			{
+				for (int c = 0; c < channels; c++)
+				{
+					d[c] = values[MakeIndex(s[c], d[c])];
+				}
+
+				s += channels;
+				d += channels;
+			}
+		}
+	}
+#else//FLOAT_CHANNELS
+
+#endif
 }

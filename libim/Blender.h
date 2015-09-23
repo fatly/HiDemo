@@ -23,30 +23,11 @@ namespace e
 		void SetMode(int mode);
 		void GetValues(uint8* results) const;
 		void GetValues(uint8* results, int mode);
-
-		template<class T>
-		void Process(T* dst, const T* src, int width, int height, int channels)
-		{
-			int bitCount = channels * sizeof(T) * 8;
-			int lineBytes = WIDTHBYTES(bitCount * width);
-			channels = channels > 1 ? 3 : channels;
-
-			for (int y = 0; y < height; y++)
-			{
-				const T* s = src + y * lineBytes;
-				T* d = dst + y * lineBytes;
-				for (int x = 0; x < width; x++)
-				{
-					for (int c = 0; c < channels; c++)
-					{
-						d[c] = values[MakeIndex(s[c], d[c])];
-					}
-
-					s += channels;
-					d += channels;
-				}
-			}
-		}
+#ifdef INTEGER_CHANNELS
+		void Process(uint8* dst, uint8* src, int width, int height, int channels);
+#else
+		void Process(float* dst, float* src, int width, int height, int channels);
+#endif
 	protected:
 		void Update(void);
 		void Normal(void);

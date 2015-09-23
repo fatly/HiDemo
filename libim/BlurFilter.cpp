@@ -48,4 +48,28 @@ namespace e
 		assert(filter);
 		filter->SetSigma(sigma);
 	}
+
+#ifdef INTEGER_CHANNELS
+	void BlurFilter::Process(uint8* dst, uint8* src, int width, int height, int channels)
+	{
+		if (this->width != width || this->height != height)
+		{
+			SetSize(width, height);
+		}
+		//gaussian blur
+		filter->Process(tmp, src, width, height, channels);
+		filter->Process(dst, tmp, height, width, channels);
+}
+#else
+	void BlurFilter::Process(float* dst, float* src, int width, int height, int channels)
+	{
+		if (this->width != width || this->height != height)
+		{
+			SetSize(width, height);
+		}
+		//gaussian blur
+		filter->Process(tmp, src, width, height, channels);
+		filter->Process(dst, tmp, height, width, channels);
+	}
+#endif
 }

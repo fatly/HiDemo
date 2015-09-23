@@ -1,5 +1,6 @@
 #ifndef __CORE_DEFINES_H__
 #define __CORE_DEFINES_H__
+#include "config.h"
 
 namespace e
 {
@@ -43,9 +44,16 @@ namespace e
 	//#   define _T(s) s
 #endif
 
+#ifdef FLOAT_CHANNELS
+	typedef float channel_t;
+#else
+	typedef uint8 channel_t;
+#endif
+
 	// 其他数值类型
 	typedef float	real;
 	typedef uint32	RGBA;
+
 	// 其他定义
 #ifdef __GNUC__
 #	define override

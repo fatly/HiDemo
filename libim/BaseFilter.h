@@ -12,8 +12,11 @@ namespace e
 	public:
 		virtual ~BaseFilter(void){};
 	public:
-		virtual void Process(uint8* dst, const uint8* src, int width, int height, int channels) = 0;
-		virtual void Process(float* dst, const float* src, int width, int height, int channels) = 0;
+#ifdef INTEGER_CHANNELS
+		virtual void Process(uint8* dst, uint8* src, int width, int height, int channels) = 0;
+#else
+		virtual void Process(float* dst, float* src, int width, int height, int channels) = 0;
+#endif
 	};
 }
 

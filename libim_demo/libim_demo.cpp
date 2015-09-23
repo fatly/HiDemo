@@ -42,6 +42,8 @@ void test_xbitmap(void)
 	delete gc;
 }
 
+
+
 int main(int argc, char* argv[])
 {
 	test_xbitmap();

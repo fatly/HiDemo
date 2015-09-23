@@ -100,9 +100,11 @@
     <ClCompile Include="Gaussian.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BaseClass.h" />
     <ClInclude Include="Beautify.h" />
     <ClInclude Include="Blender.h" />
     <ClInclude Include="BlurFilter.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="Curve.h" />
     <ClInclude Include="FileIO.h" />
     <ClInclude Include="BaseFilter.h" />
