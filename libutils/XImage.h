@@ -14,7 +14,7 @@ namespace e
 		XImage(int width
 			, int height
 			, int channels
-			, const T* src = 0
+			, const T* data = 0
 			, bool init = false
 			, bool alloc = true);
 		XImage(const XImage<T>& other);
@@ -33,15 +33,16 @@ namespace e
 		XImage<T>* Clone(void) const;
 		XImage<T>* Clone(int channel) const;
 		XImage<T>* Clone(int x0, int y0, int x1, int y1) const;
+		int GetSize(void) const { return size; }
 		void Swap(const XImage<T>& other);
 		void Clear(void);
 	protected:
 		bool IsValid(void) const;
-		bool Create(int size, const T* src, bool init = false, bool alloc = true);
+		virtual bool Create(int size, const T* data, bool init, bool alloc);
 		virtual bool Create(int width
 			, int height
 			, int channels
-			, const T* src = 0
+			, const T* data = 0
 			, bool init = false
 			, bool alloc = true);
 	protected:
@@ -90,7 +91,7 @@ namespace e
 			this->height = height;
 			this->channels = channels;
 			this->samples = width * height * channels;
-			this->lineBytes = width * channels * sizeof(T);
+			this->lineBytes = width * channels;
 		}
 		else
 		{
@@ -282,7 +283,7 @@ namespace e
 			this->height = height;
 			this->channels = channels;
 			this->samples = width * height * channels;
-			this->lineBytes = width * channels * sizeof(T);
+			this->lineBytes = width * channels;
 			return true;
 		}
 		else
@@ -312,30 +313,30 @@ namespace e
 	}
 
 	template<class T>
-	bool XImage<T>::Create(int size, T* src, bool init /* = false */, bool alloc /*=true*/)
+	bool XImage<T>::Create(int size, const T* data, bool init, bool alloc)
 	{
 		assert(size > 0);
 		if (alloc)
 		{
-			data = (T*)realloc(data, size);
-			if (!data) return false;
+			this->data = (T*)realloc(this->data, size);
+			if (!this->data) return false;
 		}
 		else
 		{
-			data = src;
+			this->data = (T*)data;
 		}
 
 		if (alloc)
 		{
-			if (src)
-				memcpy(data, src, size);
+			if (data)
+				memcpy(this->data, data, size);
 			else if (init)
-				memset(data, 0, size);
+				memset(this->data, 0, size);
 		}
-		else if (init)
-		{
-			memset(data, 0, size);
-		}
+// 		else if (init)
+// 		{
+// 			memset(data, 0, size);
+// 		}
 
 		this->size = size;
 		return true;
@@ -345,7 +346,7 @@ namespace e
 	bool XImage<T>::Create(int width
 		, int height
 		, int channels
-		, T* src/* =0 */
+		, const T* data/* =0 */
 		, bool init/* =false */
 		, bool alloc/* =true */)
 	{
@@ -353,7 +354,7 @@ namespace e
 		assert(channels >= 0 && channels <= 4);
 
 		int size = width * height * channels * sizeof(T);
-		return Create(size, src, init, alloc);
+		return Create(size, data, init, alloc);
 	}
 }
 

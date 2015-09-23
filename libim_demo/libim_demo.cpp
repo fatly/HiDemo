@@ -38,24 +38,9 @@ int main(int argc, char* argv[])
 	bfy->Smooth(dst->bits, src->bits, gc->bits, src->Width(), src->Height(), src->biBitCount);
 	dst->Save("f:\\temp\\05.bmp");
 
-	XImage<float> im;
-	B2I(im, *src);
-	Normalize(im);
-	printf("w=%d,h=%d\n", im.Width(), im.Height());
-	XImage<float>* p = im.Clone(10, 10, 50, 50);
-	printf("w=%d,h=%d\n", p->Width(), p->Height());
-
-	for (int i = 0; i < p->Width(); i++)
-	{
-		printf("v=%f\t", p->Get(i, 0));
-	}
-
-	Bitmap tmp;
-	INormalize(im);
-	I2B(tmp, im);
-	tmp.Save("f:\\tmp.bmp");
-
-	XBitmap<uchar> bm(121, 121, 3);
+	XBitmap<float> im("f:\\temp\\01.bmp");
+	printf("w=%d,h=%d,c=%d\n", im.Width(), im.Height(), im.Channels());
+	im.Save("f:\\temp\tmp.bmp");
 
 	printf("\n");
 	system("pause");

@@ -14,7 +14,7 @@ namespace e
 		XBitmap(int width
 			, int height
 			, int channels
-			, T* src = 0
+			, const T* data = 0
 			, bool init = false
 			, bool alloc = true);
 		XBitmap(const XBitmap& other);
@@ -28,19 +28,20 @@ namespace e
 		virtual bool Create(int width
 			, int height
 			, int channels
-			, T* src = 0
+			, const T* data = 0
 			, bool init = false
 			, bool alloc = true);
 		bool Load(const char* fileName);
 	};
 
+	//////////////////////////////////////////////////////////////////////////
 	template<class T>
 	XBitmap<T>::XBitmap(void):Image<T>()
 	{
 	}
 
 	template<class T>
-	XBitmap::XBitmap(const char* fileName)
+	XBitmap<T>::XBitmap(const char* fileName)
 	{
 		data = 0;
 		size = 0;
@@ -58,7 +59,7 @@ namespace e
 		else
 		{
 			samples = width * height * channels;
-			this->lineBytes = WIDTHBYTES(width*channels * sizeof(T));
+			lineBytes = WIDTHBYTES(width*channels * sizeof(T)*8);
 		}
 	}
 
@@ -66,20 +67,20 @@ namespace e
 	XBitmap<T>::XBitmap(int width
 		, int height
 		, int channels
-		, T* src/* = 0 */
+		, const T* data/* = 0 */
 		, bool init /*= false*/
 		, bool alloc /*= true*/)
 	{
-		data = 0;
-		size = 0;
+		this->data = 0;
+		this->size = 0;
 
-		if (Create(width, height, channels, src, init, alloc))
+		if (Create(width, height, channels, data, init, alloc))
 		{
 			this->width = width;
 			this->height = height;
 			this->channels = channels;
 			this->samples = width * height * channels;
-			this->lineBytes = WIDTHBYTES(width*channels * sizeof(T));
+			this->lineBytes = WIDTHBYTES(width*channels * sizeof(T)*8);
 		}
 		else
 		{
@@ -91,16 +92,16 @@ namespace e
 	template<class T>
 	XBitmap<T>::XBitmap(const XBitmap& other)
 	{
-		data = 0;
-		size = 0;
+		this->data = 0;
+		this->size = 0;
 
 		if (Create(other.width, other.height, other.channels, other.data))
 		{
-			width = other.width;
-			height = other.height;
-			channels = other.channels;
-			samples = other.samples;
-			lineBytes = other.lineBytes;
+			this->width = other.width;
+			this->height = other.height;
+			this->channels = other.channels;
+			this->samples = other.samples;
+			this->lineBytes = other.lineBytes;
 		}
 		else
 		{
@@ -130,7 +131,7 @@ namespace e
 			this->height = height;
 			this->channels = channels;
 			this->samples = width * height * channels;
-			this->lineBytes = WIDTHBYTES(width*channels * sizeof(T));
+			this->lineBytes = WIDTHBYTES(width*channels * sizeof(T) * 8);
 			return true;
 		}
 		else
@@ -144,52 +145,67 @@ namespace e
 	bool XBitmap<T>::Create(int width
 		, int height
 		, int channels
-		, T* src /* = 0 */
+		, const T* data /* = 0 */
 		, bool init /* = false */
 		, bool alloc /* = true */)
 	{
 		assert(width > 0 && height > 0 && channels > 0);
-		int lineSize = WIDTHBYTES(width*channels * sizeof(T));
-		return Create(lineSize * height, src, init, alloc);
+		int lineSize = WIDTHBYTES(width*channels * sizeof(T) * 8);
+		return XImage<T>::Create(lineSize * height, data, init, alloc);
 	}
 
 	template<class T>
 	bool XBitmap<T>::Load(const char* fileName)
 	{
-		if (sizeof(T) == sizeof(char))
+		if (sizeof(T) == sizeof(uint8))
 		{
-			if (FileIO::LoadBitmap(fileName, data, size, width, height, channels))
+			if (FileIO::LoadBitmap(fileName, (void**)&data, size, width, height, channels))
 			{
 				samples = width * height * channels;
-				lineBytes = WIDTHBYTES(width*channels * sizeof(T));
+				lineBytes = WIDTHBYTES(width*channels * sizeof(T) * 8);
 				return true;
 			}
 
 			Clear();
 			return false;
 		}
-		else
+		else// float samples
 		{
-			char* bits = 0;
+			uint8* bits = 0;
 			bool ret = false;
-			if (FileIO::LoadBitmap(fileName, bits, size, width, height, channels))
+			if (FileIO::LoadBitmap(fileName, (void**)&bits, size, width, height, channels))
 			{
 				samples = width * height * channels;
-				lineBytes = WIDTHBYTES(width*channels * sizeof(T));
-				if (Alloc(width, height, channels))
+				lineBytes =width*channels;
+				if (Create(width, height, channels))
 				{
-					XBitmap<uint8> tmp(width, height, channels, bits);
-					C2F(*this, tmp);
+					//uint8 to float
+					XBitmap<uint8> tmp(width, height, channels, bits, false, false);
+					for (int y = 0; y < height; y++)
+					{
+						T* d = Ptr(0, y);
+						uint8* s = tmp.Ptr(0, y);
+						for (int x = 0; x < width; x++)
+						{
+							for (int c = 0; c < channels; c++)
+							{
+								d[c] = s[c];
+							}
+
+							s += channels;
+							d += channels;
+						}
+					}
 					ret = true;
 				}
 			}
 			else
 			{
 				Clear();
+				if (bits) free(bits);
 				ret = false;
 			}
-			
-			if (bits) free(bits);
+		
 			return ret;
 		}
 	}
@@ -197,7 +213,31 @@ namespace e
 	template<class T>
 	bool XBitmap<T>::Save(const char* fileName)
 	{
-		return true;
+		assert(data && size);
+		if (sizeof(T) == sizeof(uint8))
+		{
+			return FileIO::SaveBitmap(fileName, data, size, width, height, channels);
+		}
+		else//float to uint8
+		{
+			XBitmap<uint8> tmp(width, height, channels);
+			for (int y = 0; y < height; y++)
+			{
+				T* s = Ptr(0, y);
+				uint8* d = tmp.Ptr(0, y);
+				for (int x = 0; x < width; x++)
+				{
+					for (int c = 0; c < channels; c++)
+					{
+						d[c] = clamp0255((uint8)(s[c] + 0.5f));
+					}
+
+					s += channels;
+					d += channels;
+				}
+			}
+			return FileIO::SaveBitmap(fileName, tmp.Ptr(0), tmp.GetSize(), width, height, channels);
+		}
 	}
 }
 

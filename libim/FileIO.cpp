@@ -44,7 +44,7 @@ namespace e
 		return ::fread(buffer, 1, size, fp) == size;
 	}
 
-	static inline bool write(void * buffer, size_t size, FILE * fp)
+	static inline bool write(const void * buffer, size_t size, FILE * fp)
 	{
 		return ::fwrite(buffer, 1, size, fp) == size;
 	}
@@ -54,13 +54,25 @@ namespace e
 		return ::fseek(fp, size, SEEK_SET) == 0;
 	}
 
-	bool FileIO::LoadBitmap(const char* fileName, char* bits, int& size, int&width, int&height, int&channels)
+	static inline void memswap(char* dst, char* src, int size)
 	{
+		for (int i = 0; i < size; i++)
+		{
+			swap(*dst++, *src++);
+		}
+	}
+
+	bool FileIO::LoadBitmap(const char* fileName, void** bits, int& size, int&width, int&height, int&channels)
+	{
+		assert(fileName);
+		assert(bits != 0);
+		if (fileName == 0) return false;
+
 		FILE* fp = 0;
 		fopen_s(&fp, fileName, "rb");
 		if (fp == 0) return false;
 
-		BITMAPHEADER header;
+		BITMAPHEADER header = { 0 };
 		bool result = false;
 
 		do{
@@ -96,22 +108,29 @@ namespace e
 			//assert(header.biHeader.biSizeImage == lineBytes * header.biHeader.biHeight);
 
 			size = lineBytes * header.biHeight;
-			bits = (char*)realloc(bits, size);
+			*bits = (char*)realloc(*bits, size);
 			assert(bits != 0);
-			if (bits == 0) break;
+			if (*bits == 0) break;
 			if (!skip(header.bfOffBits, fp))break;
-			if (!read(bits, size, fp))
+			if (!read(*bits, size, fp))
 			{
-				free(bits);
-				bits = 0;
+				free(*bits);
+				*bits = 0;
 				size = 0;
 				break;
 			}
-			//需要将文件中的数据上下倒转过来
 
 			width = header.biWidth;
 			height = header.biHeight;
 			channels = header.biBitCount / 8;
+			//需要将文件中的数据上下倒转过来
+			char* s = (char*)(*bits), *d = ((char*)(*bits)) + (height - 1)* lineBytes;
+			for (int i = 0; i < height / 2; i++)
+			{
+				memswap(d, s, lineBytes);
+				s += lineBytes;
+				d -= lineBytes;
+			}
 			result = true;
 		} while (0);
 
@@ -119,8 +138,86 @@ namespace e
 		return result;
 	}
 
-	bool FileIO::SaveBitmap(const char* fileName, const char* bits, int size, int width, int height, int channels)
+	bool FileIO::SaveBitmap(const char* fileName, const void* bits, int size, int width, int height, int channels)
 	{
+		if (fileName == 0) return false;
 
+		FILE* fp = NULL;
+		fopen_s(&fp, fileName, "wb");
+		if (fp == 0) return false;
+
+		bool result = false;
+		int bitCount = channels * 8;
+		do{
+			int lineBytes = WIDTHBYTES(width * bitCount);
+			int paletteSize = (1 << bitCount) * sizeof(RGBQUAD);
+			int imageSize = lineBytes * height;
+
+			BITMAPHEADER header = { 0 };
+			header.bfType = 0x4D42;
+			header.bfSize = 0;
+			header.bfReserved1 = 0;
+			header.bfReserved2 = 0;
+			header.bfOffBits = 0;
+
+			if (bitCount == 8)
+			{
+				header.bfOffBits = 54 + paletteSize;
+				header.bfSize = 54 + paletteSize + imageSize;
+			}
+			else if (bitCount == 24 || bitCount == 32)
+			{
+				header.bfOffBits = 54;
+				header.bfSize = 54 + imageSize;
+			}
+
+			header.biSize = 40;
+			header.biWidth = width;
+			header.biHeight = height;
+			header.biPlanes = 1;
+			header.biBitCount = bitCount;
+			header.biCompression = BI_RGB;
+			header.biSizeImage = imageSize;
+			header.biXPelsPerMeter = 3780;
+			header.biYPelsPerMeter = 3780;
+			header.biClrUsed = 0;
+			header.biClrImportant = 0;
+
+			if (!write(&header, sizeof(header), fp)) break;
+
+			if (bitCount == 8)
+			{
+				RGBQUAD* rgbQuad = new RGBQUAD[1 << bitCount];
+				assert(rgbQuad != 0);
+
+				for (int i = 0; i < (1 << bitCount); i++)
+				{
+					rgbQuad[i].red = i;
+					rgbQuad[i].green = i;
+					rgbQuad[i].blue = i;
+				}
+
+				if (!write(rgbQuad, sizeof(RGBQUAD) * (1 << bitCount), fp))
+				{
+					delete[] rgbQuad;
+					break;
+				}
+
+				delete[] rgbQuad;
+			}
+			//需要将文件中的数据上下倒转过来
+			const char* p = (const char*)bits + (height - 1) * lineBytes;
+			for (int y = 0; y < height; y++)
+			{
+				if (!write(p, lineBytes, fp)) goto _error;
+				p -= lineBytes;
+			}
+
+			result = true;
+		} while (0);
+
+	_error:
+		if (fp) fclose(fp);
+		return result;
 	}
 }
