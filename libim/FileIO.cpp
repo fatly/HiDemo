@@ -109,7 +109,7 @@ namespace e
 
 			size = lineBytes * header.biHeight;
 			*bits = (char*)realloc(*bits, size);
-			assert(bits != 0);
+			assert(*bits != 0);
 			if (*bits == 0) break;
 			if (!skip(header.bfOffBits, fp))break;
 			if (!read(*bits, size, fp))

@@ -8,161 +8,96 @@
 namespace e
 {
 	//////////////////////////////////////////////////////////////////////////
-	void Normalize(XImage<float>& im)
+	class Convert
 	{
-		int width = im.Width();
-		int height = im.Height();
-		int channels = im.Channels();
-
-		for (int y = 0; y < height; y++)
+	public:
+		static void Normalize(XImage<float>* im)
 		{
-			float* p = im.Ptr(0, y);
-			for (int x = 0; x < width; x++)
+			assert(im != 0);
+			im->Scale(1.0f / 255.0f);
+		}
+
+		static void INormalize(XImage<float>* im)
+		{
+			assert(im);
+			im->Scale(255.0f);
+		}
+
+		template<class T>
+		static void B2I(XImage<T>& dst, const Bitmap& src)
+		{
+			dst.Resize(src.Width(), src.Height(), src.PixelBytes());
+
+			if (sizeof(T) == sizeof(uint8))
 			{
-				for (int c = 0; c < channels; c++)
+				int height = dst.Height();
+				int lineBytes = dst.Width() * dst.Channels();
+				for (int y = 0; y < height; y++)
 				{
-					p[c] = p[c] / 255.0f;
+					memcpy(dst.Ptr(0, y), src.Get(0, y), lineBytes);
 				}
-
-				p += channels;
 			}
-		}
-	}
-
-	inline void Normalize(XImage<float>* im)
-	{
-		assert(im != 0);
-		Normalize(*im);
-	}
-
-	void INormalize(XImage<float>& im)
-	{
-		int width = im.Width();
-		int height = im.Height();
-		int channels = im.Channels();
-
-		for (int y = 0; y < height; y++)
-		{
-			float* p = im.Ptr(0, y);
-			for (int x = 0; x < width; x++)
+			else
 			{
-				for (int c = 0; c < channels; c++)
+				int width = dst.Width();
+				int height = dst.Height();
+				int channels = dst.Channels();
+				for (int y = 0; y < height; y++)
 				{
-					p[c] = p[c] * 255.0f;
-				}
-
-				p += channels;
-			}
-		}
-	}
-
-	inline void INormalize(XImage<float>* im)
-	{
-		assert(im);
-		INormalize(*im);
-	}
-
-	template<class T>
-	void B2I(XImage<T>& dst, const Bitmap& src)
-	{
-		dst.Resize(src.Width(), src.Height(), src.PixelBytes());
-
-		if (sizeof(T) == sizeof(uint8))
-		{
-			int height = dst.Height();
-			int lineBytes = dst.Width() * dst.Channels();
-			for (int y = 0; y < height; y++)
-			{
-				memcpy(dst.Ptr(0, y), src.Get(0, y), lineBytes);
-			}
-		}
-		else
-		{
-			int width = dst.Width();
-			int height = dst.Height();
-			int channels = dst.Channels();
-			for (int y = 0; y < height; y++)
-			{
-				T* d = dst.Ptr(0, y);
-				uint8* s = src.Get(0, y);
-				for (int x = 0; x < width; x++)
-				{
-					for (int c = 0; c < channels; c++)
+					T* d = dst.Ptr(0, y);
+					uint8* s = src.Get(0, y);
+					for (int x = 0; x < width; x++)
 					{
-						d[c] = static_cast<T>(s[c]);
+						for (int c = 0; c < channels; c++)
+						{
+							d[c] = T(s[c]);
+						}
+						d += channels;
+						s += channels;
 					}
-					d += channels;
-					s += channels;
 				}
 			}
 		}
-	}
 
-	template<class T>
-	void I2B(Bitmap& dst, const XImage<T>& src)
-	{
-		int width = src.Width();
-		int height = src.Height();
-		int channels = src.Channels();
-		if (!dst.Alloc(width, height, channels * 8))
+		template<class T>
+		static void I2B(Bitmap& dst, const XImage<T>& src)
 		{
-			assert(0);
-			return;
-		}
-
-		if (sizeof(T) == sizeof(uint8))
-		{
-			for (int y = 0; y < height; y++)
+			int width = src.Width();
+			int height = src.Height();
+			int channels = src.Channels();
+			if (!dst.Alloc(width, height, channels * 8))
 			{
-				memcpy(src.Ptr(0, y), dst.Get(0, y), width * channels);
+				assert(0);
+				return;
 			}
-		}
-		else
-		{
-			for (int y = 0; y < height; y++)
+
+			if (sizeof(T) == sizeof(uint8))
 			{
-				T* s = src.Ptr(0, y);
-				uint8* d = dst.Get(0, y);
-				for (int x = 0; x < width; x++)
+				for (int y = 0; y < height; y++)
 				{
-					for (int c = 0; c < channels; c++)
+					memcpy(src.Ptr(0, y), dst.Get(0, y), width * channels);
+				}
+			}
+			else
+			{
+				for (int y = 0; y < height; y++)
+				{
+					T* s = src.Ptr(0, y);
+					uint8* d = dst.Get(0, y);
+					for (int x = 0; x < width; x++)
 					{
-						d[c] = clamp0255((uint8)(s[c] + 0.5f));
+						for (int c = 0; c < channels; c++)
+						{
+							d[c] = clamp0255((uint8)(s[c] + 0.5f));
+						}
+
+						s += channels;
+						d += channels;
 					}
-
-					s += channels;
-					d += channels;
 				}
 			}
 		}
-	}
-
-	void C2F(XImage<float>& dst, const XImage<uint8>& src)
-	{
-		assert(src.Width() == dst.Width());
-		assert(src.Height() == dst.Height());
-		assert(src.Channels() == dst.Channels());
-
-		int width = src.Width();
-		int height = src.Height();
-		int channels = src.Channels();
-
-		for (int y = 0; y < height; y++)
-		{
-			float* d = dst.Ptr(0, y);
-			const uint8* s = src.Ptr(0, y);
-			for (int x = 0; x < width; x++)
-			{
-				for (int c = 0; c < channels; c++)
-				{
-					d[c] = s[c];
-				}
-
-				s += channels;
-				d += channels;
-			}
-		}
-	}
+	};
 }
 
 #endif

@@ -1,12 +1,14 @@
 #ifndef __CORE_XImage_H__
 #define __CORE_XImage_H__
 #include <assert.h>
+#include <math.h>
+#include "Defines.h"
 
+//////////////////////////////////////////////////////////////////////////
+//defined of XImage<T>
+//////////////////////////////////////////////////////////////////////////
 namespace e
 {
-	//////////////////////////////////////////////////////////////////////////
-	//defined of XImage<T>
-	//////////////////////////////////////////////////////////////////////////
 	template<class T>class XImage
 	{
 	public:
@@ -23,6 +25,8 @@ namespace e
 		int Width(void) const;
 		int Height(void) const;
 		int Channels(void) const;
+		int PixelSize(void) const;
+		int Size(void) const { return size; }
 		virtual void Set(int index, const T& value);
 		virtual void Set(int x, int y, const T& value);
 		virtual T Get(int index) const;
@@ -33,7 +37,7 @@ namespace e
 		XImage<T>* Clone(void) const;
 		XImage<T>* Clone(int channel) const;
 		XImage<T>* Clone(int x0, int y0, int x1, int y1) const;
-		int GetSize(void) const { return size; }
+		void Scale(T factor);// pixel *= factor
 		void Swap(const XImage<T>& other);
 		void Clear(void);
 	protected:
@@ -56,11 +60,9 @@ namespace e
 	};
 }
 
-
 //////////////////////////////////////////////////////////////////////////
 //implements of XImage<T>
 //////////////////////////////////////////////////////////////////////////
-
 namespace e
 {
 	template<class T>
@@ -85,13 +87,14 @@ namespace e
 	{
 		data = 0;
 		size = 0;
+
 		if (Create(width, height, channels, src, init, alloc))
 		{
 			this->width = width;
 			this->height = height;
 			this->channels = channels;
 			this->samples = width * height * channels;
-			this->lineBytes = width * channels;
+			this->lineBytes = width * channels * sizeof(T);
 		}
 		else
 		{
@@ -146,6 +149,12 @@ namespace e
 	}
 
 	template<class T>
+	int XImage<T>::PixelSize(void) const
+	{
+		return channels * sizeof(T); 
+	}
+
+	template<class T>
 	void XImage<T>::Set(int index, const T &value)
 	{
 		assert(data);
@@ -159,7 +168,7 @@ namespace e
 		assert(data);
 		assert(x >= 0 && x < width);
 		assert(y >= 0 && y < height);
-		data[y*lineBytes + x*channels] = value;
+		data[(y*lineBytes + x*channels*sizeof(T)/sizeof(T))] = value;
 	}
 
 	template<class T>
@@ -176,7 +185,7 @@ namespace e
 		assert(data);
 		assert(x >= 0 && x < width);
 		assert(y >= 0 && y < height);
-		return data[y*lineBytes + x*channels];
+		return data[(y*lineBytes + x*channels*sizeof(T))/sizeof(T)];
 	}
 
 	template<class T>
@@ -193,7 +202,7 @@ namespace e
 		assert(data);
 		assert(x >= 0 && x < width);
 		assert(y >= 0 && y < height);
-		return &data[y*lineBytes + x*channels];
+		return &data[(y*lineBytes + x*channels*sizeof(T))/sizeof(T)];
 	}
 
 	template<class T>
@@ -234,13 +243,15 @@ namespace e
 		assert(y0 >= 0 && y0 < height);
 		assert(y1 >= 0 && y1 < height);
 
+		limit(x0, 0, width - 1);
+		limit(x1, 0, width - 1);
+		limit(y0, 0, height - 1);
+		limit(y1, 0, height - 1);
 		if (x0 > x1) swap(x0, x1);
 		if (y0 > y1) swap(y0, y1);
 
 		int w = x1 - x0 + 1;
 		int h = y1 - y0 + 1;
-		if (w > width) w = width;
-		if (h > height) h = height;
 
 		XImage<T>* im = new XImage<T>(w, h, channels);
 		if (im)
@@ -254,6 +265,25 @@ namespace e
 		}
 
 		return im;
+	}
+
+	template<class T>
+	void XImage<T>::Scale(T factor)
+	{
+		assert(IsValid());
+		for (int y = 0; y < height; y++)
+		{
+			T* p = Ptr(0, y);
+			for (int x = 0; x < width; x++)
+			{
+				for (int c = 0; c < channels; c++)
+				{
+					p[c] *= factor;
+				}
+
+				p += channels;
+			}
+		}
 	}
 
 	template<class T>
@@ -283,7 +313,7 @@ namespace e
 			this->height = height;
 			this->channels = channels;
 			this->samples = width * height * channels;
-			this->lineBytes = width * channels;
+			this->lineBytes = width * channels * sizeof(T);
 			return true;
 		}
 		else
@@ -329,9 +359,13 @@ namespace e
 		if (alloc)
 		{
 			if (data)
+			{
 				memcpy(this->data, data, size);
+			}
 			else if (init)
+			{
 				memset(this->data, 0, size);
+			}
 		}
 // 		else if (init)
 // 		{

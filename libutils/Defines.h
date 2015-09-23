@@ -55,6 +55,10 @@ namespace e
 #define PI 3.141592654
 #endif
 
+#ifndef FE
+#define FE(a, b) (fabs((a)-(b))<1e-9)
+#endif
+
 #ifndef MIN
 #define MIN(a, b) ((a)<(b)?(a):(b))
 #endif
