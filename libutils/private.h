@@ -13,6 +13,10 @@
 #	include <Windows.h>
 #endif
 
+#include <assert.h>
+#include <stdlib.h>
+#include <memory.h>
+
 #include "config.h"
 
 #endif

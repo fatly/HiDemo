@@ -20,8 +20,8 @@ namespace e
 		void GetPoint(const int index, double& x, double& y);
 		int GetPointCount(void) const;
 		int GetSampleCount(void) const;
-		double GetSample(double value);
 		uint8 GetSample(int index);
+		double GetSample(double value);
 		void GetSamples(uint8* result);
 		void GetSamples(double* result);
 		void Reset(void);
@@ -31,11 +31,11 @@ namespace e
 		void Plot(int p1, int p2, int p3, int p4);
 	protected:
 		double*	points;
-		int			pointCount;
+		int		pointCount;
 		double*	samples;
-		int			sampleCount;
-		bool			identity;
-		uint8*		tables;
+		int		sampleCount;
+		bool	identity;
+		uint8*	tables;
 	};
 
 	typedef enum
