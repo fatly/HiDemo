@@ -94,12 +94,12 @@ namespace e
 				samples[i] = (double)i / (double)(sampleCount - 1);
 			}
 
-			tables = (byte*)realloc(tables, sampleCount * sizeof(byte));
+			tables = (uint8*)realloc(tables, sampleCount * sizeof(uint8));
 			assert(tables);
 
 			for (int i = 0; i < sampleCount; i++)
 			{
-				tables[i] = (byte)ROUND(samples[i] * 255);
+				tables[i] = (uint8)ROUND(samples[i] * 255);
 			}
 
 			identity = true;
@@ -128,7 +128,7 @@ namespace e
 		for (int i = 0; i < sampleCount; i++)
 		{
 			samples[i] = (double)i / (double)(sampleCount - 1);
-			tables[i] = (byte)ROUND(samples[i] * 255);
+			tables[i] = (uint8)ROUND(samples[i] * 255);
 		}
 
 		SetPoint(0, 0.0, 0.0);
@@ -200,7 +200,7 @@ namespace e
 		//map to tables
 		for (int i = 0; i < sampleCount; i++)
 		{
-			tables[i] = (byte)(ROUND(samples[i] * 255));
+			tables[i] = (uint8)(ROUND(samples[i] * 255));
 		}
 
 		identity = false;
@@ -323,7 +323,7 @@ namespace e
 		}
 	}
 
-	byte Curve::GetSample(int index)
+	uint8 Curve::GetSample(int index)
 	{
 		assert(index >= 0 && index < sampleCount);
 		return tables[index];
@@ -353,10 +353,10 @@ namespace e
 		return sampleCount;
 	}
 
-	void Curve::GetSamples(byte* result)
+	void Curve::GetSamples(uint8* result)
 	{
 		assert(result);
-		memcpy(result, tables, sizeof(byte) * sampleCount);
+		memcpy(result, tables, sizeof(uint8) * sampleCount);
 	}
 
 	void Curve::GetSamples(double* result)
@@ -387,7 +387,7 @@ namespace e
 				samples[i] = r.samples[i];
 			}
 
-			tables = (byte*)realloc(tables, sizeof(byte) * sampleCount);
+			tables = (uint8*)realloc(tables, sizeof(uint8) * sampleCount);
 			assert(tables);
 
 			for (int i = 0; i < sampleCount; i++)

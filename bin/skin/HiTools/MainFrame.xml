@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Window size="1200,720" caption="0,0,0,36" bktrans="true">
+	<Container>
+		<!--Mainframe-->
+		<VerticalLayout name="home_pane" inset="2,0,2,2" bkcolor="#FF60B1FE" bordercolor="#FF1B4876" bordersize="1">
+			<HorizontalLayout name="home_title" height="50" bkcolor="#F5F5F5F5">
+				<Label text="HiTools" width="50" height="50" bkcolor="#FF00FF00"/>
+				<Button name="btn_file_open" float="true" pos="52,2,100,50" tooltip="打开文件" normalimage="file_open.png" hotimage="file_open.png" pushedimage="file_open.pgn"/>
+				<Control />
+				<Button name="btn_minbox" width="26" maxheight="18" tooltip="点击这里最小化" normalimage="file='minimize_normal.png' mask='#FFFF00FF'" hotimage="file='minimize_hot.png' mask='#FFFF00FF'" pushedimage="file='minimize_pushed.png' mask='#FFFF00FF'"/>
+				<Button name="btn_maxbox" width="26" maxheight="18" tooltip="点击这里最大化" normalimage="file='maximize_normal.png' mask='#FFFF00FF'" hotimage="file='maximize_hot.png' mask='#FFFF00FF'" pushedimage="file='maximize_pushed.png' mask='#FFFF00FF'"/>
+				<Button name="btn_close" width="43" maxheight="18" tooltip="点击这里直接退出" normalimage="file='close_normal.png' mask='#FFFF00FF'" hotimage="file='close_hot.png' mask='#FFFF00FF'" pushedimage="file='close_pushed.png' mask='#FFFF00FF'"/>
+			</HorizontalLayout>
+		</VerticalLayout>
+	</Container>
+</Window>

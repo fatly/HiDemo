@@ -9,7 +9,7 @@ namespace e
 	BlurFilter::BlurFilter(void)
 	{
 		type = -1;
-		SetType(BT_GAUSSIAN);
+		SetType(BT_BILATERAL);
 
 		int mode = GM_HIGH;
 		float sigma = 1.5f;

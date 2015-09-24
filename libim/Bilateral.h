@@ -36,7 +36,6 @@ namespace e
 		float colorSigma;
 		float** spaceKernal;
 		float* colorKernal;
-		float scaleFactor;
 	};
 }
 

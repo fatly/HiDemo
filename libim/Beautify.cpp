@@ -55,6 +55,11 @@ namespace e
 	}
 
 #ifdef INTEGER_CHANNELS
+	void Beautify::Blur(void* dst, void* src, int width, int height, int channels)
+	{
+		filter->Process(dst, src, width, height, channels);
+	}
+
 	void Beautify::HighPass(void* dst, void* src, int width, int height, int channels)
 	{
 		//blur filter

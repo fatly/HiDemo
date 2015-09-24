@@ -21,8 +21,8 @@ namespace e
 		int GetPointCount(void) const;
 		int GetSampleCount(void) const;
 		double GetSample(double value);
-		byte GetSample(int index);
-		void GetSamples(byte* result);
+		uint8 GetSample(int index);
+		void GetSamples(uint8* result);
 		void GetSamples(double* result);
 		void Reset(void);
 		void Calculate(void);
@@ -34,7 +34,7 @@ namespace e
 		double*	samples;
 		int			sampleCount;
 		bool			identity;
-		byte*		tables;
+		uint8*		tables;
 	};
 
 	typedef enum

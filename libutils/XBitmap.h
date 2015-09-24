@@ -25,6 +25,9 @@ namespace e
 	public:
 		bool Load(const char* fileName);
 		bool Save(const char* fileName);
+		XBitmap<T>* Clone(void) const;
+		XBitmap<T>* Clone(int channel) const;
+		XBitmap<T>* Clone(int x0, int y0, int x1, int y1) const;
 		virtual bool Resize(int width, int height, int channels) override;
 	protected:
 		virtual bool Create(int width
@@ -244,6 +247,24 @@ namespace e
 			}
 			return FileIO::_SaveBitmap(fileName, tmp.Ptr(0), tmp.Size(), width, height, channels);
 		}
+	}
+
+	template<class T>
+	XBitmap<T>* XBitmap<T>::Clone(void) const
+	{
+		return static_cast<XBitmap<T>*>(XImage<T>::Clone());
+	}
+
+	template<class T>
+	XBitmap<T>* XBitmap<T>::Clone(int channel) const
+	{
+		return static_cast<XBitmap<T>*>(XImage<T>::Clone(channel));
+	}
+
+	template<class T>
+	XBitmap<T>* XBitmap<T>::Clone(int x0, int y0, int x1, int y1) const
+	{
+		return static_cast<XBitmap<T>*>(XImage<T>::Clone(x0, y0, x1, y1));
 	}
 }
 

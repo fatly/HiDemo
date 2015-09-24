@@ -41,6 +41,7 @@ namespace e
 		XImage<T>* Clone(int x0, int y0, int x1, int y1) const;
 		void Scale(T factor);// pixel *= factor
 		void Swap(const XImage<T>& other);
+		void SwapChannel(int c1, int c2);
 		void Clear(void);
 	protected:
 		bool IsValid(void) const;
@@ -298,6 +299,23 @@ namespace e
 		swap(channels, other.channels);
 		swap(pixels, other.pixels);
 		swap(lineBytes, other.lineBytes);
+	}
+
+	template<class T>
+	void XImage<T>::SwapChannel(int c1, int c2)
+	{
+		assert(c1 >= 0 && c1 < channels);
+		assert(c2 >= 0 && c2 < channels);
+
+		for (int y = 0; y < height; y++)
+		{
+			T	*p = Get(0, y);
+			for (int x = 0; x < width; x++)
+			{
+				swap(*(p + c1), *(p + c2));
+				p += channels;
+			}
+		}
 	}
 
 	template<class T>
