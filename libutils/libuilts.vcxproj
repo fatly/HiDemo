@@ -28,6 +28,7 @@
     <ClInclude Include="Thread.h" />
     <ClInclude Include="Treap.h" />
     <ClInclude Include="XBitmap.h" />
+    <ClInclude Include="XCurve.h" />
     <ClInclude Include="XImage.h" />
   </ItemGroup>
   <ItemGroup>
