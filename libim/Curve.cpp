@@ -203,8 +203,8 @@ namespace e
 			tables[i] = (uint8)(ROUND(samples[i] * 255));
 		}
 
-		identity = false;
 		free(p);
+		identity = false;
 	}
 
 	void Curve::Plot(int p1, int p2, int p3, int p4)
@@ -363,6 +363,11 @@ namespace e
 	{
 		assert(result);
 		memcpy(result, samples, sizeof(double)*sampleCount);
+	}
+
+	bool Curve::IsIdentity(void) const
+	{
+		return identity;
 	}
 
 	const Curve & Curve::operator=(const Curve & r)

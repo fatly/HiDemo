@@ -87,12 +87,14 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="UICurve.h" />
     <ClInclude Include="HiTools.h" />
     <ClInclude Include="MainFrame.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="UICurve.cpp" />
     <ClCompile Include="HiTools.cpp" />
     <ClCompile Include="MainFrame.cpp" />
     <ClCompile Include="stdafx.cpp">

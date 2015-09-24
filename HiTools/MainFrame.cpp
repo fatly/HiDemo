@@ -1,18 +1,15 @@
 #include "stdafx.h"
 #include "MainFrame.h"
+#include "UICurve.h"
 
 class CHiToolsBuilderCallback : public IDialogBuilderCallback
 {
 public:
 	virtual CControlUI* CreateControl(LPCTSTR pstrName)
 	{
-		if (_tcscmp(pstrName, _T("Video")) == 0)
+		if (_tcscmp(pstrName, _T("Curve")) == 0)
 		{
-			//return new CVideoUI();
-		}
-		else if (_tcscmp(pstrName, _T("Flash")) == 0)
-		{
-			//return new CFlashUI();
+			return new CCurveUI();
 		}
 
 		return NULL;

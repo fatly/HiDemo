@@ -26,6 +26,7 @@ namespace e
 		void GetSamples(double* result);
 		void Reset(void);
 		void Calculate(void);
+		bool IsIdentity(void) const;
 	private:
 		void Plot(int p1, int p2, int p3, int p4);
 	protected:
