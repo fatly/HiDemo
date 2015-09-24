@@ -65,7 +65,7 @@ namespace DuiLib
 		m_rcBitmap.right = nWidth;
 		m_rcBitmap.bottom = nHeight;
 
-		UpdateUI();
+		//Update();
 		return true;
 	}
 
@@ -97,8 +97,7 @@ namespace DuiLib
 		_stprintf_s(szText, _T("CCurveUI::DoEvent()->%d\n"), event.Type);
 		OutputDebugString(szText);
 
-		UpdateUI();
-
+		Update();
 		CControlUI::DoEvent(event);
 	}
 
@@ -149,7 +148,7 @@ namespace DuiLib
 		}
 	}
 
-	void CCurveUI::UpdateUI(void)
+	void CCurveUI::Update(void)
 	{
 		HBRUSH hBrush = ::CreateSolidBrush(RGB(255, 255, 255));
 		HDC  hMemDC = ::CreateCompatibleDC(NULL);
@@ -211,6 +210,8 @@ namespace DuiLib
 		::SelectObject(hMemDC, hOldBitmap);
 		::DeleteObject(hBrush);
 		::DeleteDC(hMemDC);
+
+		NeedUpdate();
 	}
 
 	void CCurveUI::Clear(void)

@@ -16,7 +16,7 @@ namespace DuiLib
 		virtual void DoEvent(TEventUI& event) override;
 	protected:
 		bool InitPen(int nCount);
-		void UpdateUI(void);
+		void Update(void);
 		void Clear(void);
 	protected:
 		RECT	m_rcBitmap;
