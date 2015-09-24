@@ -57,7 +57,7 @@ namespace e
 		int width;
 		int height;
 		int channels;
-		int samples;
+		int pixels;
 		int lineBytes;
 	};
 }
@@ -75,7 +75,7 @@ namespace e
 		width = 0;
 		height = 0;
 		channels = 0;
-		samples = 0;
+		pixels = 0;
 		lineBytes = 0;
 	}
 
@@ -95,7 +95,7 @@ namespace e
 			this->width = width;
 			this->height = height;
 			this->channels = channels;
-			this->samples = width * height * channels;
+			this->pixels = width * height * channels;
 			this->lineBytes = width * channels * sizeof(T);
 		}
 		else
@@ -116,7 +116,7 @@ namespace e
 			width = other.width;
 			height = other.height;
 			channels = other.channels;
-			samples = other.samples;
+			pixels = other.pixels;
 			lineBytes = other.lineBytes;
 		}
 		else
@@ -160,7 +160,7 @@ namespace e
 	void XImage<T>::Set(int index, const T &value)
 	{
 		assert(data);
-		assert(index >= 0 && index < samples);
+		assert(index >= 0 && index < pixels);
 		data[index] = value;
 	}
 
@@ -177,7 +177,7 @@ namespace e
 	T XImage<T>::Get(int index) const
 	{
 		assert(data);
-		assert(index >= 0 && index < samples);
+		assert(index >= 0 && index < pixels);
 		return data[index];
 	}
 
@@ -194,7 +194,7 @@ namespace e
 	T* XImage<T>::Ptr(int index) const
 	{
 		assert(data);
-		assert(index >= 0 && index < samples);
+		assert(index >= 0 && index < pixels);
 		return &data[index];
 	}
 
@@ -296,7 +296,7 @@ namespace e
 		swap(width, other.width);
 		swap(height, other.height);
 		swap(channels, other.channels);
-		swap(samples, other.samples);
+		swap(pixels, other.pixels);
 		swap(lineBytes, other.lineBytes);
 	}
 
@@ -314,7 +314,7 @@ namespace e
 			this->width = width;
 			this->height = height;
 			this->channels = channels;
-			this->samples = width * height * channels;
+			this->pixels = width * height * channels;
 			this->lineBytes = width * channels * sizeof(T);
 			return true;
 		}
@@ -334,7 +334,7 @@ namespace e
 		width = 0;
 		height = 0;
 		channels = 0;
-		samples = 0;
+		pixels = 0;
 		lineBytes = 0;
 	}
 

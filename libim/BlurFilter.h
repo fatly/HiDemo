@@ -1,10 +1,16 @@
 #ifndef __LIBIM_BLURFILTER_H__
 #define __LIBIM_BLURFILTER_H__
 #include "Defines.h"
-#include "Gaussian.h"
+#include "BaseFilter.h"
 
 namespace e
 {
+	enum{
+		BT_GAUSSIAN = 0, 
+		BT_BILATERAL = 1
+	};
+
+	class BaseFilter;
 	class BlurFilter
 	{
 	public:
@@ -12,18 +18,13 @@ namespace e
 		BlurFilter(float sigma);
 		virtual ~BlurFilter(void);
 	public:
-		void SetSize(int width, int height);
-		void SetSigma(float sigma);
-#ifdef INTEGER_CHANNELS
-		void Process(uint8* dst, uint8* src, int width, int height, int channels);
-#else
-		void Process(float* dst, float* src, int width, int height, int channels);
-#endif
+		void SetSetting(int id, void* value);
+		void Process(void* dst, void* src, int width, int height, int channels);
 	protected:
-		int width;
-		int height;
-		uint8* tmp;
-		Gaussian* filter;
+		void SetType(int type);
+	protected:
+		int type;
+		BaseFilter* filter;
 	};
 }
 

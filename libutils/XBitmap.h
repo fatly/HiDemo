@@ -4,7 +4,7 @@
 #include "FileIO.h"
 
 //////////////////////////////////////////////////////////////////////////
-//defined of XBitmap<T>
+//--------------------defined of XBitmap<T>------------------------
 //////////////////////////////////////////////////////////////////////////
 namespace e
 {
@@ -54,7 +54,7 @@ namespace e
 		width = 0;
 		height = 0;
 		channels = 0;
-		samples = 0;
+		pixels = 0;
 		lineBytes = 0;
 
 		if (!Load(fileName))
@@ -64,7 +64,7 @@ namespace e
 		}
 		else
 		{
-			samples = width * height * channels;
+			pixels = width * height * channels;
 			lineBytes = WIDTHBYTES(width*channels * sizeof(T)*8);
 		}
 	}
@@ -85,7 +85,7 @@ namespace e
 			this->width = width;
 			this->height = height;
 			this->channels = channels;
-			this->samples = width * height * channels;
+			this->pixels = width * height * channels;
 			this->lineBytes = WIDTHBYTES(width*channels * sizeof(T)*8);
 		}
 		else
@@ -106,7 +106,7 @@ namespace e
 			this->width = other.width;
 			this->height = other.height;
 			this->channels = other.channels;
-			this->samples = other.samples;
+			this->pixels = other.pixels;
 			this->lineBytes = other.lineBytes;
 		}
 		else
@@ -136,7 +136,7 @@ namespace e
 			this->width = width;
 			this->height = height;
 			this->channels = channels;
-			this->samples = width * height * channels;
+			this->pixels = width * height * channels;
 			this->lineBytes = WIDTHBYTES(width*channels * sizeof(T) * 8);
 			return true;
 		}
@@ -167,7 +167,7 @@ namespace e
 		{
 			if (FileIO::_LoadBitmap(fileName, (void**)&data, size, width, height, channels))
 			{
-				samples = width * height * channels;
+				pixels = width * height * channels;
 				lineBytes = WIDTHBYTES(width*channels * sizeof(T) * 8);
 				return true;
 			}
@@ -175,7 +175,7 @@ namespace e
 			Clear();
 			return false;
 		}
-		else// float samples
+		else// float pixels
 		{
 			uint8* bits = 0;
 			bool ret = false;
@@ -183,7 +183,7 @@ namespace e
 			{
 				if (Create(width, height, channels, 0, false, true))
 				{
-					samples = width * height * channels;
+					pixels = width * height * channels;
 					lineBytes = WIDTHBYTES(width*channels * sizeof(T) * 8);
 					//convert uint8 to float
 					XBitmap<uint8> tmp(width, height, channels, bits, false, false);

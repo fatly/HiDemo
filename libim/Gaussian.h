@@ -7,9 +7,11 @@
 
 namespace e
 {
-	typedef enum { 
-		GM_SIMPLE = 0, GM_HIGH = 1 
-	}GaussianMode;
+	//gaussian mode
+	enum { 
+		GM_SIMPLE,
+		GM_HIGH
+	};
 
 	class Gaussian : public BaseFilter
 	{
@@ -17,32 +19,33 @@ namespace e
 		Gaussian(void);
 		virtual ~Gaussian(void);
 	public:
+		void SetSetting(int id, void* value);
+		virtual void Process(void* dst, void* src, int width, int height, int channels) override;
+	protected:
+		void CalcKernals(float sigma);
+		void SimpleGaussian8(void* dst, void* src, int width, int height, int channels);
+		void SimpleGaussian24(void* dst, void* src, int width, int height, int channels);
+		void RecursiveGaussian8(void* dst, void* src, int width, int height, int channels);
+		void RecursiveGaussian24(void* dst, void* src, int width, int height, int channels);
+	protected:
 		void SetMode(int mode);
 		void SetSigma(float sigma);
-#ifdef INTEGER_CHANNELS
-		virtual void Process(uint8* dst, uint8* src, int width, int height, int channels) override;
-#else
-		virtual void Process(float* dst, float* src, int width, int height, int channels) override;
-#endif
+		void SetConfig(int width, int height, int channels);
+		typedef void(Gaussian::*GFUN)(void*, void*, int, int, int);
 	protected:
-		void CalcParameters(float sigma);
-#ifdef INTEGER_CHANNELS
-		void SimpleGaussian8(uint8* dst, uint8* src, int width, int height, int channels);
-		void SimpleGaussian24(uint8* dst, uint8* src, int width, int height, int channels);
-		void RecursiveGaussian8(uint8* dst, uint8* src, int width, int height, int channels);
-		void RecursiveGaussian24(uint8* dst, uint8* src, int width, int height, int channels);
-#else
-		void SimpleGaussian8(float* dst, float* src, int width, int height, int channels);
-		void SimpleGaussian24(float* dst, float* src, int width, int height, int channels);
-		void RecursiveGaussian8(float* dst, float* src, int width, int height, int channels);
-		void RecursiveGaussian24(float* dst, float* src, int width, int height, int channels);
-#endif
-	private:
+		//simple or high mode
 		int mode;
+		//gaussian coeffs
 		float sigma;
 		float a0, a1, a2, a3;
 		float b1, b2;
 		float coefp, coefn;
+		//buffer 
+		void* tmp;
+		int width;
+		int height;
+		int channels;
+		GFUN fnGaussian;
 	};
 }
 

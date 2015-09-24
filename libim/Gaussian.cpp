@@ -1,6 +1,7 @@
 #include "Gaussian.h"
 #include <math.h>
 #include <assert.h>
+#include <stdlib.h>
 
 namespace e
 {
@@ -16,27 +17,69 @@ namespace e
 		a0 = a1 = a2 = a3 = 0.0f;
 		b1 = b2 = 0.0f;
 		coefp = coefn = 0.0f;
+		width = height = channels = 0;
+		tmp = 0;
+		fnGaussian = 0;
 
-		CalcParameters(sigma);
+		CalcKernals(sigma);
 	}
 
 	Gaussian::~Gaussian(void)
 	{
-
+		if (tmp) free(tmp);
 	}
 
-	void Gaussian::SetMode(int mode)
+	void Gaussian::SetMode(int _mode)
 	{
-		this->mode = mode;
+		mode = _mode;
 	}
 
-	void Gaussian::SetSigma(float sigma)
+	void Gaussian::SetSigma(float _sigma)
 	{
-		this->sigma = sigma;
-		CalcParameters(sigma);
+		sigma = _sigma;
+		CalcKernals(sigma);
 	}
 
-	void Gaussian::CalcParameters(float sigma)
+	void Gaussian::SetConfig(int _width, int _height, int _channels)
+	{
+		if (width != _width || height != _height || channels != _channels)
+		{
+			width = _width;
+			height = _height;
+			channels = _channels;
+#ifdef INTEGER_CHANNELS
+			int size = height * width * 4 * sizeof(uint8);
+			tmp = (uint8*)realloc(tmp, size);
+#else
+			int size = width * height * 4 * sizeof(float);
+			tmp = (float*)realloc(tmp, size);
+#endif
+			assert(tmp);
+			//set process handle
+			if (mode == GM_SIMPLE)
+				fnGaussian = channels > 1 ? &Gaussian::SimpleGaussian24 : &Gaussian::SimpleGaussian8;
+			else		
+				fnGaussian = channels > 1 ? &Gaussian::RecursiveGaussian24 : &Gaussian::RecursiveGaussian8;	
+		}
+	}
+
+	void Gaussian::SetSetting(int id, void* value)
+	{
+		switch (id)
+		{
+		case ID_SET_MODE:
+			SetMode(*((int*)value));
+			break;
+		case ID_SET_SIGMA:
+			SetSigma(*((float*)value));
+			break;
+		default:
+			assert(0);
+			break;
+		}
+	}
+
+	void Gaussian::CalcKernals(float sigma)
 	{
 		assert(sigma >= 0.1f);
 		float alpha = 1.695f / sigma;
@@ -58,15 +101,15 @@ namespace e
 	}
 #ifdef INTEGER_CHANNELS
 	//simple recursive gaussian
-	void Gaussian::SimpleGaussian8(uint8* dst, uint8* src, int width, int height, int channels)
+	void Gaussian::SimpleGaussian8(void* _dst, void* _src, int width, int height, int channels)
 	{
 		float a = CalcParam(sigma);
 		float yp = 0.0f, xc = 0.0f, yc = 0.0f;
 
-		int bitCount = channels * 8;
-		int lineBytes0 = WIDTHBYTES(bitCount * width);
-		int lineBytes1 = WIDTHBYTES(bitCount * height);
-		int bpp = channels;
+		int bpp = channels;	
+		int lineBytes0 = WIDTHBYTES(width * channels * 8);
+		int lineBytes1 = WIDTHBYTES(height * channels * 8);
+		uint8* src = (uint8*)_src, *dst = (uint8*)_dst;
 
 		for (int x = 0; x < width; x++)
 		{
@@ -99,7 +142,7 @@ namespace e
 			}
 		}
 	}
-	void Gaussian::SimpleGaussian24(uint8* dst, uint8* src, int width, int height, int channels)
+	void Gaussian::SimpleGaussian24(void* _dst, void* _src, int width, int height, int channels)
 	{
 		float a = CalcParam(sigma);
 
@@ -107,10 +150,10 @@ namespace e
 		float xc[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 		float yc[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-		int bitCount = channels * 8;
-		int lineBytes0 = WIDTHBYTES(bitCount * width);
-		int lineBytes1 = WIDTHBYTES(bitCount * height);
-		int bpp = bitCount / 8;
+		int bpp = channels;
+		int lineBytes0 = WIDTHBYTES(width * channels * 8);
+		int lineBytes1 = WIDTHBYTES(height * channels * 8);
+		uint8* src = (uint8*)_src, *dst = (uint8*)_dst;
 
 		for (int x = 0; x < width; x++)
 		{
@@ -170,12 +213,12 @@ namespace e
 	}
 
 	//recursive gaussian
-	void Gaussian::RecursiveGaussian8(uint8* dst, uint8* src, int width, int height, int channels)
+	void Gaussian::RecursiveGaussian8(void* _dst, void* _src, int width, int height, int channels)
 	{
-		int bitCount = channels * 8;
-		int lineBytes0 = WIDTHBYTES(bitCount * width);
-		int lineBytes1 = WIDTHBYTES(bitCount * height);
-		int bpp = bitCount / 8;
+		int bpp = channels;
+		int lineBytes0 = WIDTHBYTES(width * channels * 8);
+		int lineBytes1 = WIDTHBYTES(height * channels * 8);
+		uint8* src = (uint8*)_src, *dst = (uint8*)_dst;
 
 		for (int x = 0; x < width; x++)
 		{
@@ -231,12 +274,12 @@ namespace e
 		}
 	}
 
-	void Gaussian::RecursiveGaussian24(uint8* dst, uint8* src, int width, int height, int channels)
+	void Gaussian::RecursiveGaussian24(void* _dst, void* _src, int width, int height, int channels)
 	{
-		int bitCount = channels * 8;
-		int lineBytes0 = WIDTHBYTES(bitCount * width);
-		int lineBytes1 = WIDTHBYTES(bitCount * height);
-		int bpp = bitCount / 8;
+		int bpp = channels;
+		int lineBytes0 = WIDTHBYTES(width * channels * 8);
+		int lineBytes1 = WIDTHBYTES(height * channels * 8);
+		uint8* src = (uint8*)_src, *dst = (uint8*)_dst;
 
 		for (int x = 0; x < width; x++)
 		{
@@ -341,43 +384,15 @@ namespace e
 			}
 		}
 	}
-
-	void Gaussian::Process(uint8* dst, uint8* src, int width, int height, int channels)
-	{
-		if (mode == GM_SIMPLE)
-		{
-			if (channels == 1)
-				SimpleGaussian8(dst, src, width, height, channels);
-			else
-				SimpleGaussian24(dst, src, width, height, channels);
-		}
-		else
-		{
-			if (channels == 1)
-				RecursiveGaussian8(dst, src, width, height, channels);
-			else
-				RecursiveGaussian24(dst, src, width, height, channels);
-		}
-	}
-#else// FLOAT_CHANNELS
-	void Gaussian::Process(float* dst, float* src, int width, int height, int channels)
-	{
-		if (mode == GM_SIMPLE)
-		{
-			if (channels == 1)
-				SimpleGaussian8(dst, src, width, height, channels);
-			else
-				SimpleGaussian24(dst, src, width, height, channels);
-		}
-		else
-		{
-			if (channels == 1)
-				RecursiveGaussian8(dst, src, width, height, channels);
-			else
-				RecursiveGaussian24(dst, src, width, height, channels);
-		}
-	}
 #endif
+	void Gaussian::Process(void* dst, void* src, int width, int height, int channels)
+	{
+		SetConfig(width, height, channels);
+
+		assert(fnGaussian);
+		(this->*fnGaussian)(tmp, src, width, height, channels);
+		(this->*fnGaussian)(dst, tmp, height, width, channels);
+	}
 }
 
 

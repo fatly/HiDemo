@@ -5,26 +5,28 @@
 
 namespace e
 {
+	enum{
+		BM_SIMPLE = 0,
+		BM_HIGH = 1,
+	};
+
 	class Bilateral : public BaseFilter
 	{
 	public:
 		Bilateral(void);
 		virtual ~Bilateral(void);
-#ifdef INTEGER_CHANNELS
-		virtual void Process(uint8* dst
-			, uint8* src
+	public:
+		virtual void SetSetting(int id, void* value) override;
+		virtual void Process(void* dst
+			, void* src
 			, int width
 			, int height
 			, int channels) override;
-#else
-		virtual void Process(float* dst
-			, float* src
-			, int width
-			, int height
-			, int channels) override;
-#endif
 	protected:
 		void Init(int d);
+		void CalcKernals(void);
+		void SetSigma(float spaceSigma, float colorSigma);
+		void SetRadius(int radius);
 		void Clear(void);
 	protected:
 		int radius;
@@ -35,7 +37,6 @@ namespace e
 		float** spaceKernal;
 		float* colorKernal;
 		float scaleFactor;
-
 	};
 }
 

@@ -147,16 +147,16 @@ namespace e
 			}
 		}
 	}
-	void Blender::Process(uint8* dst, uint8* src, int width, int height, int channels)
+	void Blender::Process(void* dst, void* src, int width, int height, int channels)
 	{
-		int bitCount = channels * 8;
-		int lineBytes = WIDTHBYTES(bitCount * width);
+		int lineBytes = WIDTHBYTES(width * channels * 8);
 		channels = channels > 1 ? 3 : channels;
 
 		for (int y = 0; y < height; y++)
 		{
-			uint8* s = src + y * lineBytes;
-			uint8* d = dst + y * lineBytes;
+			uint8* s = ((uint8*)src) + y * lineBytes;
+			uint8* d = ((uint8*)dst) + y * lineBytes;
+
 			for (int x = 0; x < width; x++)
 			{
 				for (int c = 0; c < channels; c++)
@@ -170,6 +170,9 @@ namespace e
 		}
 	}
 #else//FLOAT_CHANNELS
-
+void Blender::Process(void* dst, void* src, int width, int height, int channels)
+{
+	assert(0);
+}
 #endif
 }

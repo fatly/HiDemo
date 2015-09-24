@@ -23,11 +23,7 @@ namespace e
 		void SetMode(int mode);
 		void GetValues(uint8* results) const;
 		void GetValues(uint8* results, int mode);
-#ifdef INTEGER_CHANNELS
-		void Process(uint8* dst, uint8* src, int width, int height, int channels);
-#else
-		void Process(float* dst, float* src, int width, int height, int channels);
-#endif
+		void Process(void* dst, void* src, int width, int height, int channels);
 	protected:
 		void Update(void);
 		void Normal(void);

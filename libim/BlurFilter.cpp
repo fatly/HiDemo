@@ -2,74 +2,66 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "Gaussian.h"
+#include "Bilateral.h"
+
 namespace e
 {
 	BlurFilter::BlurFilter(void)
 	{
-		tmp = 0;
-		width = 0;
-		height = 0;
+		type = -1;
+		SetType(BT_GAUSSIAN);
 
-		filter = new Gaussian();
-		assert(filter);
-		filter->SetMode(GM_HIGH);
-		filter->SetSigma(1.5f);
+		int mode = GM_HIGH;
+		float sigma = 1.5f;
+		filter->SetSetting(ID_SET_MODE, &mode);
+		filter->SetSetting(ID_SET_SIGMA, &sigma);
 	}
 
 	BlurFilter::BlurFilter(float sigma)
 	{
-		tmp = 0;
-		width = 0;
-		height = 0;
-
 		filter = new Gaussian();
-		filter->SetMode(GM_HIGH);
-		filter->SetSigma(sigma);
+		assert(filter);
+
+		int mode = GM_HIGH;
+		filter->SetSetting(ID_SET_MODE, &mode);
+		filter->SetSetting(ID_SET_SIGMA, &sigma);
 	}
 
 	BlurFilter::~BlurFilter(void)
 	{
-		if (tmp) free(tmp);
+		if (filter) delete filter;
 	}
 
-	void BlurFilter::SetSize(int width, int height)
+	void BlurFilter::SetType(int _type)
 	{
-		assert(width > 0 && height > 0);
-		this->width = width;
-		this->height = height;
+		if (type == _type) return;
+		if (filter) delete filter;
 
-		int size = width * height * 4;
-		tmp = (uint8*)realloc(tmp, size);
-		assert(tmp);
+		if (_type == BT_GAUSSIAN){
+			filter = new Gaussian();
+		}else{
+			filter = new Bilateral();
+		}
+		
+		type = _type;
 	}
 
-	void BlurFilter::SetSigma(float sigma)
+	void BlurFilter::SetSetting(int id, void* value)
 	{
 		assert(filter);
-		filter->SetSigma(sigma);
+		if (id == ID_SET_BLURTYPE)
+		{
+			SetType(*((int*)value));
+		}
+		else
+		{
+			filter->SetSetting(id, value);
+		}
 	}
 
-#ifdef INTEGER_CHANNELS
-	void BlurFilter::Process(uint8* dst, uint8* src, int width, int height, int channels)
+	void BlurFilter::Process(void* dst, void* src, int width, int height, int channels)
 	{
-		if (this->width != width || this->height != height)
-		{
-			SetSize(width, height);
-		}
-		//gaussian blur
-		filter->Process(tmp, src, width, height, channels);
-		filter->Process(dst, tmp, height, width, channels);
-}
-#else
-	void BlurFilter::Process(float* dst, float* src, int width, int height, int channels)
-	{
-		if (this->width != width || this->height != height)
-		{
-			SetSize(width, height);
-		}
-		//gaussian blur
-		filter->Process(tmp, src, width, height, channels);
-		filter->Process(dst, tmp, height, width, channels);
+		assert(filter);
+		filter->Process(dst, src, width, height, channels);
 	}
-#endif
 }

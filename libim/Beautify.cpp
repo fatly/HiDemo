@@ -12,7 +12,8 @@ namespace e
 	{
 		filter = new BlurFilter();
 		assert(filter);
-		filter->SetSigma(5.0f);
+		float sigma = 5.0f;
+		filter->SetSetting(ID_SET_SIGMA, &sigma);
 
 		blender = new Blender();
 		assert(blender);
@@ -54,7 +55,7 @@ namespace e
 	}
 
 #ifdef INTEGER_CHANNELS
-	void Beautify::HighPass(uint8* dst, uint8* src, int width, int height, int channels)
+	void Beautify::HighPass(void* dst, void* src, int width, int height, int channels)
 	{
 		//blur filter
 		filter->Process(dst, src, width, height, channels);
@@ -63,19 +64,18 @@ namespace e
 		blender->Process(dst, src, width, height, channels);
 	}
 
-	void Beautify::CalcMatte(uint8* dst, uint8* src, int width, int height, int channels)
+	void Beautify::CalcMatte(void* dst, void* src, int width, int height, int channels)
 	{
 		blender->SetMode(BM_HARDLIGHT);
 		blender->Process(dst, src, width, height, channels);
 	}
 
-	void Beautify::Smooth(uint8* dst, uint8* src, uint8* mte, int width, int height, int channels)
+	void Beautify::Smooth(void* _dst, void* _src, void* _mte, int width, int height, int channels)
 	{
-		int bpp = channels;
-		int bitCount = channels * 8;
-		int lineBytes0 = WIDTHBYTES(bitCount * width);
+		int lineBytes0 = WIDTHBYTES(width * channels * 8);
 		int lineBytes1 = WIDTHBYTES(8 * width);
 		channels = channels > 1 ? 3 : channels;
+		uint8 *dst = (uint8*)_dst, *src = (uint8*)_src, *mte = (uint8*)_mte;
 
 		for (int y = 0; y < height; y++)
 		{
@@ -91,23 +91,21 @@ namespace e
 				}
 
 				m += 1;
-				d += bpp;
-				s += bpp;
+				d += channels;
+				s += channels;
 			}
 		}
 	}
 
-	void Beautify::AdjustSample(uint8* dst, uint8* src, int width, int height, int channels)
+	void Beautify::AdjustSample(void* dst, void* src, int width, int height, int channels)
 	{
-		int bpp = channels;
-		int bitCount = channels * 8;
-		int lineBytes = WIDTHBYTES(bitCount * width);
-		channels = bpp > 1 ? 3 : 1;
+		int lineBytes = WIDTHBYTES(width * channels * 8);
+		channels = channels > 1 ? 3 : channels;
 
 		for (int y = 0; y < height; y++)
 		{
-			uint8* d = dst + y * lineBytes;
-			const uint8* s = src + y *lineBytes;
+			uint8* d = ((uint8*)dst) + y * lineBytes;
+			uint8* s = ((uint8*)src) + y * lineBytes;
 
 			for (int x = 0; x < width; x++)
 			{
@@ -116,8 +114,8 @@ namespace e
 					d[c] = samples[s[c]];
 				}
 
-				d += bpp;
-				s += bpp;
+				d += channels;
+				s += channels;
 			}
 		}
 	}
