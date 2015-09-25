@@ -72,7 +72,7 @@ namespace e
 	SplineCurve* CurvesConfig::GetSplineCurve(const int index) const
 	{
 		assert(index >= 0 && index <= CURVE_SIZE);
-		return curves[channel];
+		return curves[index];
 	}
 
 	SplineCurve* CurvesConfig::GetSelectSplineCurve(void) const

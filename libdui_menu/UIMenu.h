@@ -102,18 +102,11 @@ public:
     LPVOID GetInterface(LPCTSTR pstrName);
 
     void DoPaint(HDC hDC, const RECT& rcPaint);
-
 	void DrawItemText(HDC hDC, const RECT& rcItem);
-
 	SIZE EstimateSize(SIZE szAvailable);
-
 	bool Activate();
-
 	void DoEvent(TEventUI& event);
-
-
 	CMenuWnd* GetMenuWnd();
-
 	void CreateMenuWnd();
 
 protected:

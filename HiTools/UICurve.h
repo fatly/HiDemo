@@ -14,11 +14,12 @@ namespace DuiLib
 		virtual ~CSubCurveUI(void);
 		LPCTSTR GetClass(void) const;
 		LPVOID GetInterface(LPCTSTR pstrName);
+		virtual void DoInit(void) override;
 		virtual void DoPaint(HDC hDC, const RECT& rcPaint) override;
 		virtual void DoEvent(TEventUI& event) override;
 	protected:
-		bool Init(int nWidth, int nHeight);
-		bool InitPen(int nCount);
+		bool SetSize(int nWidth, int nHeight);
+		bool CreatePens(int nCount);
 		void Update(void);
 		void OnLButtonDown(POINT & point);
 		void OnMouseMove(POINT & point);
@@ -40,16 +41,16 @@ namespace DuiLib
 		bool m_bCapture;
 	};
 
-	class CCurveUI : public CContainerUI
+	class CCurveUI : public CContainerUI//CVerticalLayoutUI
 	{
 	public:
 		CCurveUI(void);
 		virtual ~CCurveUI(void);
+	public:
 		LPCTSTR GetClass(void) const;
 		LPVOID GetInterface(LPCTSTR pstrName);
+		virtual void DoInit(void) override;
 		virtual void DoPaint(HDC hDC, const RECT& rcPaint) override;
 		virtual void DoEvent(TEventUI& event) override;
-	protected:
-		CSubCurveUI* m_pSubCurveUI;
 	};
 }
