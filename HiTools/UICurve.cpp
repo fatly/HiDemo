@@ -1,35 +1,64 @@
 #include "stdafx.h"
 #include "UICurve.h"
-#include "Curve.h"
+#include "CurvesConfig.h"
+
+#define  MIN_DISTANCE 8
 
 namespace DuiLib
 {
-	CCurveUI::CCurveUI()
+	CSubCurveUI::CSubCurveUI()
 	{
 		m_hBitmap = NULL;
-		m_pCurves = new e::CurvesConfig(17, 256);
+		m_nWidth = 0;
+		m_nHeight = 0;
+		m_nPointCount = 9;
+		m_bCapture = false;
+		m_nSelectPoint = -1;
+		m_nLeftMost = 0;
+		m_nRightMost = 0;
 		memset(&m_rcBitmap, 0, sizeof(m_rcBitmap));
 		memset(&m_rcCorners, 0, sizeof(m_rcCorners));
-		memset(&m_hPen, 0, sizeof(HPEN) * MAX_PEN_SIZE);
-		Init(256, 256);
+		memset(&m_hPen, 0, sizeof(HPEN) * PEN_SIZE);
 		InitPen(6);
+		Init(256, 256);
+		m_pCurvesConfig = new e::CurvesConfig(m_nPointCount, m_nWidth);
+		assert(m_pCurvesConfig);
 	}
 
-	CCurveUI::~CCurveUI()
+	CSubCurveUI::CSubCurveUI(int nWidth, int nHeight)
+	{
+		m_hBitmap = NULL;
+		m_nWidth = 0;
+		m_nHeight = 0;
+		m_nPointCount = 9;
+		m_bCapture = false;
+		m_nSelectPoint = -1;
+		m_nLeftMost = 0;
+		m_nRightMost = 0;
+		memset(&m_rcBitmap, 0, sizeof(m_rcBitmap));
+		memset(&m_rcCorners, 0, sizeof(m_rcCorners));
+		memset(&m_hPen, 0, sizeof(HPEN) * PEN_SIZE);
+		InitPen(6);
+		Init(nWidth, nHeight);
+		m_pCurvesConfig = new e::CurvesConfig(m_nPointCount, m_nWidth);
+		assert(m_pCurvesConfig);
+	}
+
+	CSubCurveUI::~CSubCurveUI()
 	{
 		Clear();
 	}
 
-	LPCTSTR CCurveUI::GetClass(void) const
+	LPCTSTR CSubCurveUI::GetClass(void) const
 	{
-		return _T("CurveUI");
+		return _T("SubCurveUI");
 	}
 
-	LPVOID CCurveUI::GetInterface(LPCTSTR pstrName)
+	LPVOID CSubCurveUI::GetInterface(LPCTSTR pstrName)
 	{
-		if (_tcscmp(pstrName, _T("Curve")) == 0)
+		if (_tcscmp(pstrName, _T("SubCurve")) == 0)
 		{
-			return static_cast<CCurveUI*>(this);
+			return static_cast<CSubCurveUI*>(this);
 		}
 		else
 		{
@@ -37,7 +66,7 @@ namespace DuiLib
 		}
 	}
 
-	bool CCurveUI::Init(int nWidth, int nHeight)
+	bool CSubCurveUI::Init(int nWidth, int nHeight)
 	{
 		int nBitCount = 32;
 		DWORD dwSizeImage = WIDTHBYTES(nWidth * nBitCount) * nHeight;
@@ -65,13 +94,16 @@ namespace DuiLib
 		m_rcBitmap.right = nWidth;
 		m_rcBitmap.bottom = nHeight;
 
-		//Update();
+		m_nWidth = nWidth;
+		m_nHeight = nHeight;
+
+		SetPos(m_rcBitmap, false);
 		return true;
 	}
 
-	bool CCurveUI::InitPen(int nCount)
+	bool CSubCurveUI::InitPen(int nCount)
 	{
-		limit(nCount, 6, MAX_PEN_SIZE);
+		limit(nCount, 6, PEN_SIZE);
 
 		COLORREF colors[] = {
 			RGB(45, 45, 45),
@@ -86,22 +118,40 @@ namespace DuiLib
 		{
 			m_hPen[i] = ::CreatePen(PS_SOLID, 1, colors[i]);
 			assert(m_hPen[i] != NULL);
+			if (m_hPen[i] == NULL) return false;
 		}
 
 		return true;
 	}
 
-	void CCurveUI::DoEvent(TEventUI& event)
+	void CSubCurveUI::DoEvent(TEventUI& event)
 	{
 		TCHAR szText[64] = { 0 };
-		_stprintf_s(szText, _T("CCurveUI::DoEvent()->%d\n"), event.Type);
+		_stprintf_s(szText, _T("CSubCurveUI::DoEvent()->%d\n"), event.Type);
 		OutputDebugString(szText);
 
-		Update();
+		if (event.Type > UIEVENT__MOUSEBEGIN && event.Type < UIEVENT__MOUSEEND)
+		{
+			switch (event.Type)
+			{
+			case UIEVENT_BUTTONDOWN:
+				OnLButtonDown(event.ptMouse);
+				break;
+			case UIEVENT_MOUSEMOVE:
+				OnMouseMove(event.ptMouse);
+				break;
+			case UIEVENT_BUTTONUP:
+				OnLButtonUp(event.ptMouse);
+				break;
+			default:
+				break;
+			}
+		}
+
 		CControlUI::DoEvent(event);
 	}
 
-	void CCurveUI::DoPaint(HDC hDC, const RECT& rcPaint)
+	void CSubCurveUI::DoPaint(HDC hDC, const RECT& rcPaint)
 	{
 		if (!::IntersectRect(&m_rcPaint, &rcPaint, &m_rcItem))
 		{
@@ -148,64 +198,87 @@ namespace DuiLib
 		}
 	}
 
-	void CCurveUI::Update(void)
+	void CSubCurveUI::Update(void)
 	{
 		HBRUSH hBrush = ::CreateSolidBrush(RGB(255, 255, 255));
 		HDC  hMemDC = ::CreateCompatibleDC(NULL);
 		HBITMAP hOldBitmap = (HBITMAP)::SelectObject(hMemDC, m_hBitmap);
 		::FillRect(hMemDC, &m_rcBitmap, hBrush);
 
-		int w = m_rcBitmap.right - m_rcBitmap.left;
-		int h = m_rcBitmap.bottom - m_rcBitmap.top;
-		int nChannel = m_pCurves->GetSelectChannel();
-		//画没选中的B线
-		for (int c = CURVE_CHANNEL_A; c >= CURVE_CHANNEL_C; c--)
-		{
-			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[c]);
-			Curve* curve = m_pCurves->GetCurve(c);
-			if (curve->IsIdentity() || c == nChannel) continue;
+		int w = m_nWidth;
+		int h = m_nHeight;
+		int nChannel = m_pCurvesConfig->GetSelectIndex();
+		
+		{	//画没选中的B线
+			for (int c = CURVE_CHANNEL_A; c >= CURVE_CHANNEL_C; c--)
+			{
+				HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[c]);
+				SplineCurve* curve = m_pCurvesConfig->GetSplineCurve(c);
+				if (!curve->IsIdentity() || c == nChannel) continue;
+
+				int y = h - curve->GetSample(0);
+				if (y >= h) y -= 1;
+				::MoveToEx(hMemDC, 0, y, NULL);
+
+				for (int x = 1; x < curve->GetSampleCount() && x < w; x++)
+				{
+					y = h - curve->GetSample(x);
+					if (y >= h) y -= 1;
+					::LineTo(hMemDC, x, y);
+				}
+
+				::SelectObject(hMemDC, hOldPen);
+			}
+		}
+
+		
+		{	//画参考线
+			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[5]);
+			SplineCurve* curve = m_pCurvesConfig->GetSplineCurve(5);
 
 			int y = h - curve->GetSample(0);
 			if (y >= h) y -= 1;
 			::MoveToEx(hMemDC, 0, y, NULL);
 
-			for (int x = 1; x < curve->GetSampleCount()&&x<w; x++)
+			for (int x = 1; x < curve->GetSampleCount() && x < w; x++)
 			{
 				y = h - curve->GetSample(x);
 				if (y >= h) y -= 1;
 				::LineTo(hMemDC, x, y);
 			}
-
 			::SelectObject(hMemDC, hOldPen);
 		}
 
-		//画选中的B线
-		HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[nChannel]);
-		Curve* curve = m_pCurves->GetCurve(nChannel);
+		{	//画选中的B线
+			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[nChannel]);
+			SplineCurve* curve = m_pCurvesConfig->GetSplineCurve(nChannel);
 
-		int y = h - curve->GetSample(0);
-		if (y >= h) y -= 1;
-		::MoveToEx(hMemDC, 0, y, NULL);
-
-		for (int x = 1; x < curve->GetSampleCount() && x < w; x++)
-		{
-			y = h - curve->GetSample(x);
+			int y = h - curve->GetSample(0);
 			if (y >= h) y -= 1;
-			::LineTo(hMemDC, x, y);
+			::MoveToEx(hMemDC, 0, y, NULL);
+
+			for (int x = 1; x < curve->GetSampleCount() && x < w; x++)
+			{
+				y = h - curve->GetSample(x);
+				if (y >= h) y -= 1;
+				::LineTo(hMemDC, x, y);
+			}
+			::SelectObject(hMemDC, hOldPen);
 		}
-		::SelectObject(hMemDC, hOldPen);
 	
-		int x0 = m_rcBitmap.left;
-		int y0 = m_rcBitmap.top;
-		int x1 = m_rcBitmap.right-1;
-		int y1 = m_rcBitmap.bottom-1;
-		hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[0]);
-		::MoveToEx(hMemDC, x0, y0, NULL);
-		::LineTo(hMemDC, x1, y0);
-		::LineTo(hMemDC, x1, y1);
-		::LineTo(hMemDC, x0, y1);
-		::LineTo(hMemDC, x0, y0);
-		::SelectObject(hMemDC, hOldPen);
+		{	//画边框
+			int x0 = m_rcBitmap.left;
+			int y0 = m_rcBitmap.top;
+			int x1 = m_rcBitmap.right - 1;
+			int y1 = m_rcBitmap.bottom - 1;
+			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[0]);
+			::MoveToEx(hMemDC, x0, y0, NULL);
+			::LineTo(hMemDC, x1, y0);
+			::LineTo(hMemDC, x1, y1);
+			::LineTo(hMemDC, x0, y1);
+			::LineTo(hMemDC, x0, y0);
+			::SelectObject(hMemDC, hOldPen);
+		}
 
 		::SelectObject(hMemDC, hOldBitmap);
 		::DeleteObject(hBrush);
@@ -214,12 +287,121 @@ namespace DuiLib
 		NeedUpdate();
 	}
 
-	void CCurveUI::Clear(void)
+	void CSubCurveUI::OnLButtonDown(POINT &point)
 	{
-		if (m_pCurves)
+		point.x -= (m_rcItem.right - m_rcBitmap.right) / 2;
+		point.y -= (m_rcItem.bottom - m_rcBitmap.bottom) / 2;
+
+		int x, y;
+		int w = (m_rcBitmap.right-m_rcBitmap.left) / (m_nPointCount - 1);
+		int distance = MAXINT;
+		int nSelectPoint = -1;
+		SplineCurve* curve = m_pCurvesConfig->GetSelectSplineCurve();
+		for (int i = 0; i < m_nPointCount; i++)
 		{
-			delete m_pCurves;
-			m_pCurves = 0;
+			curve->GetPoint(i, x, y);
+			if (abs(x - point.x) < distance)
+			{
+				distance = abs(x - point.x);
+				nSelectPoint = i;
+			}
+		}
+
+		if (distance > MIN_DISTANCE)
+		{
+			nSelectPoint = (point.x + w / 2) / w;
+		}
+
+		m_nLeftMost = 0;
+		for (int i = nSelectPoint - 1; i >= 0; i--)
+		{
+			curve->GetPoint(i, x, y);
+			if (x >= 0)
+			{
+				m_nLeftMost = x;
+				break;
+			}
+		}
+
+		m_nRightMost = 256;
+		for (int i = nSelectPoint + 1; i < m_nPointCount; i++)
+		{
+			curve->GetPoint(i, x, y);
+			if (x >= 0)
+			{
+				m_nRightMost = x;
+				break;
+			}
+		}
+
+		m_nSelectPoint = nSelectPoint;
+		curve->UpdatePoint(nSelectPoint, (double)point.x / m_nWidth, (double)(m_nHeight - point.y) / m_nHeight);
+		m_bCapture = true;
+
+		Update();
+	}
+
+	void CSubCurveUI::OnMouseMove(POINT &point)
+	{
+		if (m_bCapture)
+		{
+			point.x -= (m_rcItem.right - m_rcBitmap.right) / 2;
+			point.y -= (m_rcItem.bottom - m_rcBitmap.bottom) / 2;
+// 			point.x = clamp((int)point.x, 0, m_nCurveWidth);
+// 			point.y = clamp((int)point.y, 0, m_nCurveHeight);
+
+			int x, y;
+			int w = m_nWidth / (m_nPointCount - 1);
+			int distance = MAXINT;
+			int nSelectPoint = -1;
+			SplineCurve* curve = m_pCurvesConfig->GetSelectSplineCurve();
+			for (int i = 0; i < m_nPointCount; i++)
+			{
+				curve->GetPoint(i, x, y);
+				if (abs(x - point.x) < distance)
+				{
+					distance = abs(x - point.x);
+					nSelectPoint = i;
+				}
+			}
+
+			if (distance > MIN_DISTANCE)
+			{
+				nSelectPoint = (point.x + w / 2) / w;
+			}
+
+			curve->SetPoint(m_nSelectPoint, -1.0, -1.0);
+
+			if (point.x > m_nLeftMost && point.x < m_nRightMost)
+			{
+				nSelectPoint = (point.x + w / 2) / w;
+				curve->GetPoint(nSelectPoint, x, y);
+				if (x < 0)
+				{
+					m_nSelectPoint = nSelectPoint;
+				}
+
+				curve->UpdatePoint(nSelectPoint, (double)point.x / m_nWidth, (double)(m_nHeight - point.y) / m_nHeight);
+			}
+
+			Update();
+		}
+	}
+
+	void CSubCurveUI::OnLButtonUp(POINT &point)
+	{
+		m_bCapture = false;
+		m_nSelectPoint = -1;
+
+		Update();
+	}
+
+	void CSubCurveUI::Clear(void)
+	{
+		if (m_pCurvesConfig)
+		{
+			delete m_pCurvesConfig;
+			m_pCurvesConfig = 0;
 		}
 
 		if (m_hBitmap)
@@ -228,7 +410,7 @@ namespace DuiLib
 			m_hBitmap = NULL;
 		}
 
-		for (int i = 0; i < MAX_PEN_SIZE; i++)
+		for (int i = 0; i < PEN_SIZE; i++)
 		{
 			if (m_hPen[i] != NULL)
 			{
@@ -236,5 +418,62 @@ namespace DuiLib
 				m_hPen[i] = NULL;
 			}
 		}
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+	//
+	//////////////////////////////////////////////////////////////////////////
+	CCurveUI::CCurveUI(void)
+	{
+		m_pSubCurveUI = new CSubCurveUI();
+		RECT rcSub = m_pSubCurveUI->GetPos();
+		int w0 = rcSub.right - rcSub.left;
+		int h0 = rcSub.bottom - rcSub.top;
+		int w1 = m_rcItem.right - m_rcItem.left;
+		int h1 = m_rcItem.bottom - m_rcItem.top;
+		int x0 = (w1 - w0) / 2;
+		int y0 = (h1 - h0) / 2;
+		int x1 = x0 + rcSub.right;
+		int y1 = y0 + rcSub.bottom;
+		rcSub.left = x0; rcSub.top = y0;
+		rcSub.right = x1; rcSub.bottom = y1;
+		m_pSubCurveUI->SetFloat(true);
+		m_pSubCurveUI->SetPos(rcSub);
+		m_pSubCurveUI->SetManager(GetManager(), this);
+		Add(m_pSubCurveUI);
+	}
+
+	CCurveUI::~CCurveUI(void)
+	{
+		if (m_pSubCurveUI) delete m_pSubCurveUI;
+	}
+
+	LPCTSTR CCurveUI::GetClass(void) const
+	{
+		return _T("CurveUI");
+	}
+
+	LPVOID CCurveUI::GetInterface(LPCTSTR pstrName)
+	{
+		if (_tcscmp(pstrName, _T("Curve")) == 0)
+		{
+			return static_cast<CCurveUI*>(this);
+		}
+		else
+		{
+			return CContainerUI::GetInterface(pstrName);
+		}
+	}
+
+	void CCurveUI::DoEvent(TEventUI& event)
+	{
+
+		CContainerUI::DoEvent(event);
+	}
+
+	void CCurveUI::DoPaint(HDC hDC, const RECT& rcPaint)
+	{
+
+		CContainerUI::DoPaint(hDC, rcPaint);
 	}
 }

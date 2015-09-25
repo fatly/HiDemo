@@ -23,13 +23,13 @@
     <ClCompile Include="Beautify.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Curve.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="BlurFilter.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Bilateral.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CurvesConfig.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -44,9 +44,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Beautify.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Curve.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Convert.h">
@@ -65,6 +62,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="Bilateral.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="CurvesConfig.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

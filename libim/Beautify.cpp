@@ -3,7 +3,7 @@
 #include "AutoPtr.h"
 #include "BlurFilter.h"
 #include "Blender.h"
-#include "Curve.h"
+#include "CurvesConfig.h"
 #include <assert.h>
 
 namespace e
@@ -51,7 +51,7 @@ namespace e
 		curves->CreateSpline(CURVE_CHANNEL_G, 9, pts);
 		curves->CreateSpline(CURVE_CHANNEL_R, 9, pts);
 		curves->Calculate();
-		curves->GetCurve(CURVE_CHANNEL_C)->GetSamples(samples);
+		curves->GetSplineCurve(CURVE_CHANNEL_C)->GetSamples(samples);
 	}
 
 #ifdef INTEGER_CHANNELS

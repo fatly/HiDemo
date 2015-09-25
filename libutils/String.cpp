@@ -1307,9 +1307,7 @@ namespace e
 	bool StringW::ToBool(void) const
 	{
 		if (Length() == 0) return false;
-
 		wchar_t ch = buffer[0];
-
 		return ch == L'T' || ch == L't' || ch == L'1';
 	}
 
@@ -1498,7 +1496,7 @@ namespace e
 		}
 	}
 
-	String BytesToMKBText(uint bytes)
+	inline String BytesToMKB(uint bytes)
 	{
 		if (bytes >= 900000)
 		{
@@ -1521,7 +1519,7 @@ namespace e
 	}
 
 
-	String ByteToHex(uint8 byte)
+	inline String ByteToHex(uint8 byte)
 	{
 		//buf_size = 3;
 		//buf = (wchar_t*) malloc(buf_size * sizeof(wchar_t));

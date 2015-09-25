@@ -1,5 +1,5 @@
-#ifndef __E_TREAP_H__
-#define __E_TREAP_H__
+#ifndef __CORE_XTREAP_H__
+#define __CORE_XTREAP_H__
 
 #include "Defines.h"
 
@@ -8,7 +8,7 @@
 
 namespace e
 {
-	template<class T> class Treap
+	template<class T> class XTreap
 	{
 	public:
 		struct Node{
@@ -19,11 +19,11 @@ namespace e
 			T data;
 		};
 
-		Treap(void) : root(0)
+		XTreap(void) : root(0)
 		{
 
 		}
-		~Treap(void)
+		~XTreap(void)
 		{
 			clear();
 		}

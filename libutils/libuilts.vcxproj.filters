@@ -33,9 +33,6 @@
     <ClInclude Include="Thread.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="Treap.h">
-      <Filter>T</Filter>
-    </ClInclude>
     <ClInclude Include="AutoPtr.h">
       <Filter>core</Filter>
     </ClInclude>
@@ -69,8 +66,11 @@
     <ClInclude Include="FileIO.h">
       <Filter>core</Filter>
     </ClInclude>
-    <ClInclude Include="XCurve.h">
+    <ClInclude Include="XTreap.h">
       <Filter>T</Filter>
+    </ClInclude>
+    <ClInclude Include="SplineCurve.h">
+      <Filter>core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +93,9 @@
       <Filter>core</Filter>
     </ClCompile>
     <ClCompile Include="FileIO.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="SplineCurve.cpp">
       <Filter>core</Filter>
     </ClCompile>
   </ItemGroup>

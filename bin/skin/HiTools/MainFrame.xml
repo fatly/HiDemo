@@ -12,7 +12,7 @@
 				<Button name="btn_close" width="43" maxheight="18" tooltip="点击这里直接退出" normalimage="file='close_normal.png' mask='#FFFF00FF'" hotimage="file='close_hot.png' mask='#FFFF00FF'" pushedimage="file='close_pushed.png' mask='#FFFF00FF'"/>
 			</HorizontalLayout>
 			<HorizontalLayout name="home_client" bkcolor="FF0000FF">
-				<Curve name="ctrl_curve" float="true" pos="100,100,400,400" />
+				<Curve name="ctrl_curve" float="true" pos="100,100,400,400" bkcolor="FFFFFFFF"/>
 			</HorizontalLayout>
 		</VerticalLayout>
 	</Container>

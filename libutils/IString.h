@@ -81,13 +81,12 @@ namespace e
 		StringA operator+(const StringA & r) const;
 		const StringA & operator=(const StringA & r) throw();
 		const StringA & operator+=(const StringA & _r) throw();
-
+		//æ≤Ã¨≥…‘±
 		static StringA Format(const char* format, va_list argptr);
 		static StringA Format(const char* format, ...);
-
-	private:
+	protected:
 		void Initialize(const wchar_t* r, Charset charset = CHARSET_LOCALE) throw();
-	private:
+	protected:
 		char* buffer;
 		int bufferSize;
 	};
@@ -118,7 +117,7 @@ namespace e
 		explicit StringW(double value);
 		explicit StringW(bool value);
 		virtual ~StringW(void);
-
+	public:
 		int Length(void) const;
 		void Reserve(int capacity);
 		wchar_t* c_str(void) const;
@@ -160,9 +159,9 @@ namespace e
 		StringW operator+(const StringW & r) const;
 		const StringW & operator=(const StringW & r) throw();
 		const StringW & operator+=(const StringW & r) throw();
-	private:
+	protected:
 		void Initialize(const char* p, Charset charset = CHARSET_LOCALE) throw();
-	private:
+	protected:
 		wchar_t* buffer;
 		int bufferSize;
 	};
@@ -190,7 +189,7 @@ namespace e
 #	endif
 #endif
 
-	String BytesToMKBText(uint _bytes);
+	String BytesToMKB(uint _bytes);
 	String ByteToHex(uint8 _byte);
 	String PointerToHex(void * _p);
 }

@@ -1,7 +1,7 @@
 #include "private.h"
 #include "Diagnosis.h"
 #include "Thread.h"
-#include "Treap.h"
+#include "XTreap.h"
 
 namespace e
 {
@@ -147,7 +147,7 @@ namespace e
 	};
 
 	typedef DebugMemoryHeader* DMHPtr;
-	typedef Treap<DMHPtr> DMHSet;
+	typedef XTreap<DMHPtr> DMHSet;
 
 #define get_debug_memory_body(p) (((char*)(p)) + sizeof(DebugMemoryHeader))
 
