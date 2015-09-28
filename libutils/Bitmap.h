@@ -5,6 +5,7 @@
 #include "Defines.h"
 #include "Object.h"
 #include "XBitmap.h"
+#include "AutoPtr.h"
 
 // namespace e
 // {
@@ -88,6 +89,8 @@ namespace e
 #else
 	typedef XBitmap<float> Bitmap;
 #endif
+
+	typedef AutoPtr<Bitmap> BitmapPtr;
 }
 
 #endif

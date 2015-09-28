@@ -9,9 +9,9 @@ namespace e
 	typedef enum
 	{
 		CURVE_CHANNEL_C = 0,		/*< desc="Value" >*/
-		CURVE_CHANNEL_B = 1,		/*< desc="Blue"   >*/
+		CURVE_CHANNEL_R = 1,		/*< desc="Blue"   >*/
 		CURVE_CHANNEL_G = 2,		/*< desc="Green" >*/
-		CURVE_CHANNEL_R = 3,		/*< desc="Red"    >*/
+		CURVE_CHANNEL_B = 3,		/*< desc="Red"    >*/
 		CURVE_CHANNEL_A = 4,		/*< desc="Alpha" >*/
 	} CurveChannel;
 

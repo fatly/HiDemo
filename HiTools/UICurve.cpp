@@ -2,7 +2,7 @@
 #include "UICurve.h"
 #include "CurvesConfig.h"
 
-#define  MIN_DISTANCE 8
+#define  MIN_DISTANCE 12
 
 namespace DuiLib
 {
@@ -19,7 +19,7 @@ namespace DuiLib
 		memset(&m_rcBitmap, 0, sizeof(m_rcBitmap));
 		memset(&m_rcCorners, 0, sizeof(m_rcCorners));
 		memset(&m_hPen, 0, sizeof(HPEN) * PEN_SIZE);
-		CreatePens(7);
+		CreatePens(8);
 		SetSize(256, 256);
 		m_pCurvesConfig = new e::CurvesConfig(m_nPointCount, m_nWidth);
 		assert(m_pCurvesConfig);
@@ -38,7 +38,7 @@ namespace DuiLib
 		memset(&m_rcBitmap, 0, sizeof(m_rcBitmap));
 		memset(&m_rcCorners, 0, sizeof(m_rcCorners));
 		memset(&m_hPen, 0, sizeof(HPEN) * PEN_SIZE);
-		CreatePens(7);
+		CreatePens(8);
 		SetSize(nWidth, nHeight);
 		m_pCurvesConfig = new e::CurvesConfig(m_nPointCount, m_nWidth);
 		assert(m_pCurvesConfig);
@@ -107,16 +107,18 @@ namespace DuiLib
 		limit(nCount, 6, PEN_SIZE);
 
 		COLORREF colors[] = {
-			RGB(45, 45, 45),
-			RGB(255, 0, 0),
-			RGB(0, 255, 0),
-			RGB(0, 0, 255),
-			RGB(240, 170, 30),
-			RGB(210, 210, 210),
-			RGB(10, 10, 10)
+			RGB(45, 45, 45),	//C
+			RGB(255, 0, 0),		//R
+			RGB(0, 255, 0),		//B
+			RGB(0, 0, 255),		//G
+			RGB(255,255,0),		//A
+			RGB(210, 210, 210),	//can kao
+			RGB(240, 170, 30),	//edge
+			RGB(10, 10, 10)		//point
 		};
 
-		const int widths[] = { 1, 1, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1 };
+		const int w = 2;
+		const int widths[] = { w, w, w, w, w, 1, 1, 4, w, w, w, w };
 		for (int i = 0; i <nCount; i++)
 		{
 			m_hPen[i] = ::CreatePen(PS_SOLID, widths[i], colors[i]);
@@ -198,7 +200,7 @@ namespace DuiLib
 			int y0 = m_rcBitmap.top;
 			int x1 = m_rcBitmap.right - 1;
 			int y1 = m_rcBitmap.bottom - 1;
-			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[4]);
+			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[6]);
 			::MoveToEx(hMemDC, x0, y0, NULL);
 			::LineTo(hMemDC, x1, y0);
 			::LineTo(hMemDC, x1, y1);
@@ -263,7 +265,7 @@ namespace DuiLib
 		}
 
 		{	//»­µã
-			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[6]);
+			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[7]);
 			SplineCurve* curve = m_pCurvesConfig->GetSplineCurve(nChannel);
 			for (int i = 0; i < curve->GetPointCount(); i++)
 			{
@@ -318,7 +320,7 @@ namespace DuiLib
 			}
 		}
 
-		m_nRightMost = 256;
+		m_nRightMost = m_nWidth;
 		for (int i = nSelectPoint + 1; i < m_nPointCount; i++)
 		{
 			curve->GetPoint(i, x, y);
@@ -446,13 +448,57 @@ namespace DuiLib
 
 	void CCurveUI::DoInit(void)
 	{
-		int size = 200;
-		auto uiSub = new CSubCurveUI(size, size);
+		//curve preset
+		RECT pos = { 0 };
+		int x = 10, y = 5, w = 200, h = 23;
+		auto cbUI = new CComboUI();
+		Add(cbUI);
+		pos = RECT{ x, y, x + w, y + h };
+		cbUI->SetName(_T("ctrl_curve_preset"));
+		cbUI->SetBkColor(RGB(30, 170, 240) | 0xff000000);
+		cbUI->SetFloat(true);
+		cbUI->SetPos(pos);
+
+		//SubCurveUI
+		x = 10, y = 33, w = 200, h = 200;
+		auto uiSub = new CSubCurveUI(w, h);
 		Add(uiSub);
-		RECT tmp = uiSub->GetPos();
-		RECT pos = { 10, 10, 10+size, 10+size };
+		pos = RECT{ x, y, x + w, y + h };
+		uiSub->SetName(_T("ctrl_sub_curve"));
 		uiSub->SetFloat(true);
 		uiSub->SetPos(pos);
+		//channel select
+		x = 10, y = 238, w = 120, h = 23;
+		cbUI = new CComboUI();
+		Add(cbUI);
+		pos = RECT{ x, y, x + w, y + h };
+		cbUI->SetName(_T("ctrl_curve_selchannel"));
+		cbUI->SetBkColor(RGB(30, 170, 240) | 0xff000000);
+		cbUI->SetFloat(true);
+		cbUI->SetPos(pos);
+		TCHAR name[64] = {0};
+		TCHAR* text[] = { _T("Color"), _T("Red"), _T("Green"), _T("Blue"), _T("Alpha") };
+		for (int i = 0; i < 5; i++)
+		{
+			_stprintf_s(name, _T("ctrl_curve_channle_option_%d"), i);
+			auto op = new CListLabelElementUI();
+			op->SetName(name);
+			op->SetText(text[i]);
+			cbUI->Add(op);
+			if (i == 0) op->Select(true);
+		}
+
+		//curves reset
+		x = 140, y = 238, w = 70, h = 23;
+		auto btn = new CButtonUI();
+		Add(btn);
+		pos = RECT{ x, y, x + w, y + h };
+		btn->SetName(_T("ctrl_curve_reset"));
+		btn->SetText(_T("Ä¬ÈÏ"));
+		btn->SetBkColor(RGB(30, 170, 240) | 0xff000000);
+		btn->SetFloat(true);
+		btn->SetPos(pos);
+
 		__super::DoInit();
 	}
 

@@ -174,7 +174,7 @@ namespace e
 		sampleCount = 0;
 		identity = false;
 		SetConfig(17, 256);
-		Calculate();
+		//Calculate();
 	}
 
 	SplineCurve::SplineCurve(int _pointCount, int _sampleCount)
@@ -185,7 +185,7 @@ namespace e
 		sampleCount = 0;
 		identity = false;
 		SetConfig(_pointCount, _sampleCount);
-		Calculate();
+		//Calculate();
 	}
 
 	SplineCurve::~SplineCurve(void)

@@ -15,9 +15,9 @@ using namespace e;
 void test_xbitmap(void)
 {
 	const char* fileName = "f:\\temp\\01.bmp";
-	AutoPtr<Beautify> bfy = new Beautify();
-	XBitmap<channel_t>* src = new XBitmap<channel_t>(fileName);
-	XBitmap<channel_t>* dst = new XBitmap<channel_t>(*src);
+	BeautifyPtr bfy = new Beautify();
+	BitmapPtr src = new Bitmap(fileName);
+	BitmapPtr dst = new Bitmap(*src);
 
 	bfy->Blur(dst->Ptr(0), src->Ptr(0), src->Width(), src->Height(), src->Channels());
 	dst->Save("f:\\temp\\06.bmp");

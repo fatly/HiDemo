@@ -2,6 +2,7 @@
 #define __LIBIM_BEAUTIFY_H__
 #include "Defines.h"
 #include "Object.h"
+#include "AutoPtr.h"
 
 namespace e
 {
@@ -27,6 +28,8 @@ namespace e
 		CurvesConfig* curves;
 		uint8 samples[256];
 	};
+
+	typedef AutoPtr<Beautify> BeautifyPtr;
 }
 
 #endif
