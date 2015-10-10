@@ -17,9 +17,9 @@ namespace e
 				uint8 B = *(p0 + 0);
 				uint8 G = *(p0 + 1);
 				uint8 R = *(p0 + 2);
-				int Y  = 0.299 * R + 0.587 * G + 0.114 * B;
-				int Cb = -0.1687 * R - 0.3313 * G + 0.5 * B + 128;
-				int Cr = 0.5 * R - 0.4187 * G - 0.0813 * B + 128;
+				int Y  = (int)(0.299 * R + 0.587 * G + 0.114 * B);
+				int Cb = (int)(-0.1687 * R - 0.3313 * G + 0.5 * B + 128);
+				int Cr = (int)(0.5 * R - 0.4187 * G - 0.0813 * B + 128);
 				*(p1 + 0) = clamp0255(Y);
 				*(p1 + 1) = clamp0255(Cb);
 				*(p1 + 2) = clamp0255(Cr);
@@ -46,9 +46,9 @@ namespace e
 				uint8 Cb = *(p0 + 1);
 				uint8 Cr = *(p0 + 2);
 
-				int R = Y + 1.402 * (Cr - 128);
-				int	G = Y - 0.34414 * (Cb - 128) - 0.71414 * (Cr - 128);
-				int	B = Y + 1.772 * (Cb - 128);
+				int R = (int)(Y + 1.402 * (Cr - 128));
+				int G = (int)(Y - 0.34414 * (Cb - 128) - 0.71414 * (Cr - 128));
+				int B = (int)(Y + 1.772 * (Cb - 128));
 
 				*(p1 + 0) = clamp0255(B);
 				*(p1 + 1) = clamp0255(G);

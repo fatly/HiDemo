@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MainFrame.h"
 #include "UICurve.h"
+#include "UIVideo.h"
 
 class CHiToolsBuilderCallback : public IDialogBuilderCallback
 {
@@ -10,6 +11,10 @@ public:
 		if (_tcscmp(pstrName, _T("Curve")) == 0)
 		{
 			return new CCurveUI();
+		}
+		else if (_tcscmp(pstrName, _T("Video")) == 0)
+		{
+			return new CVideoUI();
 		}
 
 		return NULL;

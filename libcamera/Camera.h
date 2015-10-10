@@ -1,7 +1,7 @@
 #ifndef __CORE_CAMERA_H__
 #define __CORE_CAMERA_H__
 
-#include "HandleDefs.h"
+#include "libcamdefs.h"
 
 namespace e
 {

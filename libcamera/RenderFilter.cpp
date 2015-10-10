@@ -17,6 +17,7 @@ namespace e
 		dataType = UNKNOWN;
 		width = 0;
 		height = 0;
+		bitCount = 32;
 		totalBytes = 0;
 		rgbBuffer = 0;
 		tmpBuffer = 0;
@@ -99,6 +100,7 @@ namespace e
 
 		width = ((VIDEOINFOHEADER*)mt->pbFormat)->bmiHeader.biWidth;
 		height = ((VIDEOINFOHEADER*)mt->pbFormat)->bmiHeader.biHeight;
+		//bitCount = ((VIDEOINFOHEADER*)mt->pbFormat)->bmiHeader.biBitCount;
 
 		SAFE_DELETE(rgbBuffer);
 		int size = width * height * 4;
@@ -144,18 +146,19 @@ namespace e
 		return S_OK;
 	}
 
-	void RenderFilter::GetSize(int & width, int & height)
+	void RenderFilter::GetSize(int & width, int & height, int &bitCount) const
 	{
 		width = this->width;
 		height = this->height;
+		bitCount = 32;
 	}
 
-	void RenderFilter::GetData(DataType & type, uchar* buffer, int & width, int & height)
+	void RenderFilter::GetData(DataType & type, uchar* buffer, int & width, int & height, int &bitCount) const
 	{
 		type = this->dataType;
 		width = this->width;
 		height = this->height;
-
+		bitCount = 32;
 		memcpy(buffer, rgbBuffer, totalBytes);
 	}
 }

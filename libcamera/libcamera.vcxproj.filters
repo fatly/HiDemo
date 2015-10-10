@@ -9,48 +9,58 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="UI">
-      <UniqueIdentifier>{a37cfbb1-b6dd-4c05-9974-25d343c6775d}</UniqueIdentifier>
+    <Filter Include="资源文件">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="libcamera.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="DShowHelp.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="HiTools.h">
+    <ClInclude Include="FFScale.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="MainFrame.h">
+    <ClInclude Include="FilterManager.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="UICurve.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="FrameCtrl.h">
+      <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="UIVideo.h">
-      <Filter>UI</Filter>
+    <ClInclude Include="RenderFilter.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="libcamdefs.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="DShowHelp.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="HiTools.cpp">
+    <ClCompile Include="FFScale.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="MainFrame.cpp">
+    <ClCompile Include="FilterManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="UICurve.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="FrameCtrl.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="UIVideo.cpp">
-      <Filter>UI</Filter>
+    <ClCompile Include="RenderFilter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

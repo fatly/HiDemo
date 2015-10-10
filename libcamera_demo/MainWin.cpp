@@ -3,6 +3,7 @@
 #include "Camera.h"
 #include "Beautify.h"
 #include "libutils.h"
+#include "libcamera.h"
 
 #define WIN_CLASS_NAME (TEXT("BeautifyClass"))
 

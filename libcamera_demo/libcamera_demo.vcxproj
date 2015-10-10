@@ -57,7 +57,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;FILTER_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)libstrmbase;$(SolutionDir)libutils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)libstrmbase;$(SolutionDir)libutils;$(SolutionDir)libcamera;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <MinimalRebuild>false</MinimalRebuild>
@@ -80,7 +80,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;FILTER_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>false</SDLCheck>
-      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)libstrmbase;$(SolutionDir)libutils;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)include;$(SolutionDir)libstrmbase;$(SolutionDir)libutils;$(SolutionDir)libcamera;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/D "_CRT_SECURE_NO_WARNINGS" %(AdditionalOptions)</AdditionalOptions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
@@ -98,38 +98,23 @@
   <ItemGroup>
     <ClCompile Include="Beautify.cpp" />
     <ClCompile Include="Bilateral.cpp" />
-    <ClCompile Include="BoxFilter.cpp" />
-    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="ColorSpace.cpp" />
     <ClCompile Include="Curve.cpp" />
-    <ClCompile Include="DShowHelp.cpp" />
     <ClCompile Include="Eclosion.cpp" />
     <ClCompile Include="FastBlur.cpp" />
-    <ClCompile Include="FFScale.cpp" />
-    <ClCompile Include="FilterManager.cpp" />
-    <ClCompile Include="FrameCtrl.cpp" />
     <ClCompile Include="Gaussian.cpp" />
     <ClCompile Include="libcamera_demo.cpp" />
     <ClCompile Include="MainWin.cpp" />
-    <ClCompile Include="RenderFilter.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Beautify.h" />
     <ClInclude Include="Bilateral.h" />
-    <ClInclude Include="BoxFilter.h" />
-    <ClInclude Include="Camera.h" />
     <ClInclude Include="ColorSpace.h" />
     <ClInclude Include="Curve.h" />
-    <ClInclude Include="DShowHelp.h" />
     <ClInclude Include="Eclosion.h" />
     <ClInclude Include="FastBlur.h" />
-    <ClInclude Include="FFScale.h" />
-    <ClInclude Include="FilterManager.h" />
-    <ClInclude Include="FrameCtrl.h" />
     <ClInclude Include="Gaussian.h" />
-    <ClInclude Include="HandleDefs.h" />
     <ClInclude Include="MainWin.h" />
-    <ClInclude Include="RenderFilter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

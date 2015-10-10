@@ -36,7 +36,7 @@ namespace e
 		radius = d / 2;
 		c_sigma = d / 2;
 		s_sigma = d * 2;
-		size[0] = 4096 * 3;
+		size[0] = 256 * 3;
 		size[1] = 2 * radius + 1;
 		s_table = new float[size[0]];
 		c_table = new float*[size[1]];
@@ -114,8 +114,8 @@ namespace e
 
 	void Bilateral::Process(uint8* dst, uint8* src, int width, int height, int bitCount, float sigma, int mode)
 	{
-		int lineBytes = WIDTHBYTES(width * bitCount);
 		int bpp = bitCount / 8;
+		int lineBytes = WIDTHBYTES(width*bitCount);
 
 		for (int y = 0; y < height; y++)
 		{
@@ -123,43 +123,31 @@ namespace e
 			uint8* d = dst + y * lineBytes;
 			for (int x = 0; x < width; x++)
 			{
-				int b0 = *(s + 0);
-				int g0 = *(s + 1);
-				int r0 = *(s + 2);
-
-				float csSum[3] = { 0.0f };
-				float pxSum[3] = { 0.0f };
-				int roffset = 0, coffset = 0;
+				int b0 = s[0], g0 = s[1], r0 = s[2];
+				float pxSum[3] = { 0 }, wSum = 0;
 				for (int j = -radius; j <= radius; j++)
 				{
-					roffset = max(0, min(y + j, height - 1));
+					int y1 = MAX(0, MIN(y + j, height - 1));
 					for (int i = -radius; i <= radius; i++)
 					{
-						coffset = max(0, min(x + i, width - 1));
-						uint8* p = src + roffset * lineBytes + coffset * bpp;
+						int x1 = MAX(0, MIN(x + i, width - 1));
+						uint8* p = src + y1 * lineBytes + x1 * bpp;
 
-						int b1 = *(p + 0);
-						int g1 = *(p + 1);
-						int r1 = *(p + 2);
-
-						float alpha = (abs(b1 - b0) + abs(g1 - g0) + abs(r1 - r0)) * scaleIndex;
-						int idx = (int)alpha;
-						alpha -= idx;
-						float w = c_table[j + radius][i + radius] * (s_table[idx] + alpha * (s_table[idx+1] - s_table[idx]));
-
-						csSum[0] += w;
-						csSum[1] += w;
-						csSum[2] += w;
+						int b1 = p[0], g1 = p[1], r1 = p[2];
+						int index = (abs(b1 - b0) + abs(g1 - g0) + abs(r1 - r0));
+						float w = c_table[j + radius][i + radius] * s_table[index];
 
 						pxSum[0] += (b1 * w);
 						pxSum[1] += (g1 * w);
 						pxSum[2] += (r1 * w);
+
+						wSum += w;
 					}
 				}
-
-				d[0] = clamp0255(pxSum[0] / csSum[0]);
-				d[1] = clamp0255(pxSum[1] / csSum[1]);
-				d[2] = clamp0255(pxSum[2] / csSum[2]);
+				wSum = 1.0f / wSum;
+				d[0] = clamp0255(pxSum[0] * wSum);
+				d[1] = clamp0255(pxSum[1] * wSum);
+				d[2] = clamp0255(pxSum[2] * wSum);
 
 				s += bpp;
 				d += bpp;

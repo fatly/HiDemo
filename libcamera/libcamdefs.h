@@ -1,5 +1,5 @@
-#ifndef __CORE_HANDLEDEFS_H__
-#define __CORE_HANDLEDEFS_H__
+#ifndef __CORE_LIBCAMDEFS_H__
+#define __CORE_LIBCAMDEFS_H__
 
 #include "Defines.h"
 #include <tchar.h>

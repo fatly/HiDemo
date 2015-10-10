@@ -3,6 +3,14 @@
 #include "MainWin.h"
 #include <windows.h>
 
+#ifdef _DEBUG
+#pragma comment(lib, "libutilsd.lib")
+#pragma comment(lib, "libcamerad.lib")
+#else
+#pragma comment(lib, "libutils.lib")
+#pragma comment(lib, "libcamera.lib")
+#endif
+
 using namespace e;
 
 int main(int argc, char* argv[])

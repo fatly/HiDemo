@@ -76,14 +76,12 @@ namespace e
 
 	void Camera::_FormatHandle(void* param, TCHAR* type, int width, int height)
 	{
-		Camera* p = (Camera*)param;
-		p->FormatHandle(type, width, height);
+		static_cast<Camera*>(param)->FormatHandle(type, width, height);
 	}
 
 	void Camera::_SampleHandle(void* param, uchar* buffer, int width, int height, int bitCount)
 	{
-		Camera* p = (Camera*)param;
-		p->SampleHandle(buffer, width, height, bitCount);
+		static_cast<Camera*>(param)->SampleHandle(buffer, width, height, bitCount);
 	}
 }
 

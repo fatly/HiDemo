@@ -15,22 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="DShowHelp.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="libcamera_demo.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderFilter.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FFScale.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FilterManager.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Gaussian.cpp">
@@ -42,13 +27,7 @@
     <ClCompile Include="MainWin.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="ColorSpace.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="Curve.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="FrameCtrl.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FastBlur.cpp">
@@ -60,29 +39,11 @@
     <ClCompile Include="Bilateral.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="BoxFilter.cpp">
+    <ClCompile Include="ColorSpace.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Camera.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="DShowHelp.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderFilter.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FFScale.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="HandleDefs.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FilterManager.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Gaussian.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -92,13 +53,7 @@
     <ClInclude Include="MainWin.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ColorSpace.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Curve.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="FrameCtrl.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="FastBlur.h">
@@ -110,7 +65,7 @@
     <ClInclude Include="Bilateral.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="BoxFilter.h">
+    <ClInclude Include="ColorSpace.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
