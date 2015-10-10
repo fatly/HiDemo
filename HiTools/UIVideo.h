@@ -4,7 +4,7 @@ namespace DuiLib
 {
 #define _THREAD_SAFE 1
 
-	class CVideoUI : public CControlUI
+	class CVideoUI : public CControlUI, public Camera
 	{
 	public:
 		CVideoUI();
@@ -16,6 +16,9 @@ namespace DuiLib
 		void SetVideo(BYTE* pData, int nWidth, int nHeight, int nBitCount);
 		virtual void DoEvent(TEventUI& event);
 		virtual void DoPaint(HDC hDC, const RECT& rcPaint);
+	private:
+		virtual void FormatHandle(TCHAR* type, int width, int height);
+		virtual void SampleHandle(uchar* buffer, int width, int height, int bitCount);
 	private:
 		BYTE*	m_pBits;
 		DWORD	m_dwSize;

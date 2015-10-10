@@ -10,7 +10,6 @@ namespace DuiLib
 		m_dwSize = 0;
 		m_nWidth = 0;
 		m_nHeight = 0;
-
 		memset(&m_rcBitmap, 0, sizeof(m_rcBitmap));
 		memset(&m_rcCorners, 0, sizeof(m_rcCorners));
 #if _THREAD_SAFE
@@ -25,6 +24,7 @@ namespace DuiLib
 			::DeleteObject(m_hBitmap);
 			m_hBitmap = NULL;
 		}
+
 #if _THREAD_SAFE
 		::DeleteCriticalSection(&m_csLock);
 #endif
@@ -136,6 +136,20 @@ namespace DuiLib
 
 	void CVideoUI::DoEvent(TEventUI& event)
 	{
+		if (event.Type == UIEVENT_KEYDOWN)
+		{
+			static bool flag = false;
+			if (!flag)
+			{
+				Start();
+			}
+			else
+			{
+				Stop();
+			}
+			flag = !flag;
+		}
+
 		return CControlUI::DoEvent(event);
 	}
 
@@ -191,5 +205,18 @@ namespace DuiLib
 		{
 			CControlUI::DoPaint(hDC, rcPaint);
 		}
+	}
+
+	void CVideoUI::FormatHandle(TCHAR* type, int width, int height)
+	{
+		//TODO:
+
+		//Camera::FormatHandle(type, width, height);
+	}
+
+	void CVideoUI::SampleHandle(uchar* buffer, int width, int height, int bitCount)
+	{
+		SetVideo(buffer, width, height, bitCount);
+		NeedUpdate();
 	}
 }

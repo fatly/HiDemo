@@ -25,6 +25,8 @@
 // TODO:  在此处引用程序需要的其他头文件
 #include "libutils.h"
 #include "libim.h"
+#include "libcamera.h"
+#include "streams.h"
 using namespace e;
 
 #include "UIlib.h"
@@ -35,9 +37,13 @@ using namespace DuiLib;
 #	pragma comment(lib, "libutilsd.lib")
 #	pragma comment(lib, "libimd.lib")
 //#	pragma comment(lib, "zlibd.lib")
+#	pragma comment(lib, "libstrmbased.lib")
+#	pragma comment(lib, "libcamerad.lib")
 #else
 #	pragma comment(lib, "libdui.lib")
 #	pragma comment(lib, "libutils.lib")
 #	pragma comment(lib, "libim.lib")
 //#	pragma comment(lib, "zlib.lib")
+#	pragma comment(lib, "libstrmbase.lib")
+#	pragma comment(lib, "libcamera.lib")
 #endif
