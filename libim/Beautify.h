@@ -14,6 +14,7 @@ namespace e
 	public:
 		Beautify(void);
 		virtual ~Beautify(void);
+		void Process(void* dst, void* src, int width, int height, int channels);
 	public:
 		void Blur(void* dst, void* src, int width, int height, int channels);
 		void HighPass(void* dst, void* src, int width, int height, int channels);

@@ -12,6 +12,7 @@ namespace DuiLib
 		m_nHeight = 0;
 		memset(&m_rcBitmap, 0, sizeof(m_rcBitmap));
 		memset(&m_rcCorners, 0, sizeof(m_rcCorners));
+
 #if _THREAD_SAFE
 		::InitializeCriticalSection(&m_csLock);
 #endif

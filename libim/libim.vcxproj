@@ -96,6 +96,7 @@
     <ClCompile Include="Bilateral.cpp" />
     <ClCompile Include="Blender.cpp" />
     <ClCompile Include="BlurFilter.cpp" />
+    <ClCompile Include="ColorSpace.cpp" />
     <ClCompile Include="CurvesConfig.cpp" />
     <ClCompile Include="Gaussian.cpp" />
   </ItemGroup>
@@ -105,6 +106,7 @@
     <ClInclude Include="Bilateral.h" />
     <ClInclude Include="Blender.h" />
     <ClInclude Include="BlurFilter.h" />
+    <ClInclude Include="ColorSpace.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="CurvesConfig.h" />
     <ClInclude Include="BaseFilter.h" />
