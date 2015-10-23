@@ -42,13 +42,13 @@ namespace e
 		int videoHeight;
 		int frameRate;
 		bool isStarted;
-
+		//video sample callback
 		SampleHanlde fnSampleHandle;
 		void* fnSampleParam;
-
+		//vidoe format callback
 		FormatHandle fnFormatHandle;
 		void* fnFormatParam;
-
+		//vidoe device enum callback
 		DeviceHandle fnDeviceHandle;
 		void* fnDeviceParam;
 	};

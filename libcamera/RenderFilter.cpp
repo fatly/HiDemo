@@ -24,12 +24,9 @@ namespace e
 		startTime = -1;
 		endTime = -1;
 		isSuport = false;
-
-		ffscaler.SetAttribute(SWS_PF_BGR24, SWS_PF_RGBA, SWS_SA_BILINEAR);
-
 		fnSampleHandle = 0;
 		fnSampleParam = 0;
-
+		ffscaler.SetAttribute(SWS_PF_BGR24, SWS_PF_RGBA, SWS_SA_BILINEAR);
 		fps = new CFrameCtrl();
 		fps->SetFramePerSecond(15);
 	}
@@ -128,14 +125,15 @@ namespace e
 
 		if (fnSampleHandle)
 		{
+			int lineBytes = WIDTHBYTES(KOutputVideoWidth * KOutputVideoBitCount);
 			if (dataType == YUY2)
-			{
-				ffscaler.Scale(buffer, width, height, width * 2, rgbBuffer, 480, 360, 480 * 4);
+			{				
+				ffscaler.Scale(buffer, width, height, width * 2, rgbBuffer, KOutputVideoWidth, KOutputVideoHeight, lineBytes);
 				buffer = rgbBuffer;
 			}
 
-			totalBytes = 480 * 360 * 4;
-			fnSampleHandle(fnSampleParam, buffer, 480, 360, 32);
+			totalBytes = KOutputVideoHeight * lineBytes;
+			fnSampleHandle(fnSampleParam, buffer, totalBytes, KOutputVideoWidth, KOutputVideoHeight, KOutputVideoBitCount);
 		}
 		else
 		{
@@ -150,7 +148,7 @@ namespace e
 	{
 		width = this->width;
 		height = this->height;
-		bitCount = 32;
+		bitCount = KOutputVideoBitCount;
 	}
 
 	void RenderFilter::GetData(DataType & type, uchar* buffer, int & width, int & height, int &bitCount) const
@@ -158,7 +156,7 @@ namespace e
 		type = this->dataType;
 		width = this->width;
 		height = this->height;
-		bitCount = 32;
+		bitCount = KOutputVideoBitCount;
 		memcpy(buffer, rgbBuffer, totalBytes);
 	}
 }

@@ -19,8 +19,8 @@ namespace e
 		filterManager->SetDeviceName(deviceName);
 		filterManager->SetFrameRate(15);
 		filterManager->SetVideoSize(VIDEO_WIDTH, VIDEO_HEIGHT);
-		filterManager->SetHandle(&Camera::_SampleHandle, this, HANDLE_TYPE_SAMPLE);
-		filterManager->SetHandle(&Camera::_FormatHandle, this, HANDLE_TYPE_FORMAT);
+		filterManager->SetHandle(&Camera::SampleProxy, this, HANDLE_TYPE_SAMPLE);
+		filterManager->SetHandle(&Camera::FormatProxy, this, HANDLE_TYPE_FORMAT);
 	}
 
 	Camera::~Camera(void)
@@ -59,14 +59,14 @@ namespace e
 		filterManager->GetFormat();
 	}
 
-	void Camera::FormatHandle(TCHAR* type, int width, int height)
+	void Camera::OnVideoFormat(TCHAR* type, int width, int height)
 	{
 		TCHAR buffer[256] = { 0 };
 		_stprintf_s(buffer, _T("camera : type=%s,w=%d,h=%d\n"), type, width, height);
 		OutputDebugString(buffer);
 	}
 
-	void Camera::SampleHandle(uchar* buffer, int width, int height, int bitCount)
+	void Camera::OnVideoSample(uchar* buffer, int size, int width, int height, int bitCount)
 	{
 		static int count = 0; 
 		TCHAR buf[256] = { 0 };
@@ -74,14 +74,14 @@ namespace e
 		OutputDebugString(buf);
 	}
 
-	void Camera::_FormatHandle(void* param, TCHAR* type, int width, int height)
+	void Camera::FormatProxy(void* param, TCHAR* type, int width, int height)
 	{
-		static_cast<Camera*>(param)->FormatHandle(type, width, height);
+		static_cast<Camera*>(param)->OnVideoFormat(type, width, height);
 	}
 
-	void Camera::_SampleHandle(void* param, uchar* buffer, int width, int height, int bitCount)
+	void Camera::SampleProxy(void* param, uchar* buffer, int size, int width, int height, int bitCount)
 	{
-		static_cast<Camera*>(param)->SampleHandle(buffer, width, height, bitCount);
+		static_cast<Camera*>(param)->OnVideoSample(buffer, size, width, height, bitCount);
 	}
 }
 

@@ -39,8 +39,8 @@ namespace e
 		virtual HRESULT CheckMediaType(const CMediaType* mt);
 		virtual HRESULT DoRenderSample(IMediaSample* sample);
 
-		void GetSize(int & width, int & height, int &bitCount) const;
-		void GetData(DataType & type, uchar* buffer, int & width, int & height, int &bitCount) const;
+		void GetSize(int &width, int &height, int &bitCount) const;
+		void GetData(DataType &type, uchar* buffer, int &width, int &height, int &bitCount) const;
 
 		void SetSampleHandle(SampleHanlde fnHandle, void* param)
 		{

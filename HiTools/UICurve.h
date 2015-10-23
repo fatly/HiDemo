@@ -17,6 +17,7 @@ namespace DuiLib
 		virtual void DoInit(void) override;
 		virtual void DoPaint(HDC hDC, const RECT& rcPaint) override;
 		virtual void DoEvent(TEventUI& event) override;
+		void SetLineWidth(int nLineWidth);
 	protected:
 		bool SetSize(int nWidth, int nHeight);
 		bool CreatePens(int nCount);
@@ -39,6 +40,8 @@ namespace DuiLib
 		int	m_nLeftMost;
 		int	m_nRightMost;
 		bool m_bCapture;
+
+		int m_nLineWidth;
 	};
 
 	class CCurveUI : public CContainerUI//CVerticalLayoutUI

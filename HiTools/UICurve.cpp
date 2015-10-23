@@ -35,6 +35,7 @@ namespace DuiLib
 		m_nSelectPoint = -1;
 		m_nLeftMost = 0;
 		m_nRightMost = 0;
+		m_nLineWidth = 1;
 		memset(&m_rcBitmap, 0, sizeof(m_rcBitmap));
 		memset(&m_rcCorners, 0, sizeof(m_rcCorners));
 		memset(&m_hPen, 0, sizeof(HPEN) * PEN_SIZE);
@@ -64,6 +65,11 @@ namespace DuiLib
 		{
 			return CControlUI::GetInterface(pstrName);
 		}
+	}
+
+	void CSubCurveUI::SetLineWidth(int nLineWidth)
+	{
+		m_nLineWidth = nLineWidth;
 	}
 
 	bool CSubCurveUI::SetSize(int nWidth, int nHeight)
@@ -106,7 +112,7 @@ namespace DuiLib
 	{
 		limit(nCount, 6, PEN_SIZE);
 
-		COLORREF colors[] = {
+		COLORREF clrPenColors[] = {
 			RGB(45, 45, 45),	//C
 			RGB(255, 0, 0),		//R
 			RGB(0, 255, 0),		//B
@@ -117,11 +123,11 @@ namespace DuiLib
 			RGB(10, 10, 10)		//point
 		};
 
-		const int w = 2;
-		const int widths[] = { w, w, w, w, w, 1, 1, 4, w, w, w, w };
+		const int w = m_nLineWidth;
+		const int nPenWidths[] = { w, w, w, w, w, 1, 1, 4, w, w, w, w };
 		for (int i = 0; i <nCount; i++)
 		{
-			m_hPen[i] = ::CreatePen(PS_SOLID, widths[i], colors[i]);
+			m_hPen[i] = ::CreatePen(PS_SOLID, nPenWidths[i], clrPenColors[i]);
 			assert(m_hPen[i] != NULL);
 			if (m_hPen[i] == NULL) return false;
 		}
@@ -195,7 +201,8 @@ namespace DuiLib
 		int h = m_nHeight;
 		int nChannel = m_pCurvesConfig->GetSelectIndex();
 
-		{	//画边框
+		//画边框
+		{	
 			int x0 = m_rcBitmap.left;
 			int y0 = m_rcBitmap.top;
 			int x1 = m_rcBitmap.right - 1;
@@ -208,8 +215,9 @@ namespace DuiLib
 			::LineTo(hMemDC, x0, y0);
 			::SelectObject(hMemDC, hOldPen);
 		}
-		
-		{	//画没选中的B线
+
+		//画没选中的B线
+		{	
 			for (int c = CURVE_CHANNEL_A; c >= CURVE_CHANNEL_C; c--)
 			{
 				HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[c]);
@@ -230,7 +238,8 @@ namespace DuiLib
 			}
 		}
 
-		{	//画参考线
+		//画参考线
+		{	
 			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[5]);
 			SplineCurve* curve = m_pCurvesConfig->GetSplineCurve(5);
 
@@ -247,7 +256,8 @@ namespace DuiLib
 			::SelectObject(hMemDC, hOldPen);
 		}
 
-		{	//画选中的B线
+		//画选中的B线
+		{	
 			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[nChannel]);
 			SplineCurve* curve = m_pCurvesConfig->GetSplineCurve(nChannel);
 
@@ -264,7 +274,8 @@ namespace DuiLib
 			::SelectObject(hMemDC, hOldPen);
 		}
 
-		{	//画点
+		//画点
+		{	
 			HPEN hOldPen = (HPEN)::SelectObject(hMemDC, m_hPen[7]);
 			SplineCurve* curve = m_pCurvesConfig->GetSplineCurve(nChannel);
 			for (int i = 0; i < curve->GetPointCount(); i++)

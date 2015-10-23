@@ -17,12 +17,12 @@ namespace e
 		void Stop(void);
 		bool Restart(void);
 		void GetFormat(void);
-		virtual void FormatHandle(TCHAR* type, int width, int height);
-		virtual void SampleHandle(uchar* buffer, int width, int height, int bitCount);
-	private:
-		static void _FormatHandle(void* param, TCHAR* type, int width, int height);
-		static void _SampleHandle(void* param, uchar* buffer, int width, int height, int bitCount);
-	private:
+		virtual void OnVideoFormat(TCHAR* type, int width, int height);
+		virtual void OnVideoSample(uchar* buffer, int size, int width, int height, int bitCount);
+	protected:
+		static void FormatProxy(void* param, TCHAR* type, int width, int height);
+		static void SampleProxy(void* param, uchar* buffer, int size, int width, int height, int bitCount);
+	protected:
 		FilterManager* filterManager;
 	};
 }

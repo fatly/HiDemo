@@ -88,22 +88,20 @@ namespace e
 		videoCapture = 0;
 		videoDecoder = 0;
 		videoRender = 0;
-		videoWidth = 640;
-		videoHeight = 480;
+		videoWidth = KOutputVideoWidth;
+		videoHeight = KOutputVideoHeight;
 		frameRate = 25;
 		isStarted = false;
 
-		dataType = new TCHAR[MAX_PATH];
-		memset(dataType, 0, sizeof(TCHAR) * MAX_PATH);
-
-		deviceName = new TCHAR[MAX_PATH];
-		memset(deviceName, 0, sizeof(TCHAR) * MAX_PATH);
-
 		fnSampleHandle = 0;
 		fnSampleParam = 0;
-
 		fnFormatHandle = 0;
 		fnFormatParam = 0;
+
+		dataType = new TCHAR[MAX_PATH];
+		memset(dataType, 0, sizeof(TCHAR) * MAX_PATH);
+		deviceName = new TCHAR[MAX_PATH];
+		memset(deviceName, 0, sizeof(TCHAR) * MAX_PATH);
 	}
 
 	FilterManager::~FilterManager(void)
@@ -158,10 +156,7 @@ namespace e
 		if (FAILED(hr)) return hr;
 
 		videoRender = new RenderFilter(_T("Video Render Filter"), NULL, &hr);
-		if (videoRender == 0)
-		{
-			return E_FAIL;
-		}
+		if (videoRender == 0) return E_FAIL;
 		if (FAILED(hr)) hr;
 
 		videoRender->AddRef();
@@ -450,7 +445,6 @@ namespace e
 				memset(type, 0, sizeof(TCHAR)*MAX_PATH);
 				int width = ((VIDEOINFOHEADER*)(mt)->pbFormat)->bmiHeader.biWidth;
 				int height = ((VIDEOINFOHEADER*)(mt)->pbFormat)->bmiHeader.biHeight;
-
 				if (width <= 0 || height <= 0) continue;
 
 				GetMediaType(type, mt->subtype);

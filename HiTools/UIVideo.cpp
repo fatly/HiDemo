@@ -66,7 +66,7 @@ namespace DuiLib
 		BYTE* pBits = NULL;
 		HBITMAP hBitmap = ::CreateDIBSection(NULL, &bmi, DIB_RGB_COLORS, (void**)&pBits, NULL, 0);
 		if (hBitmap == INVALID_HANDLE_VALUE) return false;
-
+		//set color black
 		memset(pBits, 0, dwSizeImage);
 
 		m_pBits = pBits;
@@ -208,14 +208,14 @@ namespace DuiLib
 		}
 	}
 
-	void CVideoUI::FormatHandle(TCHAR* type, int width, int height)
+	void CVideoUI::OnVideoFormat(TCHAR* type, int width, int height)
 	{
 		//TODO:
 
 		//Camera::FormatHandle(type, width, height);
 	}
 
-	void CVideoUI::SampleHandle(uchar* buffer, int width, int height, int bitCount)
+	void CVideoUI::OnVideoSample(uchar* buffer, int size, int width, int height, int bitCount)
 	{
 		SetVideo(buffer, width, height, bitCount);
 		NeedUpdate();
