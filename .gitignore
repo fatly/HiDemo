@@ -22,6 +22,8 @@
 /lib/libsoundtouch.lib
 /lib/libimd.lib
 /lib/libim.lib
+/lib/libcamerad.lib
+/lib/libcamera.lib
 *.suo
 *.sdf
 *.opensdf
