@@ -54,6 +54,7 @@ namespace e
 	String GetOSErrorText(void);
 	//–¥»’÷æ
 	bool WriteLog(const String & category, const String & text);
+	bool WriteLog(const String & category, const TCHAR* format, ...);
 
 #define THROW(msg) throw(e::Exception((msg), __FILE__, __LINE__))
 }

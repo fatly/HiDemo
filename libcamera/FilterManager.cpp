@@ -146,7 +146,6 @@ namespace e
 
 		hr = graphBuilder->AddFilter(videoCapture, _T("Video Capture Filter"));
 		if (FAILED(hr)) return hr;
-
 		videoCapture->AddRef();
 
 		hr = SetFrameRate();
@@ -171,7 +170,7 @@ namespace e
 			hr = CoCreateInstance(CLSID_MjpegDec, NULL, CLSCTX_INPROC, IID_IBaseFilter, (void**)&videoDecoder);
 			if (FAILED(hr)) return hr;
 
-			hr = graphBuilder->AddFilter(videoDecoder, TEXT("decompression"));
+			hr = graphBuilder->AddFilter(videoDecoder, TEXT("Video Decoder"));
 			if (FAILED(hr)) return hr;
 
 			hr = captureGraphBuilder2->RenderStream(&PIN_CATEGORY_CAPTURE

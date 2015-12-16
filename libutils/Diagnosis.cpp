@@ -57,12 +57,10 @@ namespace e
 		_file(file),
 		_line(line)
 	{
-
 	}
 
 	Exception::~Exception(void)
 	{
-
 	}
 
 	String Exception::GetText(void)
@@ -87,8 +85,20 @@ namespace e
 
 	bool WriteLog(const String & category, const String & text)
 	{
-
+#ifdef _DEBUG
+		String msg = category + TEXT(":") + text + TEXT("\n");
+		OutputDebugString(msg.c_str());
+#endif
 		return true;
+	}
+
+	bool WriteLog(const String & category, const TCHAR* format, ...)
+	{
+		va_list argptr;
+		va_start(argptr, format);
+		String text = String::Format(format, argptr);
+		va_end(argptr);
+		return WriteLog(category, text);
 	}
 }
 	//////////////////////////////////////////////////////////////////////////

@@ -37,7 +37,7 @@ namespace e
 			{
 				VARIANT var;
 				var.vt = VT_BSTR;
-				hr = pBag->Read(L"CLSID", &var, NULL);
+				hr = pBag->Read(_T("CLSID"), &var, NULL);
 				if (SUCCEEDED(hr))
 				{
 					CLSID clsid = { 0 };
